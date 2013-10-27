@@ -153,12 +153,14 @@ namespace MusicFmApplication
 
         public MediaElement Player { get; private set; }
 
-        private readonly MainViewModel ViewModel;
+        private readonly MainViewModel viewModel;
 
-        public MediaManager(MainViewModel viewModel) 
+        private List<TimeSpan> lrcKeys=new List<TimeSpan>(); 
+
+        public MediaManager(MainViewModel viewModel)
         {
-            ViewModel = viewModel;
-            Volume = 0.8;
+            this.viewModel = viewModel;
+            Volume = 0.08;
             PlayerControl();
 
             PausePlayerCommand = new DelegateCommand(PausePlayerExecute);
@@ -167,13 +169,15 @@ namespace MusicFmApplication
         }
 
         private void PlayerControl() {
-            Player = ViewModel.MainWindow.Player;
+            Player = viewModel.MainWindow.Player;
             Player.MediaOpened += PlayerMediaOpened;
         }
 
         private void PlayerMediaOpened(object sender, RoutedEventArgs e)
         {
             IsPlaying = true;
+            lrcKeys = viewModel.Lyric.Content.Keys.ToList();
+                viewModel.MainWindow.LrcContaner.ScrollToTop();
             var player = (MediaElement)sender;
             SongLength = player.NaturalDuration.TimeSpan;
             var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(300)};
@@ -185,10 +189,26 @@ namespace MusicFmApplication
         {
             Position = Player.Position;
             DownloadProgress = Player.DownloadProgress;
+            viewModel.IsGettingSong = Player.IsBuffering;
             PlayProgress = Position.TotalMilliseconds/SongLength.TotalMilliseconds;
             if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 300)
-                ViewModel.NextSongCommand.Execute();
-            ViewModel.IsGettingSong = Player.IsBuffering;
+            {
+                viewModel.NextSongCommand.Execute();
+                return;
+            }
+            //Lrc control
+            if (viewModel.Lyric.Content.Any())
+            {
+                var nextIndex = viewModel.CurrnetLrcLine.Key + 1;
+                if (nextIndex >= lrcKeys.Count) return;
+                var nextTime = lrcKeys[nextIndex];
+                if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + viewModel.Lyric.Offset)
+                {
+                    viewModel.CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex,nextTime);
+                    if (nextIndex > 3)
+                        viewModel.MainWindow.LrcContaner.LineDown();
+                }
+            }
         }
     }
 }

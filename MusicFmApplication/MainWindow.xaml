@@ -38,6 +38,7 @@
             <cvt:NumberToVisibilityConverter x:Key="Num2Visbility"/>
             <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
             <cvt:MultiplyNumber x:Key="MultiplyNum"/>
+            <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -204,7 +205,7 @@
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
-            <RowDefinition Height="3.5*"/>
+            <RowDefinition Height="4*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="2"/>
             <RowDefinition Height="40"/>
@@ -255,16 +256,44 @@
                         </Image>
                     </cc:ImageButton.Image>
                 </cc:ImageButton>
-                <Grid Background="#CC000000" Visibility="{Binding IsDisylayLyric, Converter={StaticResource Bool2Visbility}}">
-                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}"
-                                    Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=Width}"
-                                    Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=Height}">
-                        hello
-                    </cc:ImageButton>
-                </Grid>
+                <cc:ImageButton Visibility="{Binding IsDisylayLyric, Converter={StaticResource Bool2Visbility}}"
+                                Command="{Binding ToggleLyricDisplayCommand}">
+                    <Grid Background="#CC000000" 
+                          Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
+                          Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
+                        <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False"
+                                      HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+                            <ItemsControl ItemsSource="{Binding Path=Lyric.Content}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel IsItemsHost="True" Orientation="Vertical" HorizontalAlignment="Center"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock TextAlignment="Center"  TextWrapping="Wrap" Margin="10,3" Text="{Binding Value}" >
+                                            <TextBlock.Foreground>
+                                                <MultiBinding Converter="{StaticResource LrcHighLight}">
+                                                    <Binding Path="Key"/>
+                                                    <Binding ElementName="Root" Path="ViewModel.CurrnetLrcLine.Value"/>
+                                                </MultiBinding>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </cc:ImageButton>
             </Grid>
             <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,8,0,3" />
-            <TextBlock Text="{Binding CurrentSong.AlbumTitle}" FontSize="10"/>
+            <TextBlock FontSize="11"
+                       Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
+                <Run Text="{Binding Path=CurrentSong.Artist}"/>
+                <Run Text=" &lt;"/>
+                <Run Text="{Binding CurrentSong.AlbumTitle}"/>
+                <Run Text="&gt;"/>
+            </TextBlock>
         </StackPanel>
         <Grid Grid.Row="2"
               IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">

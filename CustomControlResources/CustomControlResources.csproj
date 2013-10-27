@@ -50,6 +50,7 @@
     <Compile Include="ColorlizeImage.xaml.cs">
       <DependentUpon>ColorlizeImage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converter\LyricHighLightConverter.cs" />
     <Compile Include="Converter\NumberToVisibilityConverter.cs" />
     <Compile Include="Converter\InverseBoolConverter.cs" />
     <Compile Include="Converter\InverseBoolToVisibilityConverter.cs" />

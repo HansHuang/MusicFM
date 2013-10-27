@@ -78,17 +78,16 @@ namespace MusicFmApplication
 
         #region SongList (INotifyPropertyChanged Property)
 
-        private ObservableCollection<Song> _SongList;
+        private ObservableCollection<Song> _songList;
 
         public ObservableCollection<Song> SongList
         {
-            get { return _SongList ?? (_SongList = new ObservableCollection<Song>()); }
+            get { return _songList ?? (_songList = new ObservableCollection<Song>()); }
             set
             {
-                if (_SongList != null && _SongList.Equals(value)) return;
-                _SongList = value;
+                if (_songList != null && _songList.Equals(value)) return;
+                _songList = value;
                 RaisePropertyChanged("SongList");
-
             }
         }
 
@@ -160,6 +159,44 @@ namespace MusicFmApplication
         }
         #endregion
 
+        #region Lyric (INotifyPropertyChanged Property)
+
+        private SongLyric _lyric;
+
+        public SongLyric Lyric
+        {
+            get { return _lyric; }
+            set
+            {
+                if (_lyric != null && _lyric.Equals(value)) return;
+                _lyric = value;
+                RaisePropertyChanged("Lyric");
+            }
+        }
+
+        #endregion
+
+        #region CurrnetLrcLine (INotifyPropertyChanged Property)
+
+        #region CurrnetLrcLine (INotifyPropertyChanged Property)
+
+        private KeyValuePair<int,TimeSpan> _CurrnetLrcLine;
+
+        public KeyValuePair<int,TimeSpan> CurrnetLrcLine
+        {
+            get { return _CurrnetLrcLine; }
+            set
+            {
+                if (_CurrnetLrcLine.Equals(value)) return;
+                _CurrnetLrcLine = value;
+                RaisePropertyChanged("CurrnetLrcLine");
+            }
+        }
+
+        #endregion
+
+        #endregion
+
         #endregion
 
         #region Private Properties
@@ -179,15 +216,24 @@ namespace MusicFmApplication
         #endregion
 
         public DelegateCommand NextSongCommand { get; private set; }
-        private void NextSongExecute() 
+        private void NextSongExecute()
         {
-            var index = SongList.IndexOf(CurrentSong) + 1;
+            var index = CurrentSong == null ? 0 : SongList.IndexOf(CurrentSong) + 1;
             //Get song list before last 2 songs
             if (index+2 >= SongList.Count) GetSongs();
             if (index >= SongList.Count) return;
+            //Set current song & playing
             CurrentSong = SongList[index];
             if (!MediaManager.IsPlaying)
                 MediaManager.StartPlayerCommand.Execute();
+            //Set&Get song lyric
+            Lyric = new SongLyric
+                {
+                    Title = CurrentSong.Title,
+                    Album = CurrentSong.AlbumTitle,
+                    Artist = CurrentSong.Artist
+                };
+            GetLyric();
         }
 
         public DelegateCommand ToggleLyricDisplayCommand { get; private set; }
@@ -250,6 +296,7 @@ namespace MusicFmApplication
             IsGettingSong = true;
             Task.Factory.StartNew(() =>
             {
+                //Get Song List
                 var exitingIds = SongList.Select(s => s.Sid);
                 var songs = SongService.GetSongList().Where(s => !exitingIds.Contains(s.Sid)).ToList();
                 if (!songs.Any())
@@ -257,18 +304,31 @@ namespace MusicFmApplication
                     GetSongs();
                     return;
                 }
-
+                //Notify song list back to the main thread
                 MainWindow.Dispatcher.BeginInvoke((Action)(() =>
                     {
                         songs.ForEach(s => SongList.Add(s));
                         if (CurrentSong == null)
-                        {
-                            CurrentSong = SongList.First();
-                            MediaManager.StartPlayerCommand.Execute();
-                        }
+                            NextSongCommand.Execute();
                         IsGettingSong = false;
                     }));
             });
+        }
+
+        private void GetLyric()
+        {
+            Task.Factory.StartNew(() =>
+                {
+                    var lrc = SongLyricHelper.GetSongLyric(CurrentSong.Title, CurrentSong.Artist);
+                    if (lrc == null) return;
+                    MainWindow.Dispatcher.BeginInvoke((Action) (() =>
+                        {
+                            if (!lrc.Content.Any()) return;
+                            Lyric = lrc;
+                            var firstLine = lrc.Content.First();
+                            CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, firstLine.Key);
+                        }));
+                });
         }
 
     }
