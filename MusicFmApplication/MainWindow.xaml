@@ -1,0 +1,436 @@
+﻿<metro:MetroWindow x:Class="MusicFmApplication.MainWindow"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                   xmlns:behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
+                   xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+                   xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
+                   xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
+                   x:Name="Root"
+                   Icon="{DynamicResource LogoIco32}"
+                   Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
+                   ResizeMode="CanMinimize"
+                   Height="480"  Width="320">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro.Resources;component/Icons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/WeatherImagesResource.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/StyleResource.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <cvt:WeatherImageSourceConverter x:Key="Num2Image" />
+            <cvt:NullToBoolConverter x:Key="Null2Bool"/>
+            <cvt:InverseNullToVisibilityConveter x:Key="IvsNull2Vsby"/>
+            <cvt:NullToVisibility x:Key="Null2Vsby"/>
+            <cvt:InverseBoolConverter x:Key="IvsBool"/>
+            <BooleanToVisibilityConverter x:Key="Bool2Visbility"/>
+            <cvt:InverseBoolToVisibilityConverter x:Key="IvsBooltVsby"/>
+            <cvt:TimeSpanToStringConverter x:Key="Time2Str"/>
+            <cvt:NumberToVisibilityConverter x:Key="Num2Visbility"/>
+            <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
+            <cvt:MultiplyNumber x:Key="MultiplyNum"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <metro:MetroWindow.WindowCommands>
+        <metro:WindowCommands DataContext="{Binding ElementName=Root}">
+            <Button Command="{Binding ViewModel.GetWeatherDetailCommmand}">
+                <Button.Content>
+                    <Image ToolTip="{Binding Path=ViewModel.Weather.WeatherImageTitle}">
+                        <Image.Source>
+                            <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="S">
+                                <Binding Path="ViewModel.Weather.WeatherImage"/>
+                                <Binding Path="Resources"/>
+                            </MultiBinding>
+                        </Image.Source>
+                    </Image>
+                </Button.Content>
+            </Button>
+        </metro:WindowCommands>
+    </metro:MetroWindow.WindowCommands>
+
+    <metro:MetroWindow.Flyouts>
+        <metro:FlyoutsControl>
+            <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000"
+                          Header="{lex:LocText MusicFmApplication:English:WeatherDetail}"
+                          IsOpen="{Binding ViewModel.IsShowWeatherDetail }">
+                <Grid Margin="0,20,0,0" Width="230">
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource WeatherTxt}"/>
+                        <Style TargetType="{x:Type TabControl}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type TabControl}">
+                                        <Grid KeyboardNavigation.TabNavigation="Local">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="0"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="100"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <metro:MetroContentControl behaviours:ReloadBehavior.OnSelectedTabChanged="True" Grid.Column="0" Grid.Row="0">
+                                                <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                ContentTemplate="{TemplateBinding SelectedContentTemplate}"
+                                                Content="{TemplateBinding SelectedContent}"
+                                                ContentStringFormat="{TemplateBinding SelectedContentStringFormat}"
+                                                ContentSource="SelectedContent"
+                                                Margin="{TemplateBinding Padding}"
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                            </metro:MetroContentControl>
+                                            <TabPanel Grid.Column="0" Grid.Row="1" x:Name="HeaderPanel" IsItemsHost="True" HorizontalAlignment="Center" KeyboardNavigation.TabIndex="1"/>
+                                       </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                        <Style TargetType="{x:Type TabItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TabItem">
+                                        <Label x:Name="root" FontSize="10" HorizontalContentAlignment="Right" FontWeight="ExtraBlack">
+                                            <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" />
+                                        </Label>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="true">
+                                                <Setter TargetName="root" Property="Foreground">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Color="{DynamicResource AccentColor}" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+
+                                            <Trigger Property="IsSelected" Value="false">
+                                                <Setter  TargetName="root" Property="Foreground">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Color="{DynamicResource GrayNormal}" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                            <Trigger SourceName="root" Property="IsMouseOver" Value="True">
+                                                <Setter  TargetName="root" Property="Foreground">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Color="{DynamicResource GrayHover}" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="120"/>
+                        <RowDefinition Height="120"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <!--1. Text of data and city-->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="{Binding ViewModel.Weather.PublishDate}" Margin="20,0,0,0"/>
+                        <TextBlock Text="{Binding ViewModel.Weather.CityName}" Margin="20,0,0,0"/>
+                    </StackPanel>
+                    <!--2. Today's weather detail-->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,15,0,0">
+                        <Image Width="100" Height="100" VerticalAlignment="Top">
+                            <Image.Source>
+                                <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="B">
+                                    <Binding Path="ViewModel.Weather.WeatherImage"/>
+                                    <Binding Path="Resources"/>
+                                </MultiBinding>
+                            </Image.Source>
+                        </Image>
+                        <StackPanel Orientation="Vertical" Width="90" Margin="10,0,0,0">
+                            <TextBlock Text="{Binding ViewModel.Weather.WeatherDetail}" Margin="0,15,0,5"/>
+                            <TextBlock Text="{Binding ViewModel.Weather.Temperature}" />
+                            <TextBlock Text="{Binding ViewModel.Weather.Wind}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <!--3. Future days' weather detail-->
+                    <TabControl Grid.Row="2" SelectedIndex="0">
+                        <TabItem Header="▪">
+                            <StackPanel Orientation="Horizontal">
+                                <cc:DayWeatherControl DayWeather="{Binding ViewModel.Weather}"/>
+                                <cc:DayWeatherControl DayWeather="{Binding ViewModel.Weather.TomorrowWeather}"/>
+                                <cc:DayWeatherControl DayWeather="{Binding ViewModel.Weather.NextTwoDayWeather}"/>
+                            </StackPanel>
+                        </TabItem>
+                        <TabItem Header="▪">
+                            <StackPanel Orientation="Horizontal">
+                                <cc:DayWeatherControl DayWeather="{Binding ViewModel.Weather.NextThreeDayWeather}"/>
+                                <cc:DayWeatherControl DayWeather="{Binding ViewModel.Weather.NextFourDayWeather}"/>
+                                <cc:DayWeatherControl DayWeather="{Binding ViewModel.Weather.NextFiveDayWeather}"/>
+                            </StackPanel>
+                        </TabItem>
+                    </TabControl>
+                    <!--4. The life index-->
+                    <TabControl Grid.Row="3" SelectedIndex="0"
+                                ItemsSource="{Binding ViewModel.Weather.LifeIndexes}">
+                        <TabControl.ItemTemplate >
+                            <DataTemplate>
+                                <TextBlock Text="▪"/>
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="15,0,15,0">
+                                    <TextBlock FontWeight="Bold" Foreground="Silver">
+                                    <Run Text="{Binding Name}"/>
+                                    <Run Text=": "/>
+                                    <Run Text="{Binding Hint}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,10,0,0" Foreground="Silver"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
+                </Grid>
+            </metro:Flyout>
+        </metro:FlyoutsControl>
+    </metro:MetroWindow.Flyouts>
+    
+    
+    <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="3.5*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0" Height="40">
+            <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
+                                     ProgressColour="{DynamicResource AccentColorBrush}"
+                                     Width="{Binding ElementName=Root, Path=Width}"
+                                     Visibility="{Binding IsGettingSong, Converter={StaticResource Bool2Visbility}}"/>
+        </DockPanel>
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
+            <StackPanel.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="{StaticResource AccentColor2Brush}"/>
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+            </StackPanel.Resources>
+            <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding Path=CurrentSong.Url}" />
+            <metro:ProgressRing IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Width="120" Height="120"
+                                Visibility="{Binding Path=CurrentSong, Converter={StaticResource IvsNull2Vsby}}"/>
+            <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
+                <Grid.Resources>
+                    <Style TargetType="cc:ImageButton">
+                        <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+                    </Style>
+                </Grid.Resources>
+                <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
+                    <cc:ImageButton.Image>
+                        <Image Source="{Binding Path=CurrentSong.Picture}" Stretch="Fill" HorizontalAlignment="Center">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Setter Property="Width">
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource MultiplyNum}" ConverterParameter="0.75">
+                                                <Binding ElementName="Root" Path="Width"/>
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="MaxHeight" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value=".8"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </cc:ImageButton.Image>
+                </cc:ImageButton>
+                <Grid Background="#CC000000" Visibility="{Binding IsDisylayLyric, Converter={StaticResource Bool2Visbility}}">
+                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}"
+                                    Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=Width}"
+                                    Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=Height}">
+                        hello
+                    </cc:ImageButton>
+                </Grid>
+            </Grid>
+            <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,8,0,3" />
+            <TextBlock Text="{Binding CurrentSong.AlbumTitle}" FontSize="10"/>
+        </StackPanel>
+        <Grid Grid.Row="2"
+              IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="Button" BasedOn="{StaticResource MetroCircleButtonStyle}">
+                    <Setter Property="Height" Value="52"/>
+                    <Setter Property="Width" Value="52"/>
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="cc:ColorlizeImage">
+                    <Setter Property="Height" Value="28"/>
+                    <Setter Property="Width" Value="28"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="True">
+                            <Setter Property="Color" Value="Black"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Color" Value="DarkGray"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Resources>
+            <Button Grid.Column="0">
+                <cc:ColorlizeImage Image="{StaticResource Heart96}"/>
+            </Button>
+            <Button Grid.Column="1">
+                <cc:ColorlizeImage Image="{StaticResource Delete96}"/>
+            </Button>
+            <Button Grid.Column="2" 
+                    Command="{Binding NextSongCommand}"
+                    IsEnabled="{Binding IsGettingSong, Converter={StaticResource IvsBool}}">
+                <cc:ColorlizeImage Image="{StaticResource Next96}"/>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="3">
+            <Grid.Resources>
+                <Style TargetType="Rectangle">
+                    <Setter Property="Height" Value="2"/>
+                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                </Style>
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2"/>
+            </Grid.RowDefinitions>
+            <Rectangle Grid.Row="0" Fill="Silver" Opacity=".3" Width="{Binding ElementName=Root, Path=Width}"/>
+            <Rectangle Grid.Row="0" Fill="{StaticResource AccentColor3Brush}" Opacity=".4" >
+                <Rectangle.Width>
+                    <MultiBinding Converter="{StaticResource MultiplyNum}">
+                        <MultiBinding.Bindings>
+                            <Binding Path="MediaManager.DownloadProgress"/>
+                            <Binding ElementName="Root" Path="Width"/>
+                        </MultiBinding.Bindings>
+                    </MultiBinding>
+                </Rectangle.Width>
+            </Rectangle>
+
+            <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush}" >
+                <Rectangle.Width>
+                    <MultiBinding Converter="{StaticResource MultiplyNum}">
+                        <MultiBinding.Bindings>
+                            <Binding Path="MediaManager.PlayProgress"/>
+                            <Binding ElementName="Root" Path="Width"/>
+                        </MultiBinding.Bindings>
+                    </MultiBinding>
+                </Rectangle.Width>
+            </Rectangle>
+        </Grid>
+        <Grid Grid.Row="4" VerticalAlignment="Bottom" Margin="0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="cc:ImageButton">
+                    <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="Width" Value="18"/>
+                </Style>
+                <Style TargetType="cc:ColorlizeImage">
+                    <Setter Property="Color" Value="{StaticResource AccentColorBrush}"/>
+                    <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                    <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Color">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{StaticResource AccentColor2}" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Color">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{StaticResource AccentColor3}" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="Foreground" Value="{StaticResource AccentColorBrush}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource AccentColor3Brush}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Resources>
+            <cc:ImageButton Grid.Column="0"
+                            IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
+                            Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"
+                            Command="{Binding MediaManager.StartPlayerCommand}"
+                            Width="14">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Play32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+            <cc:ImageButton Grid.Column="0"
+                            Command="{Binding MediaManager.PausePlayerCommand}"
+                            Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Pause32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBlock Text="{Binding MediaManager.Position, Mode=OneWay, Converter={StaticResource Time2Str}}"/>
+                <TextBlock Text=" / "/>
+                <TextBlock Text="{Binding MediaManager.SongLength, Mode=OneWay, Converter={StaticResource Time2Str}}"/>
+            </StackPanel>
+            <cc:ImageButton Grid.Column="2" HorizontalAlignment="Right"
+                            Visibility="{Binding MediaManager.Volume, Converter={StaticResource Num2Visbility}}"
+                            Command="{Binding MediaManager.MuteCommand}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Volume32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+            <cc:ImageButton Grid.Column="2" HorizontalAlignment="Right"
+                            Visibility="{Binding MediaManager.Volume, Converter={StaticResource IvsNum2Vsbty}}"
+                            Command="{Binding MediaManager.MuteCommand}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Mute32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+            <Slider Grid.Column="3" Width="70" Height="5" 
+                    Minimum="0" Maximum="1" LargeChange=".1"
+                    HorizontalAlignment="Left" Style="{StaticResource FlatSlider}"
+                    Value="{Binding MediaManager.Volume}"/>
+            <cc:ImageButton Grid.Column="4"
+                            IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Download32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+        </Grid>
+    </Grid>
+    
+</metro:MetroWindow>

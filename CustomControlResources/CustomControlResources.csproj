@@ -1,0 +1,337 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C0F93D06-8F96-452F-9CC8-BFBEFFF87858}</ProjectGuid>
+    <OutputType>library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CustomControlResources</RootNamespace>
+    <AssemblyName>CustomControlResources</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ColorlizeImage.xaml.cs">
+      <DependentUpon>ColorlizeImage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converter\NumberToVisibilityConverter.cs" />
+    <Compile Include="Converter\InverseBoolConverter.cs" />
+    <Compile Include="Converter\InverseBoolToVisibilityConverter.cs" />
+    <Compile Include="Converter\InverseNullToBool.cs" />
+    <Compile Include="Converter\InverseNullToVisibilityConveter.cs" />
+    <Compile Include="Converter\InverseNumberToVisibilityConverter.cs" />
+    <Compile Include="Converter\NullToBoolConverter.cs" />
+    <Compile Include="Converter\NullToVisibility.cs" />
+    <Compile Include="Converter\PercentToNumberConverter.cs" />
+    <Compile Include="Converter\TimeSpanToStringConverter.cs" />
+    <Compile Include="Converter\WeatherImageSourceConverter.cs" />
+    <Compile Include="DayWeatherControl.xaml.cs">
+      <DependentUpon>DayWeatherControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ImageButton.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\WeatherImages\100big\day\d00.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d01.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d02.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d03.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d04.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d05.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d06.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d07.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d08.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d09.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d10.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d11.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d12.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d13.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d14.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d15.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d16.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d17.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d18.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d19.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d20.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d21.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d22.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d23.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d24.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d25.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d26.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d27.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d28.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d29.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d30.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d31.png" />
+    <Resource Include="Images\WeatherImages\100big\day\d53.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n00.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n01.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n02.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n03.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n04.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n05.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n06.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n07.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n08.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n09.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n10.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n11.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n12.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n13.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n14.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n15.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n16.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n17.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n18.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n19.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n20.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n21.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n22.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n23.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n24.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n25.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n26.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n27.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n28.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n29.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n30.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n31.png" />
+    <Resource Include="Images\WeatherImages\100big\night\n53.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d00.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d01.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d02.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d03.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d04.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d05.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d06.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d07.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d08.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d09.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d10.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d11.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d12.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d13.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d14.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d15.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d16.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d17.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d18.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d19.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d20.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d21.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d22.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d23.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d24.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d25.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d26.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d27.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d28.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d29.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d30.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d31.png" />
+    <Resource Include="Images\WeatherImages\30small\day\d53.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n00.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n01.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n02.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n03.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n04.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n05.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n06.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n07.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n08.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n09.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n10.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n11.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n12.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n13.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n14.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n15.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n16.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n17.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n18.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n19.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n20.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n21.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n22.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n23.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n24.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n25.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n26.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n27.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n28.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n29.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n30.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n31.png" />
+    <Resource Include="Images\WeatherImages\30small\night\n53.png" />
+    <Resource Include="Images\WeatherImages\warn\0000.gif" />
+    <Resource Include="Images\WeatherImages\warn\0101.gif" />
+    <Resource Include="Images\WeatherImages\warn\0102.gif" />
+    <Resource Include="Images\WeatherImages\warn\0103.gif" />
+    <Resource Include="Images\WeatherImages\warn\0104.gif" />
+    <Resource Include="Images\WeatherImages\warn\0201.gif" />
+    <Resource Include="Images\WeatherImages\warn\0202.gif" />
+    <Resource Include="Images\WeatherImages\warn\0203.gif" />
+    <Resource Include="Images\WeatherImages\warn\0204.gif" />
+    <Resource Include="Images\WeatherImages\warn\0301.gif" />
+    <Resource Include="Images\WeatherImages\warn\0302.gif" />
+    <Resource Include="Images\WeatherImages\warn\0303.gif" />
+    <Resource Include="Images\WeatherImages\warn\0304.gif" />
+    <Resource Include="Images\WeatherImages\warn\0401.gif" />
+    <Resource Include="Images\WeatherImages\warn\0402.gif" />
+    <Resource Include="Images\WeatherImages\warn\0403.gif" />
+    <Resource Include="Images\WeatherImages\warn\0404.gif" />
+    <Resource Include="Images\WeatherImages\warn\0501.gif" />
+    <Resource Include="Images\WeatherImages\warn\0502.gif" />
+    <Resource Include="Images\WeatherImages\warn\0503.gif" />
+    <Resource Include="Images\WeatherImages\warn\0504.gif" />
+    <Resource Include="Images\WeatherImages\warn\0602.gif" />
+    <Resource Include="Images\WeatherImages\warn\0603.gif" />
+    <Resource Include="Images\WeatherImages\warn\0604.gif" />
+    <Resource Include="Images\WeatherImages\warn\0702.gif" />
+    <Resource Include="Images\WeatherImages\warn\0703.gif" />
+    <Resource Include="Images\WeatherImages\warn\0704.gif" />
+    <Resource Include="Images\WeatherImages\warn\0803.gif" />
+    <Resource Include="Images\WeatherImages\warn\0804.gif" />
+    <Resource Include="Images\WeatherImages\warn\0902.gif" />
+    <Resource Include="Images\WeatherImages\warn\0903.gif" />
+    <Resource Include="Images\WeatherImages\warn\0904.gif" />
+    <Resource Include="Images\WeatherImages\warn\1003.gif" />
+    <Resource Include="Images\WeatherImages\warn\1004.gif" />
+    <Resource Include="Images\WeatherImages\warn\1101.gif" />
+    <Resource Include="Images\WeatherImages\warn\1102.gif" />
+    <Resource Include="Images\WeatherImages\warn\1103.gif" />
+    <Resource Include="Images\WeatherImages\warn\1202.gif" />
+    <Resource Include="Images\WeatherImages\warn\1203.gif" />
+    <Resource Include="Images\WeatherImages\warn\1204.gif" />
+    <Resource Include="Images\WeatherImages\warn\1302.gif" />
+    <Resource Include="Images\WeatherImages\warn\1303.gif" />
+    <Resource Include="Images\WeatherImages\warn\1402.gif" />
+    <Resource Include="Images\WeatherImages\warn\1403.gif" />
+    <Resource Include="Images\WeatherImages\warn\1404.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ColorlizeImage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ControlStyleResources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DayWeatherControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ImageResource.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="StyleResource.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WeatherImagesResource.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\logo32.png" />
+    <Resource Include="Images\logo96.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommonHelperLibrary\CommonHelperLibrary.csproj">
+      <Project>{b6082e2b-e78e-49f6-a055-f8e055440ff6}</Project>
+      <Name>CommonHelperLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\heart96.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\delete96.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\next96.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pause32.png" />
+    <Resource Include="Images\play32.png" />
+    <Resource Include="Images\volume32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\download32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\mute32.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
