@@ -160,7 +160,7 @@ namespace MusicFmApplication
         public MediaManager(MainViewModel viewModel)
         {
             this.viewModel = viewModel;
-            Volume = 0.08;
+            Volume = 0.75;
             PlayerControl();
 
             PausePlayerCommand = new DelegateCommand(PausePlayerExecute);
@@ -191,23 +191,27 @@ namespace MusicFmApplication
             DownloadProgress = Player.DownloadProgress;
             viewModel.IsGettingSong = Player.IsBuffering;
             PlayProgress = Position.TotalMilliseconds/SongLength.TotalMilliseconds;
-            if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 300)
+            //Song is almost finish, jump to next one
+            if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 200)
             {
                 viewModel.NextSongCommand.Execute();
                 return;
             }
             //Lrc control
-            if (viewModel.Lyric.Content.Any())
+            if (!viewModel.Lyric.Content.Any()) return;
+            var nextIndex = viewModel.CurrnetLrcLine.Key + 1;
+            if (nextIndex >= lrcKeys.Count) return;
+            var nextTime = lrcKeys[nextIndex];
+            if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + viewModel.Lyric.Offset)
             {
-                var nextIndex = viewModel.CurrnetLrcLine.Key + 1;
-                if (nextIndex >= lrcKeys.Count) return;
-                var nextTime = lrcKeys[nextIndex];
-                if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + viewModel.Lyric.Offset)
-                {
-                    viewModel.CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex,nextTime);
-                    if (nextIndex > 3)
-                        viewModel.MainWindow.LrcContaner.LineDown();
-                }
+                viewModel.CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex, nextTime);
+                //not scroll at first 4 line
+                if (nextIndex < 4) return;
+                viewModel.MainWindow.LrcContaner.LineDown();
+                //Scroll two lines every 3 times
+                if (nextIndex % 3 == 1)
+                    viewModel.MainWindow.LrcContaner.LineDown();
+
             }
         }
     }

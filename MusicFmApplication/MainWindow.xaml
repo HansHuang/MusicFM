@@ -204,17 +204,18 @@
     
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="4*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="2"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <DockPanel Grid.Row="0" Height="40">
+        <DockPanel Grid.Row="0" Height="20">
             <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
                                      ProgressColour="{DynamicResource AccentColorBrush}"
                                      Width="{Binding ElementName=Root, Path=Width}"
                                      Visibility="{Binding IsGettingSong, Converter={StaticResource Bool2Visbility}}"/>
+           <cc:ImageButton Content="私人MHZ"/>
         </DockPanel>
         <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
             <StackPanel.Resources>

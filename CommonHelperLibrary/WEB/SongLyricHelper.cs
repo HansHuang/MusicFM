@@ -8,6 +8,12 @@ using System.Xml;
 
 namespace CommonHelperLibrary.WEB
 {
+    /// <summary>
+    /// Author : Hans Huang
+    /// Date : 2013-10-25
+    /// Class : DoubanFm
+    /// Discription : Common helper for get song lyric
+    /// </summary>
     public static class SongLyricHelper
     {
         /// <summary>
@@ -18,12 +24,20 @@ namespace CommonHelperLibrary.WEB
         /// <returns></returns>
         public static string GetSongLrc(string title, string artist)
         {
-            title = System.Web.HttpUtility.UrlEncode(title.Trim());
-            artist = System.Web.HttpUtility.UrlEncode(artist.Trim());
+            var artist2 = string.Empty;
+            if (artist.Contains("/"))
+            {
+                var artists = artist.Split(new char['/']);
+                artist = artists.First();
+                artist2 = artists.Last();
+            }
+            var uTitle = System.Web.HttpUtility.UrlEncode(title.Trim());
+            var uArtist = System.Web.HttpUtility.UrlEncode(artist);
             //Get lrc search result
             var response = HttpWebDealer.GetHtml(
-              string.Format("http://box.zhangmen.baidu.com/x?op=12&count=1&title={0}$${1}$$$$", title, artist));
-            if (string.IsNullOrEmpty(response)) return string.Empty;
+              string.Format("http://box.zhangmen.baidu.com/x?op=12&count=1&title={0}$${1}$$$$", uTitle, uArtist));
+            if (string.IsNullOrEmpty(response))
+                return string.IsNullOrEmpty(artist2) ? string.Empty : GetSongLrc(title, artist2);
 
             //Get lrc id
             var xml = new XmlDocument();
@@ -54,7 +68,7 @@ namespace CommonHelperLibrary.WEB
             var reg0 = new Regex(@"\[([a-z]+)\:(.+)]");
             var reg1 = new Regex(@"([\[\d{2}\:\d{2}\.\d{1,3}\]]+)(.*)");
             var filters = new List<string>() { "☆", "51lrc", "@", "LRC by", "Lyrics by", "歌词吾爱",
-                "歌词库", "Lyriced By", "编辑：", "QQ", "PS：", "★", "http","www." };
+                "歌词库", "Lyriced By", "编辑：", "QQ", "PS：", "★", "http","www.","by:","制作",".com"};
             foreach (var line in lines)
             {
                 if (string.IsNullOrEmpty(line.Trim())) continue;
@@ -80,10 +94,14 @@ namespace CommonHelperLibrary.WEB
                     var txt = m1.Groups[2].Value.Trim();
                     foreach (var time in list)
                     {
-                        var ts = time.Split(new[] {':', '.'});
-                        var key = ts.Length > 2
-                                      ? new TimeSpan(0, 0, Convert.ToInt32(ts[0]), Convert.ToInt32(ts[1]), Convert.ToInt32(ts[2]))
-                                      : new TimeSpan();
+                        var ts = time.Split(new[] {':', '.'}, StringSplitOptions.RemoveEmptyEntries);
+                        TimeSpan key;
+                        if (ts.Length == 2)
+                            key = new TimeSpan(0, 0, Convert.ToInt32(ts[0]), Convert.ToInt32(ts[1]));
+                        else if (ts.Length == 3)
+                            key = new TimeSpan(0, 0, Convert.ToInt32(ts[0]), Convert.ToInt32(ts[1]), Convert.ToInt32(ts[2]));
+                        else
+                            key = new TimeSpan();
                         if(!lrc.Content.ContainsKey(key))
                             lrc.Content.Add(key, txt);
                     }
