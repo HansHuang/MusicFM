@@ -23,14 +23,14 @@ namespace CommonHelperLibrary.WEB
         /// </summary>
         /// <param name="cityCode">manually set value or get info from public IP automaticly</param>
         /// <returns></returns>
-        public static Weahter GetWeather(string cityCode = "")
+        public static Weather GetWeather(string cityCode = "")
         {
             var weatherObject = GetWeatherInfo(cityCode);
-            if (weatherObject == null) return new Weahter();
+            if (weatherObject == null) return new Weather();
             var info = weatherObject["weatherinfo"];
             var date = DateTime.Now;
             //var jsonIndex = HttpWebDealer.GetHtml("http://data.weather.com.cn/zsLenovo/" + cityCode + ".html", Encoding.UTF8);
-            var weather = new Weahter
+            var weather = new Weather
                 {
                     CityName = info["city"],
                     CityEnName = info["city_en"],
@@ -220,7 +220,7 @@ namespace CommonHelperLibrary.WEB
 
     #region Weahter Model class
 
-    public class Weahter : WeatherBase
+    public class Weather : WeatherBase
     {
         public string CityName { get; set; }
         public string CityEnName { get; set; }

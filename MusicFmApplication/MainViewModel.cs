@@ -29,9 +29,9 @@ namespace MusicFmApplication
 
         #region Weather (NotificationObject Property)
 
-        private Weahter _weather;
+        private Weather _weather;
 
-        public Weahter Weather
+        public Weather Weather
         {
             get { return _weather; }
             set
@@ -244,6 +244,7 @@ namespace MusicFmApplication
 
         #endregion
 
+
         public MainWindow MainWindow { get; private set; }
 
         #region Construct Method
@@ -258,8 +259,6 @@ namespace MusicFmApplication
             NextSongCommand = new DelegateCommand(NextSongExecute);
             ToggleLyricDisplayCommand = new DelegateCommand(ToggleLyricDisplayExecute);
 
-            GetWeather();
-
             //Change this with MEF
             SongService = new DoubanFm();
             GetSongs();
@@ -269,25 +268,6 @@ namespace MusicFmApplication
         public static MainViewModel GetInstance(MainWindow window=null) 
         {
             return _instance ?? (_instance = new MainViewModel(window));
-        }
-        #endregion
-
-        #region GetWeather
-        /// <summary>
-        /// Get weather info
-        /// </summary>
-        private void GetWeather()
-        {
-            Task.Factory.StartNew(() =>
-            {
-                Weather = CityWeatherHelper.GetWeather();
-
-                if (Weather.LifeIndexes != null && Weather.LifeIndexes.Count > 0 &&
-                    !(Weather.LifeIndexes is ObservableCollection<LifeIndex>))
-                {
-                    Weather.LifeIndexes = new ObservableCollection<LifeIndex>(Weather.LifeIndexes);
-                }
-            });
         }
         #endregion
 
