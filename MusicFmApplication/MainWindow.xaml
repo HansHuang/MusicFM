@@ -44,12 +44,12 @@
 
     <metro:MetroWindow.WindowCommands>
         <metro:WindowCommands DataContext="{Binding ElementName=Root}">
-            <Button Command="{Binding ViewModel.GetWeatherDetailCommmand}">
+            <Button Width="16" Height="16" Command="{Binding ViewModel.GetWeatherDetailCommmand}">
                 <Button.Content>
-                    <Image ToolTip="{Binding Path=ViewModel.Weather.WeatherImageTitle}">
+                    <Image ToolTip="{Binding ElementName=WeatherDetail, Path=WeatherData.AsyncValue.WeatherImageTitle}">
                         <Image.Source>
                             <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="S">
-                                <Binding Path="ViewModel.Weather.WeatherImage"/>
+                                <Binding ElementName="WeatherDetail" Path="WeatherData.AsyncValue.WeatherImage"/>
                                 <Binding Path="Resources"/>
                             </MultiBinding>
                         </Image.Source>
@@ -64,11 +64,10 @@
             <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000"
                           Header="{lex:LocText MusicFmApplication:English:WeatherDetail}"
                           IsOpen="{Binding ViewModel.IsShowWeatherDetail }">
-                <cc:WeatherDetail Weather="{Binding ViewModel.Weather, ElementName=Root, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+                <cc:WeatherDetail x:Name="WeatherDetail"/>
             </metro:Flyout>
         </metro:FlyoutsControl>
     </metro:MetroWindow.Flyouts>
-    
     
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
         <Grid.RowDefinitions>
@@ -79,11 +78,23 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0" Height="20">
+            <DockPanel.Resources>
+                <Style TargetType="cc:ImageButton">
+                    <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+                    <Setter Property="VerticalAlignment" Value="Bottom"/>
+                    <Setter Property="Height" Value="16"/>
+                </Style>
+            </DockPanel.Resources>
             <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
                                      ProgressColour="{DynamicResource AccentColorBrush}"
                                      Width="{Binding ElementName=Root, Path=Width}"
                                      Visibility="{Binding IsGettingSong, Converter={StaticResource Bool2Visbility}}"/>
-           <cc:ImageButton Content="私人MHZ"/>
+            
+           <cc:ImageButton DockPanel.Dock="Right" Content="私人MHZ">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentColorBrush}" Width="14" Height="14" Margin="3,0"/>
+                </cc:ImageButton.Image>
+           </cc:ImageButton>
         </DockPanel>
         <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
             <StackPanel.Resources>

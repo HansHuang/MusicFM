@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 using MahApps.Metro.Controls;
 using Microsoft.Practices.Prism.ViewModel;
@@ -26,23 +27,6 @@ namespace MusicFmApplication
     public class MainViewModel : NotificationObject
     {
         #region Notify Properties
-
-        #region Weather (NotificationObject Property)
-
-        private Weather _weather;
-
-        public Weather Weather
-        {
-            get { return _weather; }
-            set
-            {
-                if (_weather != null && _weather.Equals(value)) return;
-                _weather = value;
-                RaisePropertyChanged("Weather");
-            }
-        }
-
-        #endregion
 
         #region IsShowWeatherDetail (NotificationObject Property)
         private bool _isShowWeatherDetail;

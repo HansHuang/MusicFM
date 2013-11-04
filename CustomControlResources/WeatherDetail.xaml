@@ -97,44 +97,45 @@
         </Grid.RowDefinitions>
         <!--1. Text of data and city-->
         <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <TextBlock Text="{Binding Weather.PublishDate}" Margin="20,0,0,0"/>
-            <TextBlock Text="{Binding Weather.CityName}" Margin="20,0,0,0"/>
+            <TextBlock Text="{Binding WeatherData.AsyncValue.PublishDate}" Margin="20,0,0,0"/>
+            <!--<TextBlock Text="{Binding WeatherData.AsyncValue.PublishDate}" Margin="20,0,0,0"/>-->
+            <TextBlock Text="{Binding WeatherData.AsyncValue.CityName}" Margin="20,0,0,0"/>
         </StackPanel>
         <!--2. Today's weather detail-->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,15,0,0">
             <Image Width="100" Height="100" VerticalAlignment="Top">
                 <Image.Source>
                     <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="B">
-                        <Binding Path="Weather.WeatherImage"/>
+                        <Binding Path="WeatherData.AsyncValue.WeatherImage"/>
                         <Binding Path="Resources"/>
                     </MultiBinding>
                 </Image.Source>
             </Image>
             <StackPanel Orientation="Vertical" Width="90" Margin="10,0,0,0">
-                <TextBlock Text="{Binding Weather.WeatherDetail}" Margin="0,15,0,5"/>
-                <TextBlock Text="{Binding Weather.Temperature}" />
-                <TextBlock Text="{Binding Weather.Wind}" />
+                <TextBlock Text="{Binding WeatherData.AsyncValue.WeatherDetail}" Margin="0,15,0,5"/>
+                <TextBlock Text="{Binding WeatherData.AsyncValue.Temperature}" />
+                <TextBlock Text="{Binding WeatherData.AsyncValue.Wind}" />
             </StackPanel>
         </StackPanel>
         <!--3. Future days' weather detail-->
         <TabControl Grid.Row="2" SelectedIndex="0">
             <TabItem Header="▪">
                 <StackPanel Orientation="Horizontal">
-                    <cc:DayWeatherControl DayWeather="{Binding Weather}"/>
-                    <cc:DayWeatherControl DayWeather="{Binding Weather.TomorrowWeather}"/>
-                    <cc:DayWeatherControl DayWeather="{Binding Weather.NextTwoDayWeather}"/>
+                    <cc:DayWeatherControl DayWeather="{Binding WeatherData.AsyncValue}"/>
+                    <cc:DayWeatherControl DayWeather="{Binding WeatherData.AsyncValue.TomorrowWeather}"/>
+                    <cc:DayWeatherControl DayWeather="{Binding WeatherData.AsyncValue.NextTwoDayWeather}"/>
                 </StackPanel>
             </TabItem>
             <TabItem Header="▪">
                 <StackPanel Orientation="Horizontal">
-                    <cc:DayWeatherControl DayWeather="{Binding Weather.NextThreeDayWeather}"/>
-                    <cc:DayWeatherControl DayWeather="{Binding Weather.NextFourDayWeather}"/>
-                    <cc:DayWeatherControl DayWeather="{Binding Weather.NextFiveDayWeather}"/>
+                    <cc:DayWeatherControl DayWeather="{Binding WeatherData.AsyncValue.NextThreeDayWeather}"/>
+                    <cc:DayWeatherControl DayWeather="{Binding WeatherData.AsyncValue.NextFourDayWeather}"/>
+                    <cc:DayWeatherControl DayWeather="{Binding WeatherData.AsyncValue.NextFiveDayWeather}"/>
                 </StackPanel>
             </TabItem>
         </TabControl>
         <!--4. The life index-->
-        <TabControl Grid.Row="3" SelectedIndex="0" ItemsSource="{Binding Weather.LifeIndexes}">
+        <TabControl Grid.Row="3" SelectedIndex="0" ItemsSource="{Binding WeatherData.AsyncValue.LifeIndexes}">
             <TabControl.ItemTemplate >
                 <DataTemplate>
                     <TextBlock Text="▪"/>

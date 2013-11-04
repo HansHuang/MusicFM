@@ -10,4 +10,5 @@
     <ImageSource x:Key="Volume32">Images/volume32.png</ImageSource>
     <ImageSource x:Key="Mute32">Images/mute32.png</ImageSource>
     <ImageSource x:Key="Download32">Images/download32.png</ImageSource>
+    <ImageSource x:Key="Wave32">Images/wave32.png</ImageSource>
 </ResourceDictionary>
