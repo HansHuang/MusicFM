@@ -11,6 +11,6 @@ namespace Service
     public interface ISongService 
     {
         List<Song> GetSongList();
-        Dictionary<int, string> Channels { get; }
+        ObservableCollection<Channel> GetChannels(bool isBasic = true);
     }
 }

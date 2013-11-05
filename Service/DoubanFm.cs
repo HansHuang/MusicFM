@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using CommonHelperLibrary.WEB;
 using Service.Model;
 
@@ -54,39 +55,39 @@ namespace Service
             return list;
         }
 
+        /// <summary>
+        /// Get Music Channels
+        /// </summary>
+        /// <param name="isBasic">Basic channels or entire channel list</param>
+        /// <returns></returns>
+        public ObservableCollection<Channel> GetChannels(bool isBasic = true) {
+            var basic = new ObservableCollection<Channel> {
+                new Channel(0, "私人MHz"),
+                new Channel(-3, "红心MHz"),
+                new Channel(1, "华语MHz"),
+                new Channel(2, "欧美MHz"),
+                new Channel(3, "70MHz"),
+                new Channel(4, "80MHz"),
+                new Channel(5, "90MHz"),
+                new Channel(7, "摇滚MHz"),
+                new Channel(8, "民谣MHz"),
+                new Channel(9, "轻音乐MHz"),
+                new Channel(10, "电影原声MHz"),
+                new Channel(13, "爵士MHz,"),
+                new Channel(14, "电子MHz"),
+                new Channel(15, "说唱MHz"),
+                new Channel(16, "R&BMHz"),
+                new Channel(17, "日语MHz"),
+                new Channel(18, "韩语MHz"),
+                new Channel(20, "女声MHz"),
+                new Channel(22, "法语MHz")
+            };
+            if (isBasic) return basic;
 
-
-        private Dictionary<int, string> _channels; 
-        public Dictionary<int, string> Channels
-        {
-            get { return _channels ?? (_channels = GetChannels()); }
-        }
-
-        private Dictionary<int, string> GetChannels()
-        {
-            var channels = new Dictionary<int, string>
-                {
-                    {0, "私人MHz"},
-                    {-3, "红心MHz"},
-                    {1, "华语MHz"},
-                    {2, "欧美MHz"},
-                    {3, "70MHz"},
-                    {4, "80MHz"},
-                    {5, "90MHz"},
-                    {7, "摇滚MHz"},
-                    {8, "民谣MHz"},
-                    {9, "轻音乐MHz"},
-                    {10, "电影原声MHz"},
-                    {13, "爵士MHz,"},
-                    {14, "电子MHz"},
-                    {15, "说唱MHz"},
-                    {16, "R&BMHz"},
-                    {17, "日语MHz"},
-                    {18, "韩语MHz"},
-                    {20, "女声MHz"},
-                    {22, "法语MHz"}
-                };
-            return channels;
+            //Get expansion channels
+            var xd = XDocument.Load(HttpWebDealer.GetHtml("http://douban.fm"));
+            
+            return null;
         } 
     }
 }

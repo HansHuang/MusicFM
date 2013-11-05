@@ -44,9 +44,9 @@
 
     <metro:MetroWindow.WindowCommands>
         <metro:WindowCommands DataContext="{Binding ElementName=Root}">
-            <Button Width="16" Height="16" Command="{Binding ViewModel.GetWeatherDetailCommmand}">
+            <Button Command="{Binding ViewModel.ShowWeatherDetailCommmand}">
                 <Button.Content>
-                    <Image ToolTip="{Binding ElementName=WeatherDetail, Path=WeatherData.AsyncValue.WeatherImageTitle}">
+                    <Image ToolTip="{Binding ElementName=WeatherDetail, Path=WeatherData.AsyncValue.WeatherImageTitle}" Width="24" Height="24">
                         <Image.Source>
                             <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="S">
                                 <Binding ElementName="WeatherDetail" Path="WeatherData.AsyncValue.WeatherImage"/>
@@ -54,6 +54,12 @@
                             </MultiBinding>
                         </Image.Source>
                     </Image>
+                </Button.Content>
+            </Button>
+            <Button>
+                <Button.Content>
+                    <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentSelectedColorBrush}" 
+                                       Width="24" Height="24"/>
                 </Button.Content>
             </Button>
         </metro:WindowCommands>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -39,6 +40,21 @@ namespace MusicFmApplication
                 if (_isShowWeatherDetail.Equals(value)) return;
                 _isShowWeatherDetail = value;
                 RaisePropertyChanged("IsShowWeatherDetail");
+            }
+        }
+        #endregion
+
+        #region IsShowPlayerDetail (INotifyPropertyChanged Property)
+
+        private bool _isShowPlayerDetail;
+        public bool IsShowPlayerDetail
+        {
+            get { return _isShowPlayerDetail; }
+            set
+            {
+                if (_isShowPlayerDetail.Equals(value)) return;
+                _isShowPlayerDetail = value;
+                RaisePropertyChanged("IsShowPlayerDetail");
             }
         }
         #endregion
@@ -181,6 +197,22 @@ namespace MusicFmApplication
 
         #endregion
 
+        #region Channels (INotifyPropertyChanged Property)
+
+        private AsyncProperty<ObservableCollection<Channel>> _channels;
+
+        public AsyncProperty<ObservableCollection<Channel>> Channels
+        {
+            get { return _channels; }
+            set
+            {
+                if (_channels != null && _channels.Equals(value)) return;
+                _channels = value;
+                RaisePropertyChanged("Channels");
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Private Properties
@@ -191,13 +223,19 @@ namespace MusicFmApplication
 
         #region Delegate Commands
 
-        #region GetWeatherDetail DelegateCommand
-        public DelegateCommand GetWeatherDetailCommmand { get; private set; }
-        private void GetWeatherDetailExecute()
+        #region ShowWeatherDetail DelegateCommand
+        public DelegateCommand ShowWeatherDetailCommmand { get; private set; }
+        private void ShowWeatherDetailExecute()
         {
             IsShowWeatherDetail = !IsShowWeatherDetail;
         }
         #endregion
+
+        public DelegateCommand TogglePlayerDetailCommand { get; private set; }
+        private void TogglePlayerDetailExecute() 
+        {
+            IsShowPlayerDetail = !IsShowPlayerDetail;
+        }
 
         public DelegateCommand NextSongCommand { get; private set; }
         private void NextSongExecute()
@@ -239,14 +277,17 @@ namespace MusicFmApplication
         private MainViewModel(MainWindow window)
         {
             MainWindow = window;
-            GetWeatherDetailCommmand = new DelegateCommand(GetWeatherDetailExecute);
+            ShowWeatherDetailCommmand = new DelegateCommand(ShowWeatherDetailExecute);
             NextSongCommand = new DelegateCommand(NextSongExecute);
             ToggleLyricDisplayCommand = new DelegateCommand(ToggleLyricDisplayExecute);
+            TogglePlayerDetailCommand=new DelegateCommand(TogglePlayerDetailExecute);
 
             //Change this with MEF
             SongService = new DoubanFm();
             GetSongs();
 
+            var task = new Func<Task<ObservableCollection<Channel>>>(() => Task.Run(() => SongService.GetChannels(false)));
+            Channels = new AsyncProperty<ObservableCollection<Channel>>(task, SongService.GetChannels());
         }
 
         public static MainViewModel GetInstance(MainWindow window=null) 
