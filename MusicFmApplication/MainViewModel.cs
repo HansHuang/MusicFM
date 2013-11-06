@@ -201,7 +201,7 @@ namespace MusicFmApplication
 
         private AsyncProperty<ObservableCollection<Channel>> _channels;
 
-        public AsyncProperty<ObservableCollection<Channel>> Channels
+        public AsyncProperty<ObservableCollection<Channel>>     Channels
         {
             get { return _channels; }
             set

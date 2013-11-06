@@ -70,6 +70,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to My Central Room.
+        /// </summary>
+        internal static string MyCentralRoom {
+            get {
+                return ResourceManager.GetString("MyCentralRoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Weather Detail.
         /// </summary>
         internal static string WeatherDetail {

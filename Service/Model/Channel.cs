@@ -11,13 +11,15 @@ namespace Service.Model
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string CoverImage { get; set; }
 
 
-        public Channel(int id = 0, string name = "", string des = "")
+        public Channel(int id = 0, string name = "", string desc = "", string coverImage = "")
         {
             Id = id;
-            Name = Name;
-            Description = des;
+            Name = name;
+            Description = desc;
+            CoverImage = coverImage;
         }
     }
 }

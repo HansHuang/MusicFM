@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" x:Name="Root">
     <Rectangle Fill="{Binding ElementName=Root, Path=Color}" 
-               Width="{Binding ElementName=Root, Path=Width}" 
-               Height="{Binding ElementName=Root, Path=Height}">
+               Width="{Binding ElementName=Root, Path=ActualWidth}" 
+               Height="{Binding ElementName=Root, Path=ActualHeight}">
         <Rectangle.OpacityMask>
             <ImageBrush ImageSource="{Binding ElementName=Root, Path=Image}"/>
         </Rectangle.OpacityMask>

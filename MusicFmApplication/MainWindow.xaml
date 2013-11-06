@@ -56,10 +56,10 @@
                     </Image>
                 </Button.Content>
             </Button>
-            <Button>
+            <Button Command="{Binding ViewModel.TogglePlayerDetailCommand}">
                 <Button.Content>
                     <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentSelectedColorBrush}" 
-                                       Width="24" Height="24"/>
+                                       Width="16" Height="16"/>
                 </Button.Content>
             </Button>
         </metro:WindowCommands>
@@ -71,6 +71,19 @@
                           Header="{lex:LocText MusicFmApplication:English:WeatherDetail}"
                           IsOpen="{Binding ViewModel.IsShowWeatherDetail }">
                 <cc:WeatherDetail x:Name="WeatherDetail"/>
+            </metro:Flyout>
+            <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000" Position="Right"
+                          Header="{lex:LocText MusicFmApplication:English:MyCentralRoom}"
+                          IsOpen="{Binding ViewModel.IsShowPlayerDetail }">
+                <Grid>
+                    <ListBox ItemsSource="{Binding ViewModel.Channels.AsyncValue}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </metro:Flyout>
         </metro:FlyoutsControl>
     </metro:MetroWindow.Flyouts>

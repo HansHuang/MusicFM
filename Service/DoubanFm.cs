@@ -5,8 +5,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using CommonHelperLibrary.WEB;
+using HtmlAgilityPack;
 using Service.Model;
 
 namespace Service
@@ -17,19 +17,19 @@ namespace Service
     /// Class : DoubanFm
     /// Discription : Implement of ISongService
     /// </summary>
-    public class DoubanFm : ISongService 
+    public class DoubanFm : ISongService
     {
         //Random for get song list
         private Random _random;
 
-        public DoubanFm() 
+        public DoubanFm()
         {
             _random = new Random(1000000);
         }
 
         public List<Song> GetSongList()
         {
-            var url =string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&channel=0&type=p&r={0}&sid=0",
+            var url = string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&channel=0&type=p&r={0}&sid=0",
                     _random.Next(0, 1000000));
             var json = HttpWebDealer.GetJsonObject(url, Encoding.UTF8);
             var songs = json["song"] as IEnumerable;
@@ -60,34 +60,49 @@ namespace Service
         /// </summary>
         /// <param name="isBasic">Basic channels or entire channel list</param>
         /// <returns></returns>
-        public ObservableCollection<Channel> GetChannels(bool isBasic = true) {
-            var basic = new ObservableCollection<Channel> {
-                new Channel(0, "私人MHz"),
-                new Channel(-3, "红心MHz"),
-                new Channel(1, "华语MHz"),
-                new Channel(2, "欧美MHz"),
-                new Channel(3, "70MHz"),
-                new Channel(4, "80MHz"),
-                new Channel(5, "90MHz"),
-                new Channel(7, "摇滚MHz"),
-                new Channel(8, "民谣MHz"),
-                new Channel(9, "轻音乐MHz"),
-                new Channel(10, "电影原声MHz"),
-                new Channel(13, "爵士MHz,"),
-                new Channel(14, "电子MHz"),
-                new Channel(15, "说唱MHz"),
-                new Channel(16, "R&BMHz"),
-                new Channel(17, "日语MHz"),
-                new Channel(18, "韩语MHz"),
-                new Channel(20, "女声MHz"),
-                new Channel(22, "法语MHz")
+        public ObservableCollection<Channel> GetChannels(bool isBasic = true)
+        {
+            var list = new ObservableCollection<Channel> 
+            {
+                new Channel(0, "私人 MHz"),
+                new Channel(-3, "红心 MHz"),
+                new Channel(1, "华语 MHz"),
+                new Channel(2, "欧美 MHz"),
+                new Channel(3, "70 MHz"),
+                new Channel(4, "80 MHz"),
+                new Channel(5, "90 MHz"),
+                new Channel(7, "摇滚 MHz"),
+                new Channel(8, "民谣 MHz"),
+                new Channel(9, "轻音乐 MHz"),
+                new Channel(10, "电影原声 MHz"),
+                new Channel(13, "爵士 MHz,"),
+                new Channel(14, "电子 MHz"),
+                new Channel(15, "说唱 MHz"),
+                new Channel(16, "R&B MHz"),
+                new Channel(17, "日语 MHz"),
+                new Channel(18, "韩语 MHz"),
+                new Channel(20, "女声 MHz"),
+                new Channel(22, "法语 MHz")
             };
-            if (isBasic) return basic;
+            if (isBasic) return list;
 
             //Get expansion channels
-            var xd = XDocument.Load(HttpWebDealer.GetHtml("http://douban.fm"));
-            
-            return null;
-        } 
+            var html = HttpWebDealer.GetHtml("http://douban.fm", Encoding.UTF8);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            var chls = doc.DocumentNode.SelectNodes("//ul[@id=\"promotion_chls\"]");
+            if (chls == null) return list;
+            foreach (var node in chls.Nodes().Where(s => !string.IsNullOrWhiteSpace(s.InnerHtml)))
+            {
+                var cid = node.GetAttributeValue("cid", 0);
+                var desc = node.GetAttributeValue("data-intro", "");
+                var conver = node.GetAttributeValue("data-cover", "");
+                var name = node.ChildNodes.First(s => !string.IsNullOrWhiteSpace(s.InnerHtml)).InnerText;
+
+                list.Add(new Channel(cid, name, desc, conver));
+            }
+
+            return list;
+        }
     }
 }

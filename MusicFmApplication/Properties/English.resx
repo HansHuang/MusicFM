@@ -120,6 +120,9 @@
   <data name="MusicFm" xml:space="preserve">
     <value>Music FM</value>
   </data>
+  <data name="MyCentralRoom" xml:space="preserve">
+    <value>My Central Room</value>
+  </data>
   <data name="WeatherDetail" xml:space="preserve">
     <value>Weather Detail</value>
   </data>
