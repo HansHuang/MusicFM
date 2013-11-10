@@ -27,24 +27,16 @@ namespace CustomControlResources
             WeatherData = new AsyncProperty<Weather>(task);
         }
 
-        #region Weather DependencyProperty
-        public static readonly DependencyProperty WeatherProperty =
-            DependencyProperty.Register("Weather", typeof(Weather), typeof(WeatherDetail), new PropertyMetadata(default(Weather)));
+        #region WeatherData DependencyProperty
+        public static readonly DependencyProperty WeatherDataProperty =
+            DependencyProperty.Register("WeatherData", typeof(AsyncProperty<Weather>), typeof(WeatherDetail), new PropertyMetadata(default(AsyncProperty<Weather>)));
 
-        public Weather Weather
+        public AsyncProperty<Weather> WeatherData
         {
-            get { return (Weather)GetValue(WeatherProperty); }
-            set { SetValue(WeatherProperty, value); }
+            get { return (AsyncProperty<Weather>)GetValue(WeatherDataProperty); }
+            set { SetValue(WeatherDataProperty, value); }
         } 
         #endregion
-
-        public static readonly DependencyProperty WeatherDataProperty =
-            DependencyProperty.Register("WeatherData", typeof (AsyncProperty<Weather>), typeof (WeatherDetail), new PropertyMetadata(default(AsyncProperty<Weather>)));
-
-        public AsyncProperty<Weather> WeatherData {
-            get { return (AsyncProperty<Weather>) GetValue(WeatherDataProperty); }
-            set { SetValue(WeatherDataProperty, value); }
-        }
 
     }
 }

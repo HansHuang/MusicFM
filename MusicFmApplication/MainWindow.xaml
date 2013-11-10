@@ -39,6 +39,19 @@
             <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
             <cvt:MultiplyNumber x:Key="MultiplyNum"/>
             <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
+            <Style TargetType="Grid" x:Key="ChannelCell">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                            <GradientStop Color="#aa3a3a3a" Offset="0.0" />
+                            <GradientStop Color="#aa121212" Offset="1" />
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Margin" Value="3" />
+                <Setter Property="Width" Value="95"/>
+                <Setter Property="Height" Value="25"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -75,19 +88,36 @@
             <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000" Position="Right"
                           Header="{lex:LocText MusicFmApplication:English:MyCentralRoom}"
                           IsOpen="{Binding ViewModel.IsShowPlayerDetail }">
-                <Grid>
-                    <ListBox ItemsSource="{Binding ViewModel.Channels.AsyncValue}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
+                <TabControl Width="230">
+                    <TabItem Header="Douban Fm">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <ScrollViewer Grid.Row="1" Margin="3,0">
+                                <ItemsControl ItemsSource="{Binding ViewModel.Channels.AsyncValue}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel IsItemsHost="True" Orientation="Horizontal" HorizontalAlignment="Left"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Style="{StaticResource ChannelCell}">
+                                                <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="WhiteSmoke"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
             </metro:Flyout>
         </metro:FlyoutsControl>
     </metro:MetroWindow.Flyouts>
-    
+
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -97,23 +127,10 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0" Height="20">
-            <DockPanel.Resources>
-                <Style TargetType="cc:ImageButton">
-                    <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
-                    <Setter Property="VerticalAlignment" Value="Bottom"/>
-                    <Setter Property="Height" Value="16"/>
-                </Style>
-            </DockPanel.Resources>
             <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
                                      ProgressColour="{DynamicResource AccentColorBrush}"
                                      Width="{Binding ElementName=Root, Path=Width}"
                                      Visibility="{Binding IsGettingSong, Converter={StaticResource Bool2Visbility}}"/>
-            
-           <cc:ImageButton DockPanel.Dock="Right" Content="私人MHZ">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentColorBrush}" Width="14" Height="14" Margin="3,0"/>
-                </cc:ImageButton.Image>
-           </cc:ImageButton>
         </DockPanel>
         <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
             <StackPanel.Resources>
@@ -360,5 +377,5 @@
             </cc:ImageButton>
         </Grid>
     </Grid>
-    
+
 </metro:MetroWindow>

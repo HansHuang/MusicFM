@@ -101,7 +101,6 @@ namespace CommonHelperLibrary
         #region Fields
 
         readonly object locker = new object();
-        T defaultValue;
         Lazy<Task<T>> lazy;
 
         #endregion Fields
@@ -114,7 +113,7 @@ namespace CommonHelperLibrary
             if (valueFactory == null)
                 throw new ArgumentNullException("valueFactory");
 
-            defaultValue = defVal;
+            _asyncValue = defVal;
             lazy = new Lazy<Task<T>>(() => AppendTask(Task.Run(valueFactory)));
         }
 
@@ -123,7 +122,7 @@ namespace CommonHelperLibrary
             if (taskFactory == null)
                 throw new ArgumentNullException("taskFactory");
 
-            defaultValue = defVal;
+            _asyncValue = defVal;
             lazy = new Lazy<Task<T>>(() => AppendTask(Task.Run(taskFactory)));
         }
 
