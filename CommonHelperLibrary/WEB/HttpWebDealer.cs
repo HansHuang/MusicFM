@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Web.Script.Serialization;
 
 namespace CommonHelperLibrary.WEB
@@ -75,9 +76,9 @@ namespace CommonHelperLibrary.WEB
         /// <param name="referenceUrl">Reference URL(To prevent site blocking hotlinking)</param>
         /// <param name="header">Header of request</param>
         /// <returns>Success:Ture</returns>
-        public static bool DownloadFile(string fileName, string url, string path, int timeout, string referenceUrl = "", WebHeaderCollection header = null)
+        public static bool DownloadFile(string fileName, string url, string path, int timeout, string referenceUrl = "")
         {
-            var response = GetResponseByUrl(url, referenceUrl, header, timeout);
+            var response = GetResponseByUrl(url, referenceUrl, timeout);
             var stream = response.GetResponseStream();
             if (stream == null) return false;
             using (var bReader = new BinaryReader(stream))
@@ -124,25 +125,45 @@ namespace CommonHelperLibrary.WEB
         /// </summary>
         /// <param name="url">URL</param>
         /// <param name="reference">Reference URL(To prevent site blocking hotlinking)</param>
-        /// <param name="header">Header of request</param>
         /// <param name="requestTimeout">Request timeout(Set to 0 for no limit)</param>
         /// <returns></returns>
-        public static HttpWebResponse GetResponseByUrl(string url, string reference, WebHeaderCollection header = null, int requestTimeout = 0)
+        public static HttpWebResponse GetResponseByUrl(string url, string reference, int requestTimeout = 0)
         {
-            var request = (HttpWebRequest) WebRequest.Create(url);
+            var request = (HttpWebRequest)WebRequest.Create(url);
             if (string.IsNullOrEmpty(reference))
                 request.Referer = reference;
-            if (header != null)
-                request.Headers = header;
+            //if (header != null)
+            //{
+            //    request.UserAgent = header[HttpRequestHeader.UserAgent];
+            //    request.Connection = header[HttpRequestHeader.Connection];
+            //    request.Accept = header[HttpRequestHeader.Accept];
+            //}
             if (requestTimeout > 0)
                 request.Timeout = requestTimeout;
 
-            var response = (HttpWebResponse) request.GetResponse();
+            var count = 0;
+            HttpWebResponse response = null;
+            while (count < 3)
+            {
+                try
+                {
+                    response = (HttpWebResponse)request.GetResponse();
+                    return response;
+                }
+                catch (Exception)
+                {
+                    count++;
+                    Thread.Sleep(3000);
+                }
+            }
             return response;
         }
 
         public static HttpWebResponse GetResponseByUrl(string url)
         {
+            //var header = new WebHeaderCollection();
+            //header.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
+            //header.Add(HttpRequestHeader.Connection, "keep-alive");
             return GetResponseByUrl(url, string.Empty);
         }
 

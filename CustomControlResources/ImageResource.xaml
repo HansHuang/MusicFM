@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
     <ImageSource x:Key="LogoIco32">Images/logo32.png</ImageSource>
     <ImageSource x:Key="LogoIco96">Images/logo96.png</ImageSource>
     <ImageSource x:Key="Heart96">Images/heart96.png</ImageSource>
@@ -11,4 +12,6 @@
     <ImageSource x:Key="Mute32">Images/mute32.png</ImageSource>
     <ImageSource x:Key="Download32">Images/download32.png</ImageSource>
     <ImageSource x:Key="Wave32">Images/wave32.png</ImageSource>
+    <ImageSource x:Key="CurrentChennle">Images/CurChannel.gif</ImageSource>
+    <system:String x:Key="CrtChelStr">/CustomControlResources;component/Images/CurChannel.gif</system:String>
 </ResourceDictionary>

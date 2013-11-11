@@ -213,6 +213,22 @@ namespace MusicFmApplication
         }
         #endregion
 
+        #region CurrentChannel (INotifyPropertyChanged Property)
+
+        private Channel _currentChannel;
+
+        public Channel CurrentChannel
+        {
+            get { return _currentChannel; }
+            set
+            {
+                if (_currentChannel != null && _currentChannel.Equals(value)) return;
+                _currentChannel = value;
+                RaisePropertyChanged("CurrentChannel");
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Private Properties
@@ -284,10 +300,10 @@ namespace MusicFmApplication
 
             //Change this with MEF
             SongService = new DoubanFm();
-            GetSongs();
 
-            var task = new Func<Task<ObservableCollection<Channel>>>(() => Task.Run(() => SongService.GetChannels(false)));
-            Channels = new AsyncProperty<ObservableCollection<Channel>>(task, SongService.GetChannels());
+            GetChannels();
+
+            GetSongs();
         }
 
         public static MainViewModel GetInstance(MainWindow window=null) 
@@ -295,6 +311,14 @@ namespace MusicFmApplication
             return _instance ?? (_instance = new MainViewModel(window));
         }
         #endregion
+
+        private void GetChannels()
+        {
+            var basicChannels = SongService.GetChannels();
+            var task = new Func<Task<ObservableCollection<Channel>>>(() => Task.Run(() => SongService.GetChannels(false)));
+            Channels = new AsyncProperty<ObservableCollection<Channel>>(task, basicChannels);
+            CurrentChannel = basicChannels.FirstOrDefault();
+        }
 
         private void GetSongs()
         {

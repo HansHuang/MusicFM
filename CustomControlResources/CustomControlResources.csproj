@@ -52,6 +52,7 @@
     <Compile Include="ColorlizeImage.xaml.cs">
       <DependentUpon>ColorlizeImage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converter\EqualiencyToVisibilityConverter.cs" />
     <Compile Include="Converter\LyricHighLightConverter.cs" />
     <Compile Include="Converter\NumberToVisibilityConverter.cs" />
     <Compile Include="Converter\InverseBoolConverter.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="DayWeatherControl.xaml.cs">
       <DependentUpon>DayWeatherControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GifImage.cs" />
     <Compile Include="ImageButton.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -342,6 +344,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\wave32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CurChannel.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
