@@ -27,31 +27,41 @@ namespace Service
             _random = new Random(1000000);
         }
 
-        public List<Song> GetSongList()
+        public List<Song> GetSongList(GetSongParameter parameter) 
         {
-            var url = string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&channel=0&type=p&r={0}&sid=0",
-                    _random.Next(0, 1000000));
+            var url = string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&channel={0}&type=p&r={1}&sid=0",
+                    parameter.ChannelId, _random.Next(0, 1000000));
             var json = HttpWebDealer.GetJsonObject(url, Encoding.UTF8);
             var songs = json["song"] as IEnumerable;
-            if (songs == null) return new List<Song>();
-            var list = (from dynamic song in songs
-                        select new Song
-                            {
-                                Title = song["title"],
-                                Artist = song["artist"],
-                                AlbumTitle = song["albumtitle"],
-                                AlbumId = song["album"],
-                                Company = song["company"],
-                                PublishTime = song["public_time"],
-                                Length = Convert.ToInt32(song["length"]),
-                                Kbps = Convert.ToInt32(song["kbps"]),
-                                Picture = song["picture"],
-                                Url = song["url"],
-                                Sid = Convert.ToInt32(song["sid"]),
-                                Like = Convert.ToInt32(song["like"])
-                            }).Where(s => s.Length > 15).ToList();
-            //fitle advertisement
-            list.ForEach(s => s.Picture = s.Picture.Replace("mpic", "lpic"));
+            if (songs == null) return GetSongList(parameter);
+            //This list will always appear at first time, almost 100% probability
+            var toFilter = false;
+            var filterList = new List<string>{"107686","280187","1000411","1027380","1381349"};
+            var list = new List<Song>();
+            foreach (dynamic song in songs)
+            {
+                //filter advertisement
+                var length = Convert.ToInt32(song["length"]);
+                if (length <= 30) continue;
+                toFilter = parameter.ChannelId == 0 && filterList.Contains(song["sid"]);
+                list.Add(new Song
+                {
+                    Title = song["title"],
+                    Artist = song["artist"],
+                    AlbumTitle = song["albumtitle"],
+                    AlbumId = song["album"],
+                    Company = song["company"],
+                    PublishTime = song["public_time"],
+                    Length = length,
+                    Kbps = Convert.ToInt32(song["kbps"]),
+                    Picture = song["picture"].Replace("mpic", "lpic"),
+                    Url = song["url"],
+                    Sid = Convert.ToInt32(song["sid"]),
+                    Like = Convert.ToInt32(song["like"])
+                });
+            }
+            if (toFilter || list.Count < 1) return GetSongList(parameter);
+            //list.ForEach(s => s.Picture = s.Picture.Replace("mpic", "lpic"));
             return list;
         }
 
@@ -95,6 +105,7 @@ namespace Service
             foreach (var node in chls.Nodes().Where(s => !string.IsNullOrWhiteSpace(s.InnerHtml)))
             {
                 var cid = node.GetAttributeValue("cid", 0);
+                if (list.Any(s => s.Id == cid)) continue;
                 var desc = node.GetAttributeValue("data-intro", "");
                 var conver = node.GetAttributeValue("data-cover", "");
                 var name = node.ChildNodes.First(s => !string.IsNullOrWhiteSpace(s.InnerHtml)).InnerText;

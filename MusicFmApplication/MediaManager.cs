@@ -192,9 +192,9 @@ namespace MusicFmApplication
             viewModel.IsGettingSong = Player.IsBuffering;
             PlayProgress = Position.TotalMilliseconds/SongLength.TotalMilliseconds;
             //Song is almost finish, jump to next one
-            if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 200)
+            if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 100)
             {
-                viewModel.NextSongCommand.Execute();
+                viewModel.NextSongCommand.Execute(true);
                 return;
             }
             //Lrc control

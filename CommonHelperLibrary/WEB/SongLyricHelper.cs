@@ -25,27 +25,31 @@ namespace CommonHelperLibrary.WEB
         public static string GetSongLrc(string title, string artist)
         {
             var artist2 = string.Empty;
-            if (artist.Contains("/"))
+            if (artist.Contains("/")) 
             {
-                var artists = artist.Split(new char['/']);
-                artist = artists.First();
-                artist2 = artists.Last();
+                var artists = artist.Split(new[] {"/"}, StringSplitOptions.RemoveEmptyEntries);
+                artist = artists[0];
+                if (artists.Length > 1) artist2 = artists[1];
             }
+            if (title.Contains("("))
+                title = title.Split(new[] { "(" }, StringSplitOptions.RemoveEmptyEntries)[0];
             var uTitle = System.Web.HttpUtility.UrlEncode(title.Trim());
             var uArtist = System.Web.HttpUtility.UrlEncode(artist);
             //Get lrc search result
             var response = HttpWebDealer.GetHtml(
               string.Format("http://box.zhangmen.baidu.com/x?op=12&count=1&title={0}$${1}$$$$", uTitle, uArtist));
-            if (string.IsNullOrEmpty(response))
-                return string.IsNullOrEmpty(artist2) ? string.Empty : GetSongLrc(title, artist2);
+            if (string.IsNullOrEmpty(response)) return string.Empty;
 
+            //Console.WriteLine(response);
             //Get lrc id
             var xml = new XmlDocument();
             xml.LoadXml(response);
             var list = xml.GetElementsByTagName("lrcid");
+            if (list.Count == 0 || list[0].InnerText.Equals("0"))
+                return string.IsNullOrEmpty(artist) ? string.Empty : GetSongLrc(title, artist2);
+
             int lId;
             if (list.Count < 1 || !int.TryParse(list[0].InnerText, out lId) || lId < 1) return string.Empty;
-
             var lrc = HttpWebDealer.GetHtml(string.Format("http://box.zhangmen.baidu.com/bdlrc/{0}/{1}.lrc", Math.Floor((decimal)lId / 100), lId));
             return lrc;
         }

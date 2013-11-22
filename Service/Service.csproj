@@ -45,6 +45,7 @@
     <Compile Include="ISongService.cs" />
     <Compile Include="DoubanFm.cs" />
     <Compile Include="Model\Channel.cs" />
+    <Compile Include="Model\GetSongParameter.cs" />
     <Compile Include="Model\Song.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

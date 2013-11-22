@@ -6,7 +6,7 @@
                    xmlns:lex="http://schemas.root-project.org/xaml/presentation"
                    xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
-                   xmlns:System="clr-namespace:System;assembly=mscorlib"
+                   xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}"
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
@@ -41,12 +41,13 @@
             <cvt:MultiplyNumber x:Key="MultiplyNum"/>
             <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
             <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
+            <cvt:EqualiencyConverter x:Key="EquCvt"/>
             <Style TargetType="Grid" x:Key="ChannelCell">
                 <Setter Property="Background">
                     <Setter.Value>
                         <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-                            <GradientStop Color="#aa121212" Offset="0.0" /> 
-                            <GradientStop Color="#aa3a3a3a" Offset="1" />
+                            <GradientStop Color="#aa3a3a3a" Offset="0.0" />
+                            <GradientStop Color="#aa121212" Offset="1" /> 
                         </LinearGradientBrush>
                     </Setter.Value>
                 </Setter>
@@ -107,20 +108,37 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Style="{StaticResource ChannelCell}">
-                                                <cc:ImageButton Template="{StaticResource ImageButtonTemplate}">
+                                                <cc:ImageButton Template="{StaticResource ImageButtonTemplate}"
+                                                                Command="{Binding ElementName=Root, Path=ViewModel.SetChannelCommand}"
+                                                                CommandParameter="{Binding Id}"
+                                                                ToolTip="{Binding Name}">
                                                     <cc:ImageButton.Image>
-                                                        <!--<Image Width="11" Height="11" Margin="0,0,3,0" Source="{StaticResource CurrentChennle}"/>-->
-                                                        <cc:GifImage Width="11" Height="11" Margin="0,0,3,0" GifSource="{StaticResource CrtChelStr}">
+                                                        <cc:GifImage Width="11" Height="11" Margin="0,0,3,0" Source="{StaticResource CrtChelStr}">
                                                             <cc:GifImage.Visibility>
                                                                 <MultiBinding Converter="{StaticResource Equ2Vsbty}">
-                                                                    <Binding Path="."/>
-                                                                    <Binding ElementName="Root" Path="ViewModel.CurrentChannel" />
+                                                                    <Binding Path=".Id"/>
+                                                                    <Binding ElementName="Root" Path="ViewModel.CurrentChannel.Id" />
                                                                 </MultiBinding>
                                                             </cc:GifImage.Visibility>
                                                         </cc:GifImage>
                                                     </cc:ImageButton.Image>
-                                                    <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="WhiteSmoke">
-                                                        
+                                                    <TextBlock Text="{Binding Name}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Value="{x:Static cc:BooleanClass.True}">
+                                                                        <DataTrigger.Binding>
+                                                                            <MultiBinding Converter="{StaticResource EquCvt}">
+                                                                                <Binding Path=".Id"/>
+                                                                                <Binding ElementName="Root" Path="ViewModel.CurrentChannel.Id"/>
+                                                                            </MultiBinding>
+                                                                        </DataTrigger.Binding>
+                                                                        <Setter Property="Foreground" Value="SpringGreen"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                                <Setter Property="Foreground" Value="WhiteSmoke"/>
+                                                            </Style>
+                                                        </TextBlock.Style>
                                                     </TextBlock>
                                                 </cc:ImageButton>
                                             </Grid>

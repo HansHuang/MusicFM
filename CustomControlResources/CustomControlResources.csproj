@@ -49,9 +49,11 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BooleanClass.cs" />
     <Compile Include="ColorlizeImage.xaml.cs">
       <DependentUpon>ColorlizeImage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converter\EqualiencyConverter.cs" />
     <Compile Include="Converter\EqualiencyToVisibilityConverter.cs" />
     <Compile Include="Converter\LyricHighLightConverter.cs" />
     <Compile Include="Converter\NumberToVisibilityConverter.cs" />

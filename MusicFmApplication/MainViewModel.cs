@@ -27,6 +27,14 @@ namespace MusicFmApplication
     /// </summary>
     public class MainViewModel : NotificationObject
     {
+        #region Fields
+
+        private static MainViewModel _instance;
+
+        public MainWindow MainWindow { get; private set; }
+
+        #endregion
+
         #region Notify Properties
 
         #region IsShowWeatherDetail (NotificationObject Property)
@@ -74,6 +82,22 @@ namespace MusicFmApplication
             }
         }
 
+        #endregion
+
+        #region HistorySongList (INotifyPropertyChanged Property)
+
+        private ObservableCollection<Song> _historySongList;
+
+        public ObservableCollection<Song> HistorySongList
+        {
+            get { return _historySongList ?? (_historySongList = new ObservableCollection<Song>()); }
+            set
+            {
+                if (_historySongList != null && _historySongList.Equals(value)) return;
+                _historySongList = value;
+                RaisePropertyChanged("HistorySongList");
+            }
+        }
         #endregion
 
         #region SongList (INotifyPropertyChanged Property)
@@ -201,7 +225,7 @@ namespace MusicFmApplication
 
         private AsyncProperty<ObservableCollection<Channel>> _channels;
 
-        public AsyncProperty<ObservableCollection<Channel>>     Channels
+        public AsyncProperty<ObservableCollection<Channel>> Channels
         {
             get { return _channels; }
             set
@@ -231,12 +255,6 @@ namespace MusicFmApplication
 
         #endregion
 
-        #region Private Properties
-
-        private static MainViewModel _instance;
-
-        #endregion
-
         #region Delegate Commands
 
         #region ShowWeatherDetail DelegateCommand
@@ -253,25 +271,30 @@ namespace MusicFmApplication
             IsShowPlayerDetail = !IsShowPlayerDetail;
         }
 
-        public DelegateCommand NextSongCommand { get; private set; }
-        private void NextSongExecute()
+        public DelegateCommand<bool?> NextSongCommand { get; private set; }
+        private void NextSongExecute(bool? isEnded = false)
         {
-            var index = CurrentSong == null ? 0 : SongList.IndexOf(CurrentSong) + 1;
-            //Get song list before last 2 songs
-            if (index+2 >= SongList.Count) GetSongs();
-            if (index >= SongList.Count) return;
-            //Set current song & playing
-            CurrentSong = SongList[index];
-            if (!MediaManager.IsPlaying)
-                MediaManager.StartPlayerCommand.Execute();
-            //Set&Get song lyric
-            Lyric = new SongLyric
-                {
-                    Title = CurrentSong.Title,
-                    Album = CurrentSong.AlbumTitle,
-                    Artist = CurrentSong.Artist
-                };
-            GetLyric();
+            //If last song is ended, add it to history
+            if (isEnded.GetValueOrDefault()) HistorySongList.Add(CurrentSong);
+
+            Action action = () =>
+            {
+                //Set current song & playing
+                CurrentSong = SongList[0];
+                //Get song lyric
+                GetLyric();
+                if (!MediaManager.IsPlaying) MediaManager.StartPlayerCommand.Execute();
+                SongList.RemoveAt(0);
+            };
+            if (SongList.Count == 0)
+                GetSongList(CurrentChannel.Id, action);
+            else if (SongList.Count < 3)
+            {
+                GetSongList(CurrentChannel.Id);
+                action();
+            }
+            else
+                action();
         }
 
         public DelegateCommand ToggleLyricDisplayCommand { get; private set; }
@@ -280,10 +303,17 @@ namespace MusicFmApplication
             IsDisylayLyric = !IsDisylayLyric;
         }
 
+        public DelegateCommand<int?> SetChannelCommand { get; private set; }
+        private void SetChannelExecute(int? cid) 
+        {
+            var id = cid.GetValueOrDefault();
+            CurrentChannel = Channels.AsyncValue.FirstOrDefault(s => s.Id == id);
+            SongList.Clear();
+            NextSongCommand.Execute(false);
+            IsShowPlayerDetail = false;
+        }
+
         #endregion
-
-
-        public MainWindow MainWindow { get; private set; }
 
         #region Construct Method
         /// <summary>
@@ -294,16 +324,15 @@ namespace MusicFmApplication
         {
             MainWindow = window;
             ShowWeatherDetailCommmand = new DelegateCommand(ShowWeatherDetailExecute);
-            NextSongCommand = new DelegateCommand(NextSongExecute);
+            NextSongCommand = new DelegateCommand<bool?>(NextSongExecute);
             ToggleLyricDisplayCommand = new DelegateCommand(ToggleLyricDisplayExecute);
             TogglePlayerDetailCommand=new DelegateCommand(TogglePlayerDetailExecute);
+            SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
 
             //Change this with MEF
             SongService = new DoubanFm();
 
             GetChannels();
-
-            GetSongs();
         }
 
         public static MainViewModel GetInstance(MainWindow window=null) 
@@ -312,53 +341,59 @@ namespace MusicFmApplication
         }
         #endregion
 
+        #region Processors
         private void GetChannels()
         {
             var basicChannels = SongService.GetChannels();
             var task = new Func<Task<ObservableCollection<Channel>>>(() => Task.Run(() => SongService.GetChannels(false)));
             Channels = new AsyncProperty<ObservableCollection<Channel>>(task, basicChannels);
-            CurrentChannel = basicChannels.FirstOrDefault();
+            var first = basicChannels.FirstOrDefault();
+            if (first != null)
+                SetChannelCommand.Execute(first.Id);
         }
 
-        private void GetSongs()
+        private void GetSongList(int cid = 0, Action callBack = null)
         {
             IsGettingSong = true;
             Task.Factory.StartNew(() =>
             {
                 //Get Song List
                 var exitingIds = SongList.Select(s => s.Sid);
-                var songs = SongService.GetSongList().Where(s => !exitingIds.Contains(s.Sid)).ToList();
-                if (!songs.Any())
-                {
-                    GetSongs();
-                    return;
-                }
+                var para = new GetSongParameter { ChannelId = cid };
+                var songs = SongService.GetSongList(para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
                 //Notify song list back to the main thread
                 MainWindow.Dispatcher.BeginInvoke((Action)(() =>
                     {
                         songs.ForEach(s => SongList.Add(s));
-                        if (CurrentSong == null)
-                            NextSongCommand.Execute();
-                        IsGettingSong = false;
+                        if (callBack != null) callBack();
                     }));
+                IsGettingSong = false;
             });
         }
 
         private void GetLyric()
         {
+            Lyric = new SongLyric
+            {
+                Title = CurrentSong.Title,
+                Album = CurrentSong.AlbumTitle,
+                Artist = CurrentSong.Artist
+            };
+            Lyric.Content.Add(new TimeSpan(0), "Trying to Get Lyrics, Please wait");
             Task.Factory.StartNew(() =>
                 {
                     var lrc = SongLyricHelper.GetSongLyric(CurrentSong.Title, CurrentSong.Artist);
-                    if (lrc == null) return;
-                    MainWindow.Dispatcher.BeginInvoke((Action) (() =>
-                        {
-                            if (!lrc.Content.Any()) return;
-                            Lyric = lrc;
-                            var firstLine = lrc.Content.First();
-                            CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, firstLine.Key);
-                        }));
+                    if (lrc == null || !lrc.Content.Any()) return;
+                    Lyric = lrc;
+                    CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
+                    //MainWindow.Dispatcher.BeginInvoke((Action)(() =>
+                    //    {
+                    //        Lyric = lrc;
+                    //        CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
+                    //    }));
                 });
-        }
+        } 
+        #endregion
 
     }
 }
