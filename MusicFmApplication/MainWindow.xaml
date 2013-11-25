@@ -94,45 +94,98 @@
                 <TabControl Width="230">
                     <TabItem Header="Douban Fm">
                         <Grid>
+                            <Grid.Resources>
+                                <Style TargetType="cc:ImageButton">
+                                    <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+                                </Style>
+                            </Grid.Resources>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Grid Margin="0,0,0,10">
-                                <Grid.Resources>
-                                    <Style TargetType="cc:ImageButton">
-                                        <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+
+                            <Grid Grid.Row="0">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ViewModel.IsShowLoginBox}" Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="25" To="0" Duration="0:0:0.3"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ViewModel.IsShowLoginBox}" Value="False">
+                                                <Setter Property="Height" Value="25"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
                                     </Style>
-                                </Grid.Resources>
+                                </Grid.Style>
+                                <ToggleButton HorizontalAlignment="Left" HorizontalContentAlignment="Left" Width="220"
+                                          BorderThickness="0" Focusable="False" Background="Transparent"
+                                          IsChecked="{Binding ViewModel.IsShowLoginBox}">
+                                    <ToggleButton.Style>
+                                        <Style TargetType="ToggleButton" BasedOn="{StaticResource MetroToggleButton}">
+                                            <Setter Property="Padding" Value="2"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ToggleButton.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{StaticResource User48}" Height="20" Width="20"/>
+                                        <TextBlock Text="{lex:LocText MusicFmApplication:English:LoginDouban}" Margin="5,2,0,0"/>
+                                    </StackPanel>
+                                </ToggleButton>
+                            </Grid>
+
+                            <Grid Margin="0,5,0,10" Grid.Row="1"
+                                  Visibility="{Binding ViewModel.IsShowLoginBox, Converter={StaticResource Bool2Visbility}}">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ViewModel.IsShowLoginBox}" Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="70" Duration="0:0:0.3"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 
-                                <cc:ImageButton HorizontalAlignment="Left"
-                                                Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-                                    <cc:ImageButton.Image>
-                                        <Image Source="{StaticResource User48}" Height="20" Width="20"/>
-                                    </cc:ImageButton.Image>
-                                    <cc:ImageButton.Content>
-                                        <TextBlock Text="{lex:LocText MusicFmApplication:English:LoginDouban}" Foreground="{StaticResource AccentColorBrush}" Margin="5,0,0,0">
-                                            
-                                        </TextBlock>
-                                    </cc:ImageButton.Content>
-                                </cc:ImageButton>
                                 <TextBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:UserName}" 
                                          metro:TextboxHelper.ClearTextButton="True" 
-                                         Grid.Row="1" Grid.Column="0" Margin="0,2"/>
+                                         Grid.Row="0" Grid.Column="0" Margin="0,4"/>
                                 <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Password}"
                                              metro:TextboxHelper.ClearTextButton="True" 
-                                             Grid.Row="2" Grid.Column="0" Margin="0,2"/>
+                                             Grid.Row="1" Grid.Column="0" Margin="0,2"/>
+                                <cc:ImageButton HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+                                                ToolTip="{lex:LocText MusicFmApplication:English:LoginDouban}">
+                                    <cc:ImageButton.Image>
+                                        <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
+                                    </cc:ImageButton.Image>
+                                </cc:ImageButton>
                             </Grid>
-                            <ScrollViewer Grid.Row="1" Margin="3,0">
+                            
+                            <ScrollViewer Grid.Row="2">
                                 <ItemsControl ItemsSource="{Binding ViewModel.Channels.AsyncValue}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>

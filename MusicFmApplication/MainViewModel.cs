@@ -253,6 +253,23 @@ namespace MusicFmApplication
         }
         #endregion
 
+        #region IsShowLoginBox (INotifyPropertyChanged Property)
+
+        private bool _isShowLoginBox;
+
+        public bool IsShowLoginBox
+        {
+            get { return _isShowLoginBox; }
+            set
+            {
+                if (_isShowLoginBox.Equals(value)) return;
+                _isShowLoginBox = value;
+                RaisePropertyChanged("IsShowLoginBox");
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Delegate Commands
@@ -269,6 +286,7 @@ namespace MusicFmApplication
         private void TogglePlayerDetailExecute() 
         {
             IsShowPlayerDetail = !IsShowPlayerDetail;
+            IsShowLoginBox = false;
         }
 
         public DelegateCommand<bool?> NextSongCommand { get; private set; }

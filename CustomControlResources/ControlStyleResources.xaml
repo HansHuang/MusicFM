@@ -8,6 +8,14 @@
                 <ContentPresenter Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"/>
             </StackPanel>
         </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter  Property="Cursor" Value="Hand" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter  Property="Cursor" Value="Hand" />
+            </Trigger>
+        </ControlTemplate.Triggers>
     </ControlTemplate>
     
     <ControlTemplate x:Key="ImageButtonWithTriggerTemplate" TargetType="{x:Type controls:ImageButton}">
@@ -21,9 +29,11 @@
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="true">
                 <Setter TargetName="buttonImage" Property="Content" Value="{Binding ImageHover, RelativeSource={RelativeSource TemplatedParent}}" />
+                <Setter  Property="Cursor" Value="Hand" />
             </Trigger>
             <Trigger Property="IsPressed" Value="true">
                 <Setter TargetName="buttonImage" Property="Content" Value="{Binding ImagePressed, RelativeSource={RelativeSource TemplatedParent}}" />
+                <Setter  Property="Cursor" Value="Hand" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="false">
                 <Setter TargetName="buttonImage" Property="Content" Value="{Binding ImageDisable, RelativeSource={RelativeSource TemplatedParent}}" />
