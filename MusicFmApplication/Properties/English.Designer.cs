@@ -61,6 +61,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Login Douban FM.
+        /// </summary>
+        internal static string LoginDouban {
+            get {
+                return ResourceManager.GetString("LoginDouban", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Music FM.
         /// </summary>
         internal static string MusicFm {
@@ -75,6 +84,24 @@ namespace MusicFmApplication.Properties {
         internal static string MyCentralRoom {
             get {
                 return ResourceManager.GetString("MyCentralRoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        internal static string Password {
+            get {
+                return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User Name.
+        /// </summary>
+        internal static string UserName {
+            get {
+                return ResourceManager.GetString("UserName", resourceCulture);
             }
         }
         

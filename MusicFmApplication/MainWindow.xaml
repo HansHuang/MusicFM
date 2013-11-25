@@ -98,6 +98,40 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.Resources>
+                                    <Style TargetType="cc:ImageButton">
+                                        <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                
+                                <cc:ImageButton HorizontalAlignment="Left"
+                                                Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                                    <cc:ImageButton.Image>
+                                        <Image Source="{StaticResource User48}" Height="20" Width="20"/>
+                                    </cc:ImageButton.Image>
+                                    <cc:ImageButton.Content>
+                                        <TextBlock Text="{lex:LocText MusicFmApplication:English:LoginDouban}" Foreground="{StaticResource AccentColorBrush}" Margin="5,0,0,0">
+                                            
+                                        </TextBlock>
+                                    </cc:ImageButton.Content>
+                                </cc:ImageButton>
+                                <TextBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:UserName}" 
+                                         metro:TextboxHelper.ClearTextButton="True" 
+                                         Grid.Row="1" Grid.Column="0" Margin="0,2"/>
+                                <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Password}"
+                                             metro:TextboxHelper.ClearTextButton="True" 
+                                             Grid.Row="2" Grid.Column="0" Margin="0,2"/>
+                            </Grid>
                             <ScrollViewer Grid.Row="1" Margin="3,0">
                                 <ItemsControl ItemsSource="{Binding ViewModel.Channels.AsyncValue}">
                                     <ItemsControl.ItemsPanel>
@@ -154,6 +188,11 @@
     </metro:MetroWindow.Flyouts>
 
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
+        <Grid.Resources>
+            <Style TargetType="cc:ImageButton">
+                <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+            </Style>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
             <RowDefinition Height="4*"/>
@@ -179,11 +218,6 @@
                                 Width="120" Height="120"
                                 Visibility="{Binding Path=CurrentSong, Converter={StaticResource IvsNull2Vsby}}"/>
             <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
-                <Grid.Resources>
-                    <Style TargetType="cc:ImageButton">
-                        <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
-                    </Style>
-                </Grid.Resources>
                 <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
                     <cc:ImageButton.Image>
                         <Image Source="{Binding Path=CurrentSong.Picture}" Stretch="Fill" HorizontalAlignment="Center">
