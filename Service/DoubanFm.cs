@@ -35,7 +35,7 @@ namespace Service
             var songs = json["song"] as IEnumerable;
             if (songs == null) return GetSongList(parameter);
             //This list will always appear at first time, almost 100% probability
-            var toFilter = false;
+            var count = 1;
             var filterList = new List<string>{"107686","280187","1000411","1027380","1381349"};
             var list = new List<Song>();
             foreach (dynamic song in songs)
@@ -43,7 +43,7 @@ namespace Service
                 //filter advertisement
                 var length = Convert.ToInt32(song["length"]);
                 if (length <= 30) continue;
-                toFilter = parameter.ChannelId == 0 && filterList.Contains(song["sid"]);
+                if (filterList.Contains(song["sid"])) count++;
                 list.Add(new Song
                 {
                     Title = song["title"],
@@ -60,8 +60,7 @@ namespace Service
                     Like = Convert.ToInt32(song["like"])
                 });
             }
-            if (toFilter || list.Count < 1) return GetSongList(parameter);
-            //list.ForEach(s => s.Picture = s.Picture.Replace("mpic", "lpic"));
+            if (count >= 3 || list.Count < 1) return GetSongList(parameter);
             return list;
         }
 

@@ -49,6 +49,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AreoGlassEffect.cs" />
     <Compile Include="BooleanClass.cs" />
     <Compile Include="ColorlizeImage.xaml.cs">
       <DependentUpon>ColorlizeImage.xaml</DependentUpon>

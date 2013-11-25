@@ -384,13 +384,11 @@ namespace MusicFmApplication
                 {
                     var lrc = SongLyricHelper.GetSongLyric(CurrentSong.Title, CurrentSong.Artist);
                     if (lrc == null || !lrc.Content.Any()) return;
-                    Lyric = lrc;
-                    CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
-                    //MainWindow.Dispatcher.BeginInvoke((Action)(() =>
-                    //    {
-                    //        Lyric = lrc;
-                    //        CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
-                    //    }));
+                    MainWindow.Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            Lyric = lrc;
+                            CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
+                        }));
                 });
         } 
         #endregion

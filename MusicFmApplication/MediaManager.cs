@@ -140,13 +140,15 @@ namespace MusicFmApplication
 
 
         public DelegateCommand MuteCommand { get; private set; }
-        private void MuteExecute() {
-            if (Volume > 0) {
+        private void MuteExecute()
+        {
+            if (Volume > 0)
+            {
                 _volumeCache = Volume;
                 Volume = 0;
             }
             else
-                Volume = _volumeCache;
+                Volume = _volumeCache <= 0.05 ? (_volumeCache = 0.5) : _volumeCache;
         }
 
         #endregion
