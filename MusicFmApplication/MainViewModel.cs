@@ -37,6 +37,39 @@ namespace MusicFmApplication
 
         #region Notify Properties
 
+        #region MediaManager (INotifyPropertyChanged Property)
+
+        private MediaManager _mediaManager;
+
+        public MediaManager MediaManager
+        {
+            get { return _mediaManager ?? (_mediaManager = new MediaManager(this)); }
+            private set
+            {
+                if (_mediaManager != null && _mediaManager.Equals(value)) return;
+                _mediaManager = value;
+                RaisePropertyChanged("MediaManager");
+            }
+        }
+        #endregion
+
+        #region Account (INotifyPropertyChanged Property)
+
+        private AccountManager _account;
+
+        public AccountManager Account
+        {
+            get { return _account ?? (_account = new AccountManager(this)); }
+            private set
+            {
+                if (_account != null && _account.Equals(value)) return;
+                _account = value;
+                RaisePropertyChanged("Account");
+            }
+        }
+
+        #endregion
+
         #region IsShowWeatherDetail (NotificationObject Property)
         private bool _isShowWeatherDetail;
 
@@ -152,22 +185,6 @@ namespace MusicFmApplication
 
         #endregion
 
-        #region MediaManager (INotifyPropertyChanged Property)
-
-        private MediaManager _mediaManager;
-
-        public MediaManager MediaManager
-        {
-            get { return _mediaManager ?? (_mediaManager = new MediaManager(this)); }
-            private set
-            {
-                if (_mediaManager != null && _mediaManager.Equals(value)) return;
-                _mediaManager = value;
-                RaisePropertyChanged("MediaManager");
-            }
-        }
-        #endregion
-
         #region IsDisylayLyric (INotifyPropertyChanged Property)
 
         private bool _isDisylayLyric;
@@ -253,23 +270,6 @@ namespace MusicFmApplication
         }
         #endregion
 
-        #region IsShowLoginBox (INotifyPropertyChanged Property)
-
-        private bool _isShowLoginBox;
-
-        public bool IsShowLoginBox
-        {
-            get { return _isShowLoginBox; }
-            set
-            {
-                if (_isShowLoginBox.Equals(value)) return;
-                _isShowLoginBox = value;
-                RaisePropertyChanged("IsShowLoginBox");
-            }
-        }
-
-        #endregion
-
         #endregion
 
         #region Delegate Commands
@@ -286,7 +286,7 @@ namespace MusicFmApplication
         private void TogglePlayerDetailExecute() 
         {
             IsShowPlayerDetail = !IsShowPlayerDetail;
-            IsShowLoginBox = false;
+            Account.IsShowLoginBox = false;
         }
 
         public DelegateCommand<bool?> NextSongCommand { get; private set; }

@@ -116,7 +116,7 @@
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ViewModel.IsShowLoginBox}" Value="False">
+                                            <DataTrigger Binding="{Binding ViewModel.Account.IsShowLoginBox}" Value="False">
                                                 <DataTrigger.EnterActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
@@ -136,8 +136,8 @@
                                     </Style>
                                 </Grid.Style>
                                 <ToggleButton HorizontalAlignment="Left" HorizontalContentAlignment="Left" Width="220"
-                                          BorderThickness="0" Focusable="False" Background="Transparent"
-                                          IsChecked="{Binding ViewModel.IsShowLoginBox}">
+                                              BorderThickness="0" Focusable="False" Background="Transparent"
+                                              IsChecked="{Binding ViewModel.Account.IsShowLoginBox}">
                                     <ToggleButton.Style>
                                         <Style TargetType="ToggleButton" BasedOn="{StaticResource MetroToggleButton}">
                                             <Setter Property="Padding" Value="2"/>
@@ -160,7 +160,7 @@
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ViewModel.IsShowLoginBox}" Value="True">
+                                            <DataTrigger Binding="{Binding ViewModel.Account.IsShowLoginBox}" Value="True">
                                                 <DataTrigger.EnterActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
@@ -194,7 +194,8 @@
                                              metro:TextboxHelper.ClearTextButton="True" 
                                              Grid.Row="1" Grid.Column="0" Margin="0,2"/>
                                 <cc:ImageButton HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
-                                                ToolTip="{lex:LocText MusicFmApplication:English:LoginDouban}">
+                                                ToolTip="{lex:LocText MusicFmApplication:English:LoginDouban}"
+                                                Command="{Binding ViewModel.Account.LoginCommand}">
                                     <cc:ImageButton.Image>
                                         <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
                                     </cc:ImageButton.Image>
