@@ -65,7 +65,7 @@
     <Compile Include="Converter\InverseNumberToVisibilityConverter.cs" />
     <Compile Include="Converter\NullToBoolConverter.cs" />
     <Compile Include="Converter\NullToVisibility.cs" />
-    <Compile Include="Converter\PercentToNumberConverter.cs" />
+    <Compile Include="Converter\MultiplyNumberConverter.cs" />
     <Compile Include="Converter\TimeSpanToStringConverter.cs" />
     <Compile Include="Converter\WeatherImageSourceConverter.cs" />
     <Compile Include="DayWeatherControl.xaml.cs">

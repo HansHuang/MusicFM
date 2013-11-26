@@ -41,4 +41,9 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
+    <Style TargetType="{x:Type controls:ImageButton}" >
+        <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+    </Style>
+    
+
 </ResourceDictionary>

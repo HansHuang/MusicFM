@@ -61,6 +61,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (Douban Fm).
+        /// </summary>
+        internal static string DoubanFm {
+            get {
+                return ResourceManager.GetString("DoubanFm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Login Douban FM.
         /// </summary>
         internal static string LoginDouban {

@@ -7,11 +7,17 @@ using System.Windows.Data;
 
 namespace CustomControlResources.Converter
 {
-    public class MultiplyNumber : IMultiValueConverter
+    public class MultiplyNumberConverter : IMultiValueConverter
     {
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture) 
+        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var result = values.Aggregate<object, double>(1, (current, t) => current*(double) t);
+            if (values == null || values.Length < 1) return 0;
+            var result = 1.0;
+            foreach (var value in values)
+            {
+                var number = value == null ? 0.0 : (double)value;
+                result = result*number;
+            }
             if (parameter != null) result = result*System.Convert.ToDouble(parameter);
             return result;
         }

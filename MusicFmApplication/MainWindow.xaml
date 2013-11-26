@@ -38,7 +38,7 @@
             <cvt:TimeSpanToStringConverter x:Key="Time2Str"/>
             <cvt:NumberToVisibilityConverter x:Key="Num2Visbility"/>
             <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
-            <cvt:MultiplyNumber x:Key="MultiplyNum"/>
+            <cvt:MultiplyNumberConverter x:Key="MultiplyNum"/>
             <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
             <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
             <cvt:EqualiencyConverter x:Key="EquCvt"/>
@@ -55,6 +55,18 @@
                 <Setter Property="Width" Value="95"/>
                 <Setter Property="Height" Value="25"/>
             </Style>
+            <BeginStoryboard x:Key="AnimationShow">
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Tag" 
+                                     From="0.0" To="1" Duration="0:0:0.3" />
+                </Storyboard>
+            </BeginStoryboard>
+            <BeginStoryboard x:Key="AnimationHide">
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Tag" 
+                                     From="1" To="0" Duration="0:0:0.3" />
+                </Storyboard>
+            </BeginStoryboard>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -92,13 +104,8 @@
                           Header="{lex:LocText MusicFmApplication:English:MyCentralRoom}"
                           IsOpen="{Binding ViewModel.IsShowPlayerDetail }">
                 <TabControl Width="230">
-                    <TabItem Header="Douban Fm">
+                    <TabItem Header="{lex:LocText MusicFmApplication:English:DoubanFm}">
                         <Grid>
-                            <Grid.Resources>
-                                <Style TargetType="cc:ImageButton">
-                                    <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
-                                </Style>
-                            </Grid.Resources>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -109,17 +116,21 @@
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ViewModel.IsShowLoginBox}" Value="True">
+                                            <DataTrigger Binding="{Binding ViewModel.IsShowLoginBox}" Value="False">
                                                 <DataTrigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="25" Duration="0:0:0.3"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                                <DataTrigger.ExitActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
                                                             <DoubleAnimation Storyboard.TargetProperty="Height" From="25" To="0" Duration="0:0:0.3"/>
                                                         </Storyboard>
                                                     </BeginStoryboard>
-                                                </DataTrigger.EnterActions>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding ViewModel.IsShowLoginBox}" Value="False">
-                                                <Setter Property="Height" Value="25"/>
+                                                </DataTrigger.ExitActions>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -145,8 +156,7 @@
                                 </ToggleButton>
                             </Grid>
 
-                            <Grid Margin="0,5,0,10" Grid.Row="1"
-                                  Visibility="{Binding ViewModel.IsShowLoginBox, Converter={StaticResource Bool2Visbility}}">
+                            <Grid Margin="0,5,0,10" Grid.Row="1">
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
@@ -158,6 +168,13 @@
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </DataTrigger.EnterActions>
+                                                <DataTrigger.ExitActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="70" To="0" Duration="0:0:0.3"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.ExitActions>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -170,7 +187,6 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                
                                 <TextBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:UserName}" 
                                          metro:TextboxHelper.ClearTextButton="True" 
                                          Grid.Row="0" Grid.Column="0" Margin="0,4"/>
@@ -241,11 +257,6 @@
     </metro:MetroWindow.Flyouts>
 
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
-        <Grid.Resources>
-            <Style TargetType="cc:ImageButton">
-                <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
-            </Style>
-        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
             <RowDefinition Height="4*"/>
@@ -383,6 +394,7 @@
                 <RowDefinition Height="2"/>
             </Grid.RowDefinitions>
             <Rectangle Grid.Row="0" Fill="Silver" Opacity=".3" Width="{Binding ElementName=Root, Path=Width}"/>
+            
             <Rectangle Grid.Row="0" Fill="{StaticResource AccentColor3Brush}" Opacity=".4" >
                 <Rectangle.Width>
                     <MultiBinding Converter="{StaticResource MultiplyNum}">
