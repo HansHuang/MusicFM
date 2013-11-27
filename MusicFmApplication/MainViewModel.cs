@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
+using CustomControlResources;
 using MahApps.Metro.Controls;
 using Microsoft.Practices.Prism.ViewModel;
 using Microsoft.Practices.Prism.Commands;
@@ -286,6 +287,9 @@ namespace MusicFmApplication
         private void TogglePlayerDetailExecute() 
         {
             IsShowPlayerDetail = !IsShowPlayerDetail;
+
+            if (string.IsNullOrEmpty(Account.UserName)) 
+                Account.UserName = LocalTextHelper.GetLocText("LoginDouban");
             Account.IsShowLoginBox = false;
         }
 

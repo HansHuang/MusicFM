@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AreoGlassEffect.cs" />
+    <Compile Include="AsyncProperty.cs" />
     <Compile Include="BooleanClass.cs" />
     <Compile Include="ColorlizeImage.xaml.cs">
       <DependentUpon>ColorlizeImage.xaml</DependentUpon>
@@ -73,6 +74,7 @@
     </Compile>
     <Compile Include="GifImage.cs" />
     <Compile Include="ImageButton.cs" />
+    <Compile Include="PasswordHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

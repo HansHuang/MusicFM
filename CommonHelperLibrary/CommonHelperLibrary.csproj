@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WEB\ChinaWeatherCityCode.cs" />
     <Compile Include="WEB\CityIPHelper.cs" />
