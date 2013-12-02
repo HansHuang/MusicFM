@@ -288,16 +288,17 @@ namespace MusicFmApplication
         {
             IsShowPlayerDetail = !IsShowPlayerDetail;
 
-            if (string.IsNullOrEmpty(Account.UserName)) 
+            if (string.IsNullOrEmpty(Account.UserName) || Account.AccountInfo == null) 
                 Account.UserName = LocalTextHelper.GetLocText("LoginDouban");
             Account.IsShowLoginBox = false;
+            Account.Feedback = string.Empty;
         }
 
         public DelegateCommand<bool?> NextSongCommand { get; private set; }
         private void NextSongExecute(bool? isEnded = false)
         {
-            //If last song is ended, add it to history
-            if (isEnded.GetValueOrDefault()) HistorySongList.Add(CurrentSong);
+            //If song is ended, add it to history(Display inverted order)
+            if (isEnded.GetValueOrDefault()) HistorySongList.Insert(0, CurrentSong);
 
             Action action = () =>
             {
@@ -317,6 +318,18 @@ namespace MusicFmApplication
             }
             else
                 action();
+        }
+
+        public DelegateCommand LikeSongCommand { get; private set; }
+        public void LikeSongExecute()
+        {
+            
+        }
+
+        public DelegateCommand HateSongCommand { get; private set; }
+        public void HateSongExecute()
+        {
+
         }
 
         public DelegateCommand ToggleLyricDisplayCommand { get; private set; }
@@ -347,6 +360,8 @@ namespace MusicFmApplication
             MainWindow = window;
             ShowWeatherDetailCommmand = new DelegateCommand(ShowWeatherDetailExecute);
             NextSongCommand = new DelegateCommand<bool?>(NextSongExecute);
+            LikeSongCommand = new DelegateCommand(LikeSongExecute);
+            HateSongCommand = new DelegateCommand(HateSongExecute);
             ToggleLyricDisplayCommand = new DelegateCommand(ToggleLyricDisplayExecute);
             TogglePlayerDetailCommand=new DelegateCommand(TogglePlayerDetailExecute);
             SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
@@ -382,6 +397,13 @@ namespace MusicFmApplication
                 //Get Song List
                 var exitingIds = SongList.Select(s => s.Sid);
                 var para = new GetSongParameter { ChannelId = cid };
+                if (Account.AccountInfo != null)
+                {
+                    para.History = GetSongHistoryString();
+                    para.UserId = Account.AccountInfo.UserId;
+                    para.Token = Account.AccountInfo.Token;
+                    para.Expire = Account.AccountInfo.ExpireString;
+                }
                 var songs = SongService.GetSongList(para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
                 //Notify song list back to the main thread
                 MainWindow.Dispatcher.BeginInvoke((Action)(() =>
@@ -412,8 +434,28 @@ namespace MusicFmApplication
                             CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
                         }));
                 });
-        } 
+        }
+
+
+
+        /// <summary>
+        /// Get Song History String to bulid URL
+        /// </summary>
+        /// <param name="action">Played: ":p|"  Like: ":r|"  Unlike: ":u|"  Hate: ":s|"</param>
+        /// <returns></returns>
+        public string GetSongHistoryString(string action = ":p|")
+        {
+            //History can add 20 songs at most
+            var historyCount = HistorySongList.Count > 19 ? 19 : HistorySongList.Count;
+            var sb = new StringBuilder();
+            for (var i = 0; i < historyCount; i++)
+                sb.Append(HistorySongList[i].Sid + ":p|");
+            if (CurrentSong != null) sb.Append(CurrentSong.Sid + action);
+            return sb.ToString();
+        }
         #endregion
+
+
 
     }
 }

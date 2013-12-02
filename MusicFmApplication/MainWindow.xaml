@@ -109,10 +109,12 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <Grid Grid.Row="0">
+                            <!--Login Btn-->
+                            <Grid Grid.Row="0" Margin="0,0,0,10">
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
@@ -154,7 +156,8 @@
                                 </cc:ImageButton>
                             </Grid>
 
-                            <Grid Grid.Row="1" Height="0">
+                            <!--Loging Box-->
+                            <Grid Grid.Row="1" Height="0" >
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
@@ -162,14 +165,14 @@
                                                 <DataTrigger.EnterActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
-                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="70" Duration="0:0:0.3"/>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="65" Duration="0:0:0.3"/>
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </DataTrigger.EnterActions>
                                                 <DataTrigger.ExitActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
-                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="70" To="0" Duration="0:0:0.3"/>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="65" To="0" Duration="0:0:0.3"/>
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </DataTrigger.ExitActions>
@@ -185,9 +188,9 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:UserName}" 
+                                <TextBox metro:TextboxHelper.Watermark="Email" 
                                          metro:TextboxHelper.ClearTextButton="True" 
-                                         Grid.Row="0" Grid.Column="0" Margin="0,4"
+                                         Grid.Row="0" Grid.Column="0" Height="25"
                                          Text="{Binding ViewModel.Account.UserName}"/>
                                 <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Password}"
                                              metro:TextboxHelper.ClearTextButton="True" 
@@ -202,7 +205,15 @@
                                 </cc:ImageButton>
                             </Grid>
                             
-                            <ScrollViewer Grid.Row="2" Margin="0,5,0,0">
+                            <!--Error Msg-->
+                            <StackPanel Grid.Row="2"
+                                        Visibility="{Binding ViewModel.Account.IsShowLoginBox, Converter={StaticResource Bool2Visbility}}">
+                                <TextBlock Foreground="DarkRed" 
+                                           ToolTip="{Binding ViewModel.Account.Feedback}"
+                                           Text="{Binding ViewModel.Account.Feedback}"/>
+                            </StackPanel>
+                            
+                            <ScrollViewer Grid.Row="3">
                                 <ItemsControl ItemsSource="{Binding ViewModel.Channels.AsyncValue}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -265,12 +276,14 @@
             <RowDefinition Height="2"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
+        <!--Progress Indicator-->
         <DockPanel Grid.Row="0" Height="20">
             <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
                                      ProgressColour="{DynamicResource AccentColorBrush}"
                                      Width="{Binding ElementName=Root, Path=Width}"
                                      Visibility="{Binding IsGettingSong, Converter={StaticResource Bool2Visbility}}"/>
         </DockPanel>
+        <!--Song Photo & Lyric-->
         <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
             <StackPanel.Resources>
                 <Style TargetType="TextBlock">
@@ -295,7 +308,7 @@
                                             </MultiBinding>
                                         </Setter.Value>
                                     </Setter>
-                                    <Setter Property="MaxHeight" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
+                                    <Setter Property="Height" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter Property="Opacity" Value=".8"/>
@@ -345,6 +358,7 @@
                 <Run Text="&gt;"/>
             </TextBlock>
         </StackPanel>
+        <!--3 Control Btns-->
         <Grid Grid.Row="2"
               IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">
             <Grid.ColumnDefinitions>
@@ -358,8 +372,13 @@
                     <Setter Property="Width" Value="52"/>
                     <Setter Property="HorizontalAlignment" Value="Center"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Account.AccountInfo}" Value="{x:Null}">
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
-                <Style TargetType="cc:ColorlizeImage">
+                <Style x:Key="SongCtrlBtnImg" TargetType="cc:ColorlizeImage">
                     <Setter Property="Height" Value="28"/>
                     <Setter Property="Width" Value="28"/>
                     <Style.Triggers>
@@ -372,18 +391,29 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Resources>
-            <Button Grid.Column="0">
-                <cc:ColorlizeImage Image="{StaticResource Heart96}"/>
+            <Button Grid.Column="0" Command="{Binding LikeSongCommand}">
+                <cc:ColorlizeImage Image="{StaticResource Heart96}" >
+                    <cc:ColorlizeImage.Style>
+                        <Style BasedOn="{StaticResource SongCtrlBtnImg}" TargetType="cc:ColorlizeImage">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentSong.Like}" Value="1">
+                                    <Setter Property="Color" Value="Red"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </cc:ColorlizeImage.Style>
+                </cc:ColorlizeImage>
             </Button>
             <Button Grid.Column="1">
-                <cc:ColorlizeImage Image="{StaticResource Delete96}"/>
+                <cc:ColorlizeImage Image="{StaticResource Delete96}" Style="{StaticResource SongCtrlBtnImg}"/>
             </Button>
             <Button Grid.Column="2" 
                     Command="{Binding NextSongCommand}"
                     IsEnabled="{Binding IsGettingSong, Converter={StaticResource IvsBool}}">
-                <cc:ColorlizeImage Image="{StaticResource Next96}"/>
+                <cc:ColorlizeImage Image="{StaticResource Next96}" Style="{StaticResource SongCtrlBtnImg}"/>
             </Button>
         </Grid>
+        <!--Playing Progress Time Line-->
         <Grid Grid.Row="3">
             <Grid.Resources>
                 <Style TargetType="Rectangle">
@@ -418,6 +448,7 @@
                 </Rectangle.Width>
             </Rectangle>
         </Grid>
+        <!--Pause, volume, download btns-->
         <Grid Grid.Row="4" VerticalAlignment="Bottom" Margin="0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>

@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DoubanFm" xml:space="preserve">
-    <value>(Douban Fm)</value>
+    <value>Douban Fm</value>
   </data>
   <data name="LoginDouban" xml:space="preserve">
     <value>Login Douban FM</value>
@@ -131,6 +131,12 @@
   </data>
   <data name="Password" xml:space="preserve">
     <value>Password</value>
+  </data>
+  <data name="UnamePwdCantEmpty" xml:space="preserve">
+    <value>User name and Passwrod cannot be empty</value>
+  </data>
+  <data name="UnamePwdMayWrong" xml:space="preserve">
+    <value>Username or Password may be wrong</value>
   </data>
   <data name="UserName" xml:space="preserve">
     <value>User Name</value>

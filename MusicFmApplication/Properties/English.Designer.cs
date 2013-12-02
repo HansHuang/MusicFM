@@ -61,7 +61,7 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (Douban Fm).
+        ///   Looks up a localized string similar to Douban Fm.
         /// </summary>
         internal static string DoubanFm {
             get {
@@ -102,6 +102,24 @@ namespace MusicFmApplication.Properties {
         internal static string Password {
             get {
                 return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User name and Passwrod cannot be empty.
+        /// </summary>
+        internal static string UnamePwdCantEmpty {
+            get {
+                return ResourceManager.GetString("UnamePwdCantEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username or Password may be wrong.
+        /// </summary>
+        internal static string UnamePwdMayWrong {
+            get {
+                return ResourceManager.GetString("UnamePwdMayWrong", resourceCulture);
             }
         }
         

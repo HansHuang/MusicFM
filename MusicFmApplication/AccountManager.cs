@@ -82,38 +82,81 @@ namespace MusicFmApplication
 
         #endregion
 
+        #region Feedback (INotifyPropertyChanged Property)
 
+        private string _feedback;
+
+        public string Feedback
+        {
+            get { return _feedback; }
+            set
+            {
+                if (_feedback != null && _feedback.Equals(value)) return;
+                _feedback = value;
+                RaisePropertyChanged("Feedback");
+            }
+        }
+
+        #endregion
+
+
+        #region DelegateCommands
         public DelegateCommand ShowLoginBoxCommand { get; private set; }
-        public void ShowLoginBoxExecute() 
+        public void ShowLoginBoxExecute()
         {
             IsShowLoginBox = true;
 
             if (AccountInfo == null)
-                Task.Run(() => { Thread.Sleep(300); UserName = string.Empty; });
+                Task.Run(() =>
+                    {
+                        Thread.Sleep(300);
+                        UserName = string.Empty;
+                        Passwrod = string.Empty;
+                    });
         }
 
         public DelegateCommand LoginCommand { get; private set; }
         public void LoginExcute()
         {
-            IsShowLoginBox = false;
-
-            var json = HttpWebDealer.GetJsonObject("https://www.douban.com/j/app/login?email=" + UserName +
-                                                   "&password=" + Passwrod + "&app_name=radio_desktop_win&version=100");
-            if (json == null || !json["err"].Equals("ok")) return;
-            var expire = DateTime.Now.AddMilliseconds(Convert.ToInt64(json["expire"]));
-            AccountInfo = new Account
+            if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Passwrod))
             {
-                Email = json["email"],
-                Expire = expire,
-                LoginTime = DateTime.Now,
-                Password = Passwrod,
-                R = json["r"].ToString(),
-                Token = json["token"],
-                UserId = json["user_id"].ToString(),
-                UserName = json["user_name"]
-            };
-            UserName = AccountInfo.UserName;
+                Feedback = LocalTextHelper.GetLocText("UnamePwdCantEmpty");
+                return;
+            }
+            Feedback = string.Empty;
+            Task.Run(() =>
+                {
+                    var json = HttpWebDealer.GetJsonObject("https://www.douban.com/j/app/login?email=" + UserName +
+                                                           "&password=" + Passwrod +
+                                                           "&app_name=radio_desktop_win&version=100");
+                    if (json == null || json["err"] == null) return;
+                    ViewModel.MainWindow.Dispatcher.BeginInvoke((Action) (() =>
+                        {
+                            if (!json["err"].Equals("ok"))
+                            {
+                                Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
+                                return;
+                            }
+                            var expire = DateTime.Now.AddMilliseconds(Convert.ToInt64(json["expire"]));
+                            AccountInfo = new Account
+                                {
+                                    Email = json["email"],
+                                    Expire = expire,
+                                    ExpireString = json["expire"],
+                                    LoginTime = DateTime.Now,
+                                    Password = Passwrod,
+                                    R = json["r"].ToString(),
+                                    Token = json["token"],
+                                    UserId = json["user_id"].ToString(),
+                                    UserName = json["user_name"]
+                                };
+                            UserName = AccountInfo.UserName;
+                            IsShowLoginBox = false;
+                            ViewModel.NextSongCommand.Execute(false);
+                        }));
+                });
         }
+        #endregion
 
         protected MainViewModel ViewModel;
 

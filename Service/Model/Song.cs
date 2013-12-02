@@ -64,7 +64,6 @@ namespace Service.Model
                 if (_like.Equals(value)) return;
                 _like = value;
                 RaisePropertyChanged("Like");
-
             }
         }
 

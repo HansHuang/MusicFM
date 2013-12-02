@@ -14,6 +14,7 @@ namespace Service.Model
         public string Email { get; set; }
         public string Token { get; set; }
         public DateTime LoginTime { get; set; }
+        public string ExpireString { get; set; }
         public DateTime Expire { get; set; }
 
         public string R { get; set; }

@@ -27,13 +27,23 @@ namespace Service
             _random = new Random(1000000);
         }
 
-        public List<Song> GetSongList(GetSongParameter parameter) 
+        public List<Song> GetSongList(GetSongParameter param) 
         {
-            var url = string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&channel={0}&type=p&r={1}&sid=0",
-                    parameter.ChannelId, _random.Next(0, 1000000));
-            var json = HttpWebDealer.GetJsonObject(url, Encoding.UTF8);
+            if (param == null) return new List<Song>();
+            var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&channel={0}&type=p&r={1}&sid=0",
+                        param.ChannelId, _random.Next(0, 1000000)));
+            if (!string.IsNullOrWhiteSpace(param.UserId))
+                url.Append("&user_id=" + param.UserId);
+            if(!string.IsNullOrEmpty(param.Expire))
+                url.Append("&expire=" + param.Expire);
+            if (!string.IsNullOrEmpty(param.Token))
+                url.Append("&token=" + param.Token);
+            if (!string.IsNullOrEmpty(param.History))
+                url.Append("&h=" + param.History);
+
+            var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
+            if (json == null) return GetSongList(param);
             var songs = json["song"] as IEnumerable;
-            if (songs == null) return GetSongList(parameter);
             //This list will always appear at first time, almost 100% probability
             var count = 1;
             var filterList = new List<string>{"107686","280187","1000411","1027380","1381349"};
@@ -60,7 +70,7 @@ namespace Service
                     Like = Convert.ToInt32(song["like"])
                 });
             }
-            if (count >= 3 || list.Count < 1) return GetSongList(parameter);
+            if (count >= 3 || list.Count < 1) return GetSongList(param);
             return list;
         }
 
@@ -114,5 +124,6 @@ namespace Service
 
             return list;
         }
+
     }
 }
