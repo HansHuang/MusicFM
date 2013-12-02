@@ -12,6 +12,7 @@ namespace Service.Model
         public string Expire { get; set; }
         public string Token { get; set; }
         public string History { get; set; }
+        public string SongId { get; set; }
         public int ChannelId { get; set; }
     }
 }

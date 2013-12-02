@@ -152,7 +152,6 @@ namespace MusicFmApplication
                                 };
                             UserName = AccountInfo.UserName;
                             IsShowLoginBox = false;
-                            ViewModel.NextSongCommand.Execute(false);
                         }));
                 });
         }

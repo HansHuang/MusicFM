@@ -30,19 +30,29 @@ namespace Service
         public List<Song> GetSongList(GetSongParameter param) 
         {
             if (param == null) return new List<Song>();
-            var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&channel={0}&type=p&r={1}&sid=0",
-                        param.ChannelId, _random.Next(0, 1000000)));
-            if (!string.IsNullOrWhiteSpace(param.UserId))
-                url.Append("&user_id=" + param.UserId);
-            if(!string.IsNullOrEmpty(param.Expire))
-                url.Append("&expire=" + param.Expire);
-            if (!string.IsNullOrEmpty(param.Token))
-                url.Append("&token=" + param.Token);
+            var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100"));
+            url.Append("&channel=" + param.ChannelId);
+            url.Append("&sid=" + (string.IsNullOrWhiteSpace(param.SongId) ? "0" : param.SongId));
+            if (!string.IsNullOrWhiteSpace(param.UserId)) url.Append("&user_id=" + param.UserId);
+            if(!string.IsNullOrEmpty(param.Expire)) url.Append("&expire=" + param.Expire);
+            if (!string.IsNullOrEmpty(param.Token)) url.Append("&token=" + param.Token);
+            if (!string.IsNullOrEmpty(param.History)) url.Append("&h=" + param.History);
+
+
+            var type = "p";
             if (!string.IsNullOrEmpty(param.History))
-                url.Append("&h=" + param.History);
+            {
+                if (param.History.Contains(":r")) type = "r"; //Like song(red song)
+                else if (param.History.Contains(":u")) type = "u"; //Unlike song
+                else if (param.History.Contains(":s")) type = "b"; //Hate song
+            }
+            url.Append("&type=" + type);
+            url.Append("&r=" + _random.Next(0, 1000000));
+
+            Console.WriteLine(url.ToString());
 
             var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
-            if (json == null) return GetSongList(param);
+            if (json == null || json["song"] == null) return GetSongList(param);
             var songs = json["song"] as IEnumerable;
             //This list will always appear at first time, almost 100% probability
             var count = 1;
@@ -125,5 +135,24 @@ namespace Service
             return list;
         }
 
+        /// <summary>
+        /// After Completed song, send info to server
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        public bool CompletedSong(GetSongParameter parameter)
+        {
+            if (parameter == null) return false;
+            var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&type=e"));
+            url.Append("&user_id=" + parameter.UserId);
+            url.Append("&expire=" + parameter.Expire);
+            url.Append("&token=" + parameter.Token);
+            url.Append("&sid=" + parameter.SongId);
+            url.Append("&channel=" + parameter.ChannelId);
+
+            var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
+
+            return json != null && json["r"] == 0;
+        }
     }
 }

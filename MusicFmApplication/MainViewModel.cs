@@ -169,21 +169,20 @@ namespace MusicFmApplication
 
         #endregion
 
-        #region IsGettingSong (INotifyPropertyChanged Property)
+        #region IsBuffering (INotifyPropertyChanged Property)
 
-        private bool _isGettingSong;
+        private bool _isBuffering;
 
-        public bool IsGettingSong
+        public bool IsBuffering
         {
-            get { return _isGettingSong; }
+            get { return _isBuffering; }
             set
             {
-                if (_isGettingSong.Equals(value)) return;
-                _isGettingSong = value;
-                RaisePropertyChanged("IsGettingSong");
+                if (_isBuffering.Equals(value)) return;
+                _isBuffering = value;
+                RaisePropertyChanged("IsBuffering");
             }
         }
-
         #endregion
 
         #region IsDisylayLyric (INotifyPropertyChanged Property)
@@ -297,8 +296,17 @@ namespace MusicFmApplication
         public DelegateCommand<bool?> NextSongCommand { get; private set; }
         private void NextSongExecute(bool? isEnded = false)
         {
+            IsBuffering = true;
             //If song is ended, add it to history(Display inverted order)
-            if (isEnded.GetValueOrDefault()) HistorySongList.Insert(0, CurrentSong);
+            if (isEnded.GetValueOrDefault())
+            {
+                HistorySongList.Insert(0, CurrentSong);
+                if (Account.AccountInfo != null)
+                {
+                    var para = CreateGetSongParamter("", false);
+                    Task.Run(() => SongService.CompletedSong(para));
+                }
+            }
 
             Action action = () =>
             {
@@ -306,30 +314,56 @@ namespace MusicFmApplication
                 CurrentSong = SongList[0];
                 //Get song lyric
                 GetLyric();
-                if (!MediaManager.IsPlaying) MediaManager.StartPlayerCommand.Execute();
+                //Play current new song with new url
+                if (!MediaManager.IsPlaying)
+                    MediaManager.StartPlayerCommand.Execute();
                 SongList.RemoveAt(0);
             };
-            if (SongList.Count == 0)
-                GetSongList(CurrentChannel.Id, action);
+            //At first, only can play after get song list
+            if (SongList.Count < 1) GetSongList(action);
+            //Directlly play next & get song list in another thread when list count less then elements
             else if (SongList.Count < 3)
             {
-                GetSongList(CurrentChannel.Id);
+                GetSongList();
                 action();
             }
-            else
-                action();
+            //Directlly play next
+            else action();
         }
 
-        public DelegateCommand LikeSongCommand { get; private set; }
-        public void LikeSongExecute()
+        public DelegateCommand<string> LikeSongCommand { get; private set; }
+        public void LikeSongExecute(string isHate)
         {
-            
-        }
+            string action;
+            var ishate = !string.IsNullOrWhiteSpace(isHate);
+            if (ishate)
+            {
+                action = ":s|";
 
-        public DelegateCommand HateSongCommand { get; private set; }
-        public void HateSongExecute()
-        {
+                //Play Next Song
+                CurrentSong = SongList[0];
+                GetLyric();
+                MediaManager.StartPlayerCommand.Execute();
+                SongList.RemoveAt(0);
+            }
+            else action = CurrentSong.Like == 0 ? ":r|" : ":u|";
 
+            var para = CreateGetSongParamter(action);
+            IsBuffering = true;
+            Task.Factory.StartNew(() =>
+                {
+                    var songs = SongService.GetSongList(para).ToList();
+                    if (songs.Count < 1) return;
+                    //Notify song list back to the main thread
+                    MainWindow.Dispatcher.BeginInvoke((Action) (() =>
+                        {
+                            SongList.Clear();
+                            if (!ishate)
+                                CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
+                            songs.ForEach(s => SongList.Add(s));
+                        }));
+                    IsBuffering = false;
+                });
         }
 
         public DelegateCommand ToggleLyricDisplayCommand { get; private set; }
@@ -360,8 +394,7 @@ namespace MusicFmApplication
             MainWindow = window;
             ShowWeatherDetailCommmand = new DelegateCommand(ShowWeatherDetailExecute);
             NextSongCommand = new DelegateCommand<bool?>(NextSongExecute);
-            LikeSongCommand = new DelegateCommand(LikeSongExecute);
-            HateSongCommand = new DelegateCommand(HateSongExecute);
+            LikeSongCommand = new DelegateCommand<string>(LikeSongExecute);
             ToggleLyricDisplayCommand = new DelegateCommand(ToggleLyricDisplayExecute);
             TogglePlayerDetailCommand=new DelegateCommand(TogglePlayerDetailExecute);
             SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
@@ -389,21 +422,18 @@ namespace MusicFmApplication
                 SetChannelCommand.Execute(first.Id);
         }
 
-        private void GetSongList(int cid = 0, Action callBack = null)
+        /// <summary>
+        /// Get Song List
+        /// </summary>
+        /// <param name="callBack">Call Back Function</param>
+        private void GetSongList(Action callBack = null)
         {
-            IsGettingSong = true;
+            IsBuffering = true;
             Task.Factory.StartNew(() =>
             {
                 //Get Song List
                 var exitingIds = SongList.Select(s => s.Sid);
-                var para = new GetSongParameter { ChannelId = cid };
-                if (Account.AccountInfo != null)
-                {
-                    para.History = GetSongHistoryString();
-                    para.UserId = Account.AccountInfo.UserId;
-                    para.Token = Account.AccountInfo.Token;
-                    para.Expire = Account.AccountInfo.ExpireString;
-                }
+                var para = CreateGetSongParamter();
                 var songs = SongService.GetSongList(para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
                 //Notify song list back to the main thread
                 MainWindow.Dispatcher.BeginInvoke((Action)(() =>
@@ -411,7 +441,7 @@ namespace MusicFmApplication
                         songs.ForEach(s => SongList.Add(s));
                         if (callBack != null) callBack();
                     }));
-                IsGettingSong = false;
+                IsBuffering = false;
             });
         }
 
@@ -442,20 +472,35 @@ namespace MusicFmApplication
         /// Get Song History String to bulid URL
         /// </summary>
         /// <param name="action">Played: ":p|"  Like: ":r|"  Unlike: ":u|"  Hate: ":s|"</param>
+        /// <param name="needHistory">need history or not(default true)</param>
         /// <returns></returns>
-        public string GetSongHistoryString(string action = ":p|")
+        public GetSongParameter CreateGetSongParamter(string action = ":p|", bool needHistory = true)
         {
-            //History can add 20 songs at most
-            var historyCount = HistorySongList.Count > 19 ? 19 : HistorySongList.Count;
             var sb = new StringBuilder();
-            for (var i = 0; i < historyCount; i++)
-                sb.Append(HistorySongList[i].Sid + ":p|");
-            if (CurrentSong != null) sb.Append(CurrentSong.Sid + action);
-            return sb.ToString();
+            if (needHistory)
+            {
+                //History can add 20 songs at most
+                var historyCount = HistorySongList.Count > 19 ? 19 : HistorySongList.Count;
+                for (var i = 0; i < historyCount; i++)
+                    sb.Append(HistorySongList[i].Sid + ":p|");
+                if (CurrentSong != null) sb.Append(CurrentSong.Sid + action);
+            }
+
+            var para = new GetSongParameter
+                {
+                    ChannelId = CurrentChannel == null ? 0 : CurrentChannel.Id,
+                    SongId = CurrentSong == null ? "0" : CurrentSong.Sid.ToString()
+                };
+            if (Account.AccountInfo != null)
+            {
+                para.History = sb.ToString();
+                para.UserId = Account.AccountInfo.UserId;
+                para.Token = Account.AccountInfo.Token;
+                para.Expire = Account.AccountInfo.ExpireString;
+            }
+            return para;
         }
         #endregion
-
-
 
     }
 }

@@ -138,7 +138,6 @@ namespace MusicFmApplication
             IsPlaying = true;
         }
 
-
         public DelegateCommand MuteCommand { get; private set; }
         private void MuteExecute()
         {
@@ -170,7 +169,8 @@ namespace MusicFmApplication
             MuteCommand = new DelegateCommand(MuteExecute);
         }
 
-        private void PlayerControl() {
+        private void PlayerControl()
+        {
             Player = viewModel.MainWindow.Player;
             Player.MediaOpened += PlayerMediaOpened;
         }
@@ -191,7 +191,7 @@ namespace MusicFmApplication
         {
             Position = Player.Position;
             DownloadProgress = Player.DownloadProgress;
-            viewModel.IsGettingSong = Player.IsBuffering;
+            viewModel.IsBuffering = Player.IsBuffering;
             PlayProgress = Position.TotalMilliseconds/SongLength.TotalMilliseconds;
             //Song is almost finish, jump to next one
             if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 100)
@@ -213,7 +213,6 @@ namespace MusicFmApplication
                 //Scroll two lines every 3 times
                 if (nextIndex % 3 == 1)
                     viewModel.MainWindow.LrcContaner.LineDown();
-
             }
         }
     }

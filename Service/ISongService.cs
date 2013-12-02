@@ -12,5 +12,6 @@ namespace Service
     {
         List<Song> GetSongList(GetSongParameter parameter);
         ObservableCollection<Channel> GetChannels(bool isBasic = true);
+        bool CompletedSong(GetSongParameter parameter);
     }
 }

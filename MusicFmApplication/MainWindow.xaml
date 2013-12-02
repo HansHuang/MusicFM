@@ -6,10 +6,9 @@
                    xmlns:lex="http://schemas.root-project.org/xaml/presentation"
                    xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
-                   xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}"
-                   Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
+                   Title="{lex:LocText MusicFmApplication:English:DoubanFm}" 
                    ResizeMode="CanMinimize"
                    Height="480"  Width="320">
     <Window.Resources>
@@ -32,7 +31,6 @@
             <cvt:NullToBoolConverter x:Key="Null2Bool"/>
             <cvt:InverseNullToVisibilityConveter x:Key="IvsNull2Vsby"/>
             <cvt:NullToVisibility x:Key="Null2Vsby"/>
-            <cvt:InverseBoolConverter x:Key="IvsBool"/>
             <BooleanToVisibilityConverter x:Key="Bool2Visbility"/>
             <cvt:InverseBoolToVisibilityConverter x:Key="IvsBooltVsby"/>
             <cvt:TimeSpanToStringConverter x:Key="Time2Str"/>
@@ -42,6 +40,7 @@
             <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
             <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
             <cvt:EqualiencyConverter x:Key="EquCvt"/>
+            <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
             <Style TargetType="Grid" x:Key="ChannelCell">
                 <Setter Property="Background">
                     <Setter.Value>
@@ -87,7 +86,7 @@
             <Button Command="{Binding ViewModel.TogglePlayerDetailCommand}">
                 <Button.Content>
                     <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentSelectedColorBrush}" 
-                                                       Width="16" Height="16"/>
+                                       Width="16" Height="16"/>
                 </Button.Content>
             </Button>
         </metro:WindowCommands>
@@ -281,7 +280,7 @@
             <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
                                      ProgressColour="{DynamicResource AccentColorBrush}"
                                      Width="{Binding ElementName=Root, Path=Width}"
-                                     Visibility="{Binding IsGettingSong, Converter={StaticResource Bool2Visbility}}"/>
+                                     Visibility="{Binding IsBuffering, Converter={StaticResource Bool2Visbility}}"/>
         </DockPanel>
         <!--Song Photo & Lyric-->
         <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
@@ -404,12 +403,14 @@
                     </cc:ColorlizeImage.Style>
                 </cc:ColorlizeImage>
             </Button>
-            <Button Grid.Column="1">
+            <Button Grid.Column="1"
+                    Command="{Binding LikeSongCommand}"
+                    CommandParameter="1">
                 <cc:ColorlizeImage Image="{StaticResource Delete96}" Style="{StaticResource SongCtrlBtnImg}"/>
             </Button>
             <Button Grid.Column="2" 
                     Command="{Binding NextSongCommand}"
-                    IsEnabled="{Binding IsGettingSong, Converter={StaticResource IvsBool}}">
+                    IsEnabled="{Binding SongList.Count, Converter={StaticResource Num2Bool}}">
                 <cc:ColorlizeImage Image="{StaticResource Next96}" Style="{StaticResource SongCtrlBtnImg}"/>
             </Button>
         </Grid>
