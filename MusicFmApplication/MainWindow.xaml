@@ -6,6 +6,7 @@
                    xmlns:lex="http://schemas.root-project.org/xaml/presentation"
                    xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
+                   xmlns:act="clr-namespace:MusicFmApplication"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}"
                    Title="{lex:LocText MusicFmApplication:English:DoubanFm}" 
@@ -111,7 +112,6 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-
                             <!--Login Btn-->
                             <Grid Grid.Row="0" Margin="0,0,0,10">
                                 <Grid.Style>
@@ -154,7 +154,6 @@
                                                Text="{Binding ViewModel.Account.UserName}"/>
                                 </cc:ImageButton>
                             </Grid>
-
                             <!--Loging Box-->
                             <Grid Grid.Row="1" Height="0" >
                                 <Grid.Style>
@@ -192,18 +191,18 @@
                                          Grid.Row="0" Grid.Column="0" Height="25"
                                          Text="{Binding ViewModel.Account.UserName}"/>
                                 <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Password}"
-                                             metro:TextboxHelper.ClearTextButton="True" 
-                                             Grid.Row="1" Grid.Column="0" Margin="0,2" Height="25"
-                                             cc:PasswordHelper.Password="{Binding ViewModel.Account.Passwrod, Mode=TwoWay}" />
+                                              metro:TextboxHelper.ClearTextButton="True" 
+                                               Grid.Row="1" Grid.Column="0" Margin="0,2" Height="25"
+                                                cc:PasswordHelper.Password="{Binding ViewModel.Account.Passwrod, Mode=TwoWay}" />
                                 <cc:ImageButton HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
                                                 ToolTip="{lex:LocText MusicFmApplication:English:LoginDouban}"
-                                                Command="{Binding ViewModel.Account.LoginCommand}">
+                                                Command="{Binding ViewModel.Account.LoginCommand}"
+                                                CommandParameter="{x:Static act:AccountType.DoubanFM}">
                                     <cc:ImageButton.Image>
                                         <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
                                     </cc:ImageButton.Image>
                                 </cc:ImageButton>
                             </Grid>
-                            
                             <!--Error Msg-->
                             <StackPanel Grid.Row="2"
                                         Visibility="{Binding ViewModel.Account.IsShowLoginBox, Converter={StaticResource Bool2Visbility}}">
@@ -211,7 +210,7 @@
                                            ToolTip="{Binding ViewModel.Account.Feedback}"
                                            Text="{Binding ViewModel.Account.Feedback}"/>
                             </StackPanel>
-                            
+                            <!--Channel List-->
                             <ScrollViewer Grid.Row="3">
                                 <ItemsControl ItemsSource="{Binding ViewModel.Channels.AsyncValue}">
                                     <ItemsControl.ItemsPanel>

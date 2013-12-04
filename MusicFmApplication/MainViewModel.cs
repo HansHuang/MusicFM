@@ -34,6 +34,8 @@ namespace MusicFmApplication
 
         public MainWindow MainWindow { get; private set; }
 
+        public string AppName = "MusicFM";
+
         #endregion
 
         #region Notify Properties
@@ -403,6 +405,7 @@ namespace MusicFmApplication
             SongService = new DoubanFm();
 
             GetChannels();
+            Account.GerAccountFromConfig();
         }
 
         public static MainViewModel GetInstance(MainWindow window=null) 

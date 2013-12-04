@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
@@ -99,7 +100,6 @@ namespace MusicFmApplication
 
         #endregion
 
-
         #region DelegateCommands
         public DelegateCommand ShowLoginBoxCommand { get; private set; }
         public void ShowLoginBoxExecute()
@@ -115,9 +115,10 @@ namespace MusicFmApplication
                     });
         }
 
-        public DelegateCommand LoginCommand { get; private set; }
-        public void LoginExcute()
+        public DelegateCommand<object> LoginCommand { get; private set; }
+        public void LoginExcute(object type) 
         {
+            var accType = type is AccountType ? (AccountType) type : AccountType.DoubanFM;
             if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Passwrod))
             {
                 Feedback = LocalTextHelper.GetLocText("UnamePwdCantEmpty");
@@ -152,7 +153,8 @@ namespace MusicFmApplication
                                 };
                             UserName = AccountInfo.UserName;
                             IsShowLoginBox = false;
-                        }));
+                            Task.Run(() => SettingHelper.SetSetting(accType + "Account", AccountInfo.SerializeToString(), ViewModel.AppName));
+                    }));
                 });
         }
         #endregion
@@ -165,7 +167,24 @@ namespace MusicFmApplication
             IsShowLoginBox = false;
 
             ShowLoginBoxCommand = new DelegateCommand(ShowLoginBoxExecute);
-            LoginCommand = new DelegateCommand(LoginExcute);
+            LoginCommand = new DelegateCommand<object>(LoginExcute);
         }
+
+        public void GerAccountFromConfig() {
+            Task.Run(() => {
+                var account = SettingHelper.GetSetting("DoubanFMAccount", ViewModel.AppName).Deserialize<Account>();
+                if (account == null) return;
+                ViewModel.MainWindow.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    AccountInfo = account;
+                    UserName = AccountInfo.UserName;
+                }));
+            });
+        }
+    }
+
+    public enum AccountType 
+    {
+        DoubanFM
     }
 }

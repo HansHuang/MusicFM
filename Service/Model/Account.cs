@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Service.Model
 {
+    [Serializable]
     public class Account
     {
         public string UserId { get; set; }
