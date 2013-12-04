@@ -118,6 +118,7 @@ namespace CommonHelperLibrary
         /// <returns>object</returns>
         public static object Deserialize(this string binary)
         {
+            if (string.IsNullOrWhiteSpace(binary)) return null;
             return Deserialize(Convert.FromBase64String(binary));
         }
 
@@ -128,6 +129,7 @@ namespace CommonHelperLibrary
         /// <returns>object</returns>
         public static object Deserialize(this byte[] binary)
         {
+            if (binary == null || binary.Length < 1) return null;
             object obj;
             var formatter = new BinaryFormatter();
             var stream = new MemoryStream(binary);

@@ -179,7 +179,7 @@ namespace MusicFmApplication
         {
             IsPlaying = true;
             lrcKeys = viewModel.Lyric.Content.Keys.ToList();
-                viewModel.MainWindow.LrcContaner.ScrollToTop();
+            viewModel.MainWindow.LrcContaner.ScrollToTop();
             var player = (MediaElement)sender;
             SongLength = player.NaturalDuration.TimeSpan;
             var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(300)};
@@ -200,9 +200,12 @@ namespace MusicFmApplication
                 return;
             }
             //Lrc control
-            if (!viewModel.Lyric.Content.Any()) return;
+            var lyricCount = viewModel.Lyric.Content.Count;
+            if (lyricCount < 2) return;
+            if (lrcKeys.Count != lyricCount) lrcKeys = viewModel.Lyric.Content.Keys.ToList();
             var nextIndex = viewModel.CurrnetLrcLine.Key + 1;
             if (nextIndex >= lrcKeys.Count) return;
+
             var nextTime = lrcKeys[nextIndex];
             if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + viewModel.Lyric.Offset)
             {

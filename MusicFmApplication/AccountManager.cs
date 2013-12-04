@@ -15,6 +15,7 @@ namespace MusicFmApplication
 {
     public class AccountManager : NotificationObject
     {
+
         #region IsShowLoginBox (INotifyPropertyChanged Property)
 
         private bool _isShowLoginBox;
@@ -102,21 +103,20 @@ namespace MusicFmApplication
 
         #region DelegateCommands
         public DelegateCommand ShowLoginBoxCommand { get; private set; }
+
         public void ShowLoginBoxExecute()
         {
             IsShowLoginBox = true;
-
-            if (AccountInfo == null)
-                Task.Run(() =>
-                    {
-                        Thread.Sleep(300);
-                        UserName = string.Empty;
-                        Passwrod = string.Empty;
-                    });
+            Task.Run(() =>
+                {
+                    Thread.Sleep(300);
+                    UserName = AccountInfo == null ? string.Empty : AccountInfo.Email;
+                    Passwrod = string.Empty;
+                });
         }
 
         public DelegateCommand<object> LoginCommand { get; private set; }
-        public void LoginExcute(object type) 
+        public void LoginExcute(object type)
         {
             var accType = type is AccountType ? (AccountType) type : AccountType.DoubanFM;
             if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Passwrod))
@@ -149,11 +149,12 @@ namespace MusicFmApplication
                                     R = json["r"].ToString(),
                                     Token = json["token"],
                                     UserId = json["user_id"].ToString(),
-                                    UserName = json["user_name"]
+                                    UserName = json["user_name"],
+                                    AccountType = accType
                                 };
                             UserName = AccountInfo.UserName;
                             IsShowLoginBox = false;
-                            Task.Run(() => SettingHelper.SetSetting(accType + "Account", AccountInfo.SerializeToString(), ViewModel.AppName));
+                            Task.Run(() => SettingHelper.SetSetting("Account", AccountInfo.SerializeToString(), ViewModel.AppName));
                     }));
                 });
         }
@@ -170,21 +171,27 @@ namespace MusicFmApplication
             LoginCommand = new DelegateCommand<object>(LoginExcute);
         }
 
-        public void GerAccountFromConfig() {
-            Task.Run(() => {
-                var account = SettingHelper.GetSetting("DoubanFMAccount", ViewModel.AppName).Deserialize<Account>();
-                if (account == null) return;
-                ViewModel.MainWindow.Dispatcher.BeginInvoke((Action)(() =>
+        public void GerAccountFromConfig()
+        {
+            Task.Run(() =>
                 {
-                    AccountInfo = account;
-                    UserName = AccountInfo.UserName;
-                }));
-            });
+                    var account = SettingHelper.GetSetting("Account", ViewModel.AppName).Deserialize<Account>();
+                    if (account == null) return;
+                    ViewModel.MainWindow.Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        if ((account.Expire - DateTime.Now).Days < 3)
+                        {
+                            UserName = account.UserName;
+                            Passwrod = account.Password;
+                            LoginCommand.Execute(account.AccountType);
+                        }
+                        else
+                        {
+                            AccountInfo = account;
+                            UserName = AccountInfo.UserName;
+                        }
+                    }));
+                });
         }
-    }
-
-    public enum AccountType 
-    {
-        DoubanFM
     }
 }

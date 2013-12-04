@@ -6,7 +6,7 @@
                    xmlns:lex="http://schemas.root-project.org/xaml/presentation"
                    xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
-                   xmlns:act="clr-namespace:MusicFmApplication"
+                   xmlns:mdl="clr-namespace:Service.Model;assembly=Service"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}"
                    Title="{lex:LocText MusicFmApplication:English:DoubanFm}" 
@@ -55,18 +55,6 @@
                 <Setter Property="Width" Value="95"/>
                 <Setter Property="Height" Value="25"/>
             </Style>
-            <BeginStoryboard x:Key="AnimationShow">
-                <Storyboard>
-                    <DoubleAnimation Storyboard.TargetProperty="Tag" 
-                                     From="0.0" To="1" Duration="0:0:0.3" />
-                </Storyboard>
-            </BeginStoryboard>
-            <BeginStoryboard x:Key="AnimationHide">
-                <Storyboard>
-                    <DoubleAnimation Storyboard.TargetProperty="Tag" 
-                                     From="1" To="0" Duration="0:0:0.3" />
-                </Storyboard>
-            </BeginStoryboard>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -197,7 +185,7 @@
                                 <cc:ImageButton HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
                                                 ToolTip="{lex:LocText MusicFmApplication:English:LoginDouban}"
                                                 Command="{Binding ViewModel.Account.LoginCommand}"
-                                                CommandParameter="{x:Static act:AccountType.DoubanFM}">
+                                                CommandParameter="{x:Static mdl:AccountType.DoubanFM}">
                                     <cc:ImageButton.Image>
                                         <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
                                     </cc:ImageButton.Image>
@@ -536,7 +524,8 @@
                     HorizontalAlignment="Left" Style="{StaticResource FlatSlider}"
                     Value="{Binding MediaManager.Volume}"/>
             <cc:ImageButton Grid.Column="4"
-                            IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">
+                            IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
+                            Command="{Binding DownloadSongCommand}">
                 <cc:ImageButton.Image>
                     <cc:ColorlizeImage Image="{StaticResource Download32}"/>
                 </cc:ImageButton.Image>

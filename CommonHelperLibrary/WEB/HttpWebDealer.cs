@@ -98,7 +98,7 @@ namespace CommonHelperLibrary.WEB
 
 
         /// <summary>
-        /// Get file by WebClient method(Recommend downloading samll picture)
+        /// Get file by WebClient method
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="url"></param>

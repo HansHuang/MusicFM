@@ -32,7 +32,7 @@ namespace CommonHelperLibrary.WEB
                 if (artists.Length > 1) artist2 = artists[1];
             }
             if (title.Contains("("))
-                title = title.Split(new[] { "(" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                title = title.Split(new[] {'(', ')'}, StringSplitOptions.RemoveEmptyEntries)[0];
             var uTitle = System.Web.HttpUtility.UrlEncode(title.Trim());
             var uArtist = System.Web.HttpUtility.UrlEncode(artist);
             //Get lrc search result

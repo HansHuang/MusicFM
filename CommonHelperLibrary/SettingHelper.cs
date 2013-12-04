@@ -41,10 +41,10 @@ namespace CommonHelperLibrary
         public static string GetSetting(string name, string appName = "App")
         {
             var xmlDoc = GetConfigXml(appName);
-            var settingNodes = xmlDoc.SelectNodes(appName + "Config/Settings");
+            var settingNodes = xmlDoc.SelectSingleNode(appName + "Config/Settings");
             if (settingNodes == null) return string.Empty;
 
-            var setting = settingNodes.Cast<XmlNode>().FirstOrDefault(s => s.Name.Equals(name));
+            var setting = settingNodes.ChildNodes.OfType<XmlNode>().FirstOrDefault(s => s.Name.Equals(name));
             return setting == null ? string.Empty : setting.InnerText;
         }
 

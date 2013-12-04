@@ -272,6 +272,23 @@ namespace MusicFmApplication
         }
         #endregion
 
+        #region IsDownlading (INotifyPropertyChanged Property)
+
+        private bool _isDownlading;
+
+        public bool IsDownlading
+        {
+            get { return _isDownlading; }
+            set
+            {
+                if (_isDownlading.Equals(value)) return;
+                _isDownlading = value;
+                RaisePropertyChanged("IsDownlading");
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Delegate Commands
@@ -293,6 +310,8 @@ namespace MusicFmApplication
                 Account.UserName = LocalTextHelper.GetLocText("LoginDouban");
             Account.IsShowLoginBox = false;
             Account.Feedback = string.Empty;
+            if (Account.AccountInfo != null && Account.UserName != Account.AccountInfo.UserName)
+                Account.UserName = Account.AccountInfo.UserName;
         }
 
         public DelegateCommand<bool?> NextSongCommand { get; private set; }
@@ -384,6 +403,16 @@ namespace MusicFmApplication
             IsShowPlayerDetail = false;
         }
 
+        public DelegateCommand DownloadSongCommand { get; private set; }
+        private void DownloadSongExetute()
+        {
+            if (IsDownlading) return;
+            IsDownlading = true;
+            var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
+            Task.Run(() => HttpWebDealer.DownloadFile(name, CurrentSong.Url, "DownloadSongs"))
+                .ContinueWith(task => { IsDownlading = false; });
+        }
+
         #endregion
 
         #region Construct Method
@@ -400,6 +429,7 @@ namespace MusicFmApplication
             ToggleLyricDisplayCommand = new DelegateCommand(ToggleLyricDisplayExecute);
             TogglePlayerDetailCommand=new DelegateCommand(TogglePlayerDetailExecute);
             SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
+            DownloadSongCommand=new DelegateCommand(DownloadSongExetute);
 
             //Change this with MEF
             SongService = new DoubanFm();

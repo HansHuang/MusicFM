@@ -19,5 +19,13 @@ namespace Service.Model
         public DateTime Expire { get; set; }
 
         public string R { get; set; }
+
+        public AccountType AccountType { get; set; }
+    }
+
+    [Serializable]
+    public enum AccountType
+    {
+        DoubanFM
     }
 }
