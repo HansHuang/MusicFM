@@ -409,8 +409,10 @@ namespace MusicFmApplication
             if (IsDownlading) return;
             IsDownlading = true;
             var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
-            Task.Run(() => HttpWebDealer.DownloadFile(name, CurrentSong.Url, "DownloadSongs"))
-                .ContinueWith(task => { IsDownlading = false; });
+            //Task.Run(() => HttpWebDealer.DownloadFile(name, CurrentSong.Url, "DownloadSongs"))
+            //    .ContinueWith(task => { IsDownlading = false; });
+            HttpWebDealer.DownloadLargestFile(name, Lyric.Mp3Urls, "DownloadSongs");
+            IsDownlading = false;
         }
 
         #endregion
@@ -486,6 +488,7 @@ namespace MusicFmApplication
                 Album = CurrentSong.AlbumTitle,
                 Artist = CurrentSong.Artist
             };
+            Lyric.Mp3Urls.Add(CurrentSong.Url);
             Lyric.Content.Add(new TimeSpan(0), "Trying to Get Lyrics, Please wait");
             Task.Factory.StartNew(() =>
                 {

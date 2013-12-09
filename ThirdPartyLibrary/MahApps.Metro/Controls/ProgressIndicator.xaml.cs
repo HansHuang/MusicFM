@@ -8,6 +8,7 @@ using System.Windows.Media.Animation;
 
 namespace MahApps.Metro.Controls
 {
+    [Obsolete("The ProgressIndicator is now obsolete, use the MetroProgressBar or ProgressBar instead!")]
     public class WidthPercentageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -22,6 +23,7 @@ namespace MahApps.Metro.Controls
         }
     }
 
+    [Obsolete("The ProgressIndicator is now obsolete, use the MetroProgressBar or ProgressBar instead!")]
     public partial class ProgressIndicator
     {
         public ProgressIndicator()
@@ -33,12 +35,12 @@ namespace MahApps.Metro.Controls
             dpd.AddValueChanged(this, (s, e) => ((ProgressIndicator)s).StartStopAnimation());
         }
 
-        public static readonly DependencyProperty ProgressColourProperty = DependencyProperty.RegisterAttached("ProgressColour", typeof(Brush), typeof(ProgressIndicator), new UIPropertyMetadata(null));
+        public static readonly DependencyProperty ProgressColorProperty = DependencyProperty.RegisterAttached("ProgressColor", typeof(Brush), typeof(ProgressIndicator), new UIPropertyMetadata(null));
 
-        public Brush ProgressColour
+        public Brush ProgressColor
         {
-            get { return (Brush)GetValue(ProgressColourProperty); }
-            set { SetValue(ProgressColourProperty, value); }
+            get { return (Brush)GetValue(ProgressColorProperty); }
+            set { SetValue(ProgressColorProperty, value); }
         }
 
         private void StartStopAnimation()

@@ -5,12 +5,16 @@
                     xmlns:Behaviours="clr-namespace:MahApps.Metro.Behaviours"
                     xmlns:Converters="clr-namespace:MahApps.Metro.Converters">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.TextBlock.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <conv:ToUpperConverter x:Key="ToUpperConverter" />
 
     <ControlTemplate x:Key="WindowTemplateKey"
                      TargetType="{x:Type Controls:MetroWindow}">
-        <Grid Background="{TemplateBinding Background}">
+        <Grid>
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="LayoutStates">
                     <VisualState x:Name="AfterLoaded">
@@ -20,8 +24,12 @@
                                                            Storyboard.TargetName="PART_Border">
                                 <SplineDoubleKeyFrame KeyTime="00:00:00"
                                                       Value="0" />
-                                <SplineDoubleKeyFrame KeyTime="00:00:00.800"
-                                                      Value="1" />
+                                <EasingDoubleKeyFrame KeyTime="00:00:00.600"
+                                                      Value="1">
+                                    <EasingDoubleKeyFrame.EasingFunction>
+                                        <CubicEase EasingMode="EaseIn" />
+                                    </EasingDoubleKeyFrame.EasingFunction>
+                                </EasingDoubleKeyFrame>
                             </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState>
@@ -32,6 +40,7 @@
             <AdornerDecorator>
                 <Controls:MetroContentControl IsTabStop="False"
                                               FocusVisualStyle="{x:Null}"
+                                              OnlyLoadTransition="True"
                                               TransitionsEnabled="{TemplateBinding WindowTransitionsEnabled}">
                     <Grid Background="{TemplateBinding Background}">
                         <Grid.ColumnDefinitions>
@@ -44,7 +53,8 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <Rectangle Fill="{DynamicResource WindowTitleColorBrush}"
+                        <Rectangle x:Name="PART_WindowTitleBackground"
+                                   Fill="{DynamicResource WindowTitleColorBrush}"
                                    Height="{Binding TitlebarHeight, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                                    Visibility="{TemplateBinding ShowTitleBar, Converter={StaticResource BooleanToVisibilityConverter}}"
                                    Grid.Column="0"
@@ -70,9 +80,19 @@
                                        TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Margin="8 -1 0 0"
-                                       FontSize="16"
-                                       FontFamily="{DynamicResource HeaderFontFamily}"
-                                       Foreground="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=Background, Converter={x:Static Converters:BackgroundToForegroundConverter.Instance}}" />
+                                       FontSize="{DynamicResource WindowTitleFontSize}"
+                                       FontFamily="{DynamicResource HeaderFontFamily}">
+                                <TextBlock.Foreground>
+                                    <MultiBinding Converter="{x:Static Converters:BackgroundToForegroundConverter.Instance}">
+                                        <Binding ElementName="PART_WindowTitleBackground"
+                                                 Path="Fill"
+                                                 Mode="OneWay" />
+                                        <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                 Path="TitleForeground"
+                                                 Mode="OneWay" />
+                                    </MultiBinding>
+                                </TextBlock.Foreground>
+                            </TextBlock>
                         </Grid>
 
                         <!-- the window commands -->
@@ -96,6 +116,14 @@
                                           Grid.Column="0"
                                           Grid.ColumnSpan="3" />
 
+                        <!-- disables the main content when a modal flyout is shown -->
+                        <Rectangle Grid.RowSpan="2" 
+                                   Grid.ColumnSpan="3" 
+                                   Name="PART_FlyoutModal" 
+                                   Fill="{DynamicResource BlackColorBrush}"
+                                   Opacity="0.5"
+                                   Visibility="Hidden"/>
+                        
                         <!-- flyouts -->
                         <ContentControl Grid.Row="0"
                                         Grid.Column="0"
@@ -106,6 +134,27 @@
                                         KeyboardNavigation.TabNavigation="None"
                                         Content="{Binding Flyouts, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                                         VerticalAlignment="Stretch" />
+                        
+                        
+                        <!--Used to create that overlay effect. Can be used for anything.-->
+                        <Grid Grid.Row="0"
+                              Grid.Column="0"
+                              Grid.ColumnSpan="3"
+                              Grid.RowSpan="2"
+                              Panel.ZIndex="3"
+                              FocusVisualStyle="{x:Null}"
+                              x:Name="PART_OverlayBox"
+                              Background="{DynamicResource BlackColorBrush}"
+                              Opacity="0"
+                              Visibility="Hidden" />
+                        
+                        <Grid Grid.Row="0"
+                              Grid.Column="0"
+                              Grid.ColumnSpan="3"
+                              Grid.RowSpan="2"
+                              Panel.ZIndex="4"
+                              FocusVisualStyle="{x:Null}"
+                              x:Name="PART_MessageDialogContainer" />
                     </Grid>
                 </Controls:MetroContentControl>
             </AdornerDecorator>
@@ -121,6 +170,22 @@
                         Visibility="Collapsed"
                         VerticalAlignment="Bottom" />
         </Grid>
+        <ControlTemplate.Resources>
+            <Storyboard x:Key="OverlayFastSemiFadeIn" 
+                        BeginTime="0:0:0"
+                        AccelerationRatio=".97" 
+                        Storyboard.TargetProperty="Opacity"
+                        SpeedRatio="2.7">
+                <DoubleAnimation To=".7" />
+            </Storyboard>
+            <Storyboard x:Key="OverlayFastSemiFadeOut" 
+                        BeginTime="0:0:0"
+                        AccelerationRatio=".97" 
+                        Storyboard.TargetProperty="Opacity"
+                        SpeedRatio="2.7">
+                <DoubleAnimation To="0.0" />
+            </Storyboard>
+        </ControlTemplate.Resources>
         <ControlTemplate.Triggers>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
@@ -143,8 +208,14 @@
     </ControlTemplate>
 
     <Style TargetType="{x:Type Controls:MetroWindow}">
-        <Setter Property="Background" Value="{DynamicResource WhiteBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource BlackBrush}" />
+        <Setter Property="TextBlockStyle"
+                Value="{StaticResource MetroTextBlock}" />
+        <Setter Property="TextElement.FontSize"
+                Value="{DynamicResource ContentFontSize}"/>
+        <Setter Property="Background"
+                Value="{DynamicResource WhiteBrush}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource BlackBrush}" />
         <Setter Property="Behaviours:StylizedBehaviors.Behaviors">
             <Setter.Value>
                 <Behaviours:StylizedBehaviorCollection>

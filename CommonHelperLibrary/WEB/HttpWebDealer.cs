@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
 namespace CommonHelperLibrary.WEB
@@ -74,7 +77,6 @@ namespace CommonHelperLibrary.WEB
         /// <param name="path">The path to save the file</param>
         /// <param name="timeout">Request timeout</param>
         /// <param name="referenceUrl">Reference URL(To prevent site blocking hotlinking)</param>
-        /// <param name="header">Header of request</param>
         /// <returns>Success:Ture</returns>
         public static bool DownloadFile(string fileName, string url, string path, int timeout, string referenceUrl = "")
         {
@@ -100,9 +102,9 @@ namespace CommonHelperLibrary.WEB
         /// <summary>
         /// Get file by WebClient method
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="url"></param>
-        /// <param name="path"></param>
+        /// <param name="fileName">File name to save</param>
+        /// <param name="url">file url to download</param>
+        /// <param name="path">file path to save</param>
         /// <returns></returns>
         public static bool DownloadFile(string fileName, string url, string path)
         {
@@ -110,9 +112,49 @@ namespace CommonHelperLibrary.WEB
             {
                 //if (File.Exists(path +"\\"+ fileName)) File.Delete(path +"\\"+ fileName);
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-                wc.DownloadFile(url, path + "\\" + fileName);
+                wc.DownloadFileAsync(new Uri(url), path + "\\" + fileName);
             }
             return true;
+        }
+
+        /// <summary>
+        /// Download largest file from url list
+        /// </summary>
+        /// <param name="fileName">File name to save</param>
+        /// <param name="urls">file url list to download</param>
+        /// <param name="path">file path to save</param>
+        /// <returns>File Length</returns>
+        public static long DownloadLargestFile(string fileName, List<string> urls, string path)
+        {
+            if (urls == null || urls.Count == 0) return 0;
+            var results = new Dictionary<string, long>();
+            var signals = new List<EventWaitHandle>();
+            foreach (var url in urls)
+            {
+                var signal = new EventWaitHandle(true, EventResetMode.ManualReset);
+                signals.Add(signal);
+                var str = url;
+                signal.Reset();
+                Task.Run(() =>
+                    {
+                        var rsponse = GetResponseByUrl(str, "", 3000);
+                        if (rsponse == null) return;
+                        lock (results)
+                        {
+                            results.Add(str, rsponse.ContentLength);
+                        }
+                        signal.Set();
+                    });
+            }
+            signals.ForEach(s => s.WaitOne(3000));
+            var largest = new KeyValuePair<string, long>(string.Empty, 0);
+            foreach (var res in results)
+            {
+                if (res.Value > largest.Value)
+                    largest = res;
+            }
+
+            return DownloadFile(fileName, largest.Key, path) ? largest.Value : 0;
         }
 
         #endregion
@@ -153,7 +195,7 @@ namespace CommonHelperLibrary.WEB
                 catch (Exception)
                 {
                     count++;
-                    Thread.Sleep(3000);
+                    Thread.Sleep(200);
                 }
             }
             return response;

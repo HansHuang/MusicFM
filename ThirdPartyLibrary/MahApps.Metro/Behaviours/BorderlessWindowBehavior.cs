@@ -23,7 +23,7 @@ namespace MahApps.Metro.Behaviours
         {
             var behaviorClass = ((BorderlessWindowBehavior)obj);
 
-            if (behaviorClass.AssociatedObject != null)
+            if (behaviorClass.AssociatedObject != null && !(((Window)behaviorClass.AssociatedObject).IsLoaded))
                 if ((bool)args.NewValue && behaviorClass.AssociatedObject.AllowsTransparency)
                     throw new InvalidOperationException("EnableDWMDropShadow cannot be set to True when AllowsTransparency is True.");
         })));
@@ -33,7 +33,7 @@ namespace MahApps.Metro.Behaviours
             {
                 var behaviorClass = ((BorderlessWindowBehavior)obj);
 
-                if (behaviorClass.AssociatedObject != null)
+                if (behaviorClass.AssociatedObject != null && !(((Window)behaviorClass.AssociatedObject).IsLoaded))
                 {
                     if ((bool)args.NewValue && behaviorClass.EnableDWMDropShadow)
                         throw new InvalidOperationException("AllowsTransparency cannot be set to True when EnableDWMDropShadow is True.");
@@ -97,7 +97,7 @@ namespace MahApps.Metro.Behaviours
                 mmi.ptMaxSize.X = Math.Abs(rcWorkArea.right - rcWorkArea.left);
                 mmi.ptMaxSize.Y = Math.Abs(rcWorkArea.bottom - rcWorkArea.top);
 
-                bool ignoreTaskBar = AssociatedObject as MetroWindow != null && ((MetroWindow)this.AssociatedObject).IgnoreTaskbarOnMaximize;
+                bool ignoreTaskBar = AssociatedObject as MetroWindow != null && (((MetroWindow)this.AssociatedObject).IgnoreTaskbarOnMaximize || ((MetroWindow)this.AssociatedObject).UseNoneWindowStyle);
 
                 if (!ignoreTaskBar)
                 {
@@ -121,13 +121,24 @@ namespace MahApps.Metro.Behaviours
                 throw new InvalidOperationException("EnableDWMDropShadow cannot be set to True when AllowsTransparency is True.");
 
             AssociatedObject.WindowStyle = WindowStyle.None;
-            AssociatedObject.AllowsTransparency = AllowsTransparency;
+            if (!AssociatedObject.IsLoaded)
+            {
+                try
+                {
+                    AssociatedObject.AllowsTransparency = AllowsTransparency;
+                }
+                catch (Exception)
+                {
+                    //For some reason, we can't determine if the window has loaded or not. So we will swallow the exception.
+                }
+            }
             AssociatedObject.StateChanged += AssociatedObjectStateChanged;
             AssociatedObject.SetValue(WindowChrome.GlassFrameThicknessProperty, new Thickness(-1));
 
             var window = AssociatedObject as MetroWindow;
             if (window != null)
             {
+                AssociatedObject.Activated += (s, e) => HandleMaximize();
                 //MetroWindow already has a border we can use
                 AssociatedObject.Loaded += (s, e) =>
                 {
@@ -146,7 +157,8 @@ namespace MahApps.Metro.Behaviours
                         windowCommands.SetValue(WindowChrome.IsHitTestVisibleInChromeProperty, true);
                     }
                     var windowButtonCommands = window.GetPart<ContentControl>("PART_WindowButtonCommands");
-                    if (windowButtonCommands != null) {
+                    if (windowButtonCommands != null)
+                    {
                         windowButtonCommands.SetValue(WindowChrome.IsHitTestVisibleInChromeProperty, true);
                     }
                 };
@@ -193,7 +205,7 @@ namespace MahApps.Metro.Behaviours
                 {
                     //Temp fix, thanks @lynnx
                     AssociatedObject.SizeToContent = SizeToContent.Height;
-                    AssociatedObject.SizeToContent = AutoSizeToContent ? 
+                    AssociatedObject.SizeToContent = AutoSizeToContent ?
                         SizeToContent.WidthAndHeight : SizeToContent.Manual;
                 };
 
@@ -202,25 +214,25 @@ namespace MahApps.Metro.Behaviours
 
         private void AssociatedObjectStateChanged(object sender, EventArgs e)
         {
-            if (AssociatedObject.WindowState == WindowState.Maximized)
-            {
-                HandleMaximize();
-            }
+            HandleMaximize();
         }
 
         private void HandleMaximize()
         {
-            IntPtr monitor = UnsafeNativeMethods.MonitorFromWindow(_mHWND, Constants.MONITOR_DEFAULTTONEAREST);
-            if (monitor != IntPtr.Zero)
+            if (AssociatedObject.WindowState == WindowState.Maximized)
             {
-                var monitorInfo = new MONITORINFO();
-                UnsafeNativeMethods.GetMonitorInfo(monitor, monitorInfo);
-                bool ignoreTaskBar = AssociatedObject as MetroWindow != null && ((MetroWindow)this.AssociatedObject).IgnoreTaskbarOnMaximize;
-                var x = ignoreTaskBar ? monitorInfo.rcMonitor.left : monitorInfo.rcWork.left;
-                var y = ignoreTaskBar ? monitorInfo.rcMonitor.top : monitorInfo.rcWork.top;
-                var cx = ignoreTaskBar ? Math.Abs(monitorInfo.rcMonitor.right - x) : Math.Abs(monitorInfo.rcWork.right - x);
-                var cy = ignoreTaskBar ? Math.Abs(monitorInfo.rcMonitor.bottom - y) : Math.Abs(monitorInfo.rcWork.bottom - y);
-                UnsafeNativeMethods.SetWindowPos(_mHWND, new IntPtr(-2), x, y, cx, cy, 0x0040);
+                IntPtr monitor = UnsafeNativeMethods.MonitorFromWindow(_mHWND, Constants.MONITOR_DEFAULTTONEAREST);
+                if (monitor != IntPtr.Zero)
+                {
+                    var monitorInfo = new MONITORINFO();
+                    UnsafeNativeMethods.GetMonitorInfo(monitor, monitorInfo);
+                    bool ignoreTaskBar = AssociatedObject as MetroWindow != null && (((MetroWindow)this.AssociatedObject).IgnoreTaskbarOnMaximize || ((MetroWindow)this.AssociatedObject).UseNoneWindowStyle);
+                    var x = ignoreTaskBar ? monitorInfo.rcMonitor.left : monitorInfo.rcWork.left;
+                    var y = ignoreTaskBar ? monitorInfo.rcMonitor.top : monitorInfo.rcWork.top;
+                    var cx = ignoreTaskBar ? Math.Abs(monitorInfo.rcMonitor.right - x) : Math.Abs(monitorInfo.rcWork.right - x);
+                    var cy = ignoreTaskBar ? Math.Abs(monitorInfo.rcMonitor.bottom - y) : Math.Abs(monitorInfo.rcWork.bottom - y);
+                    UnsafeNativeMethods.SetWindowPos(_mHWND, new IntPtr(-2), x, y, cx, cy, 0x0040);
+                }
             }
         }
 
@@ -320,24 +332,30 @@ namespace MahApps.Metro.Behaviours
             return !UnsafeNativeMethods.DwmIsCompositionEnabled();
         }
 
-        readonly SolidColorBrush _borderColour = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#808080"));
+        readonly SolidColorBrush _borderColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#808080"));
 
+        /// <summary>
+        /// show activated border with given brush and thickness from associated object
+        /// </summary>
         private void AddBorder()
         {
             if (Border == null)
                 return;
 
-            Border.BorderThickness = new Thickness(1);
-            Border.BorderBrush = _borderColour;
+            Border.BorderThickness = AssociatedObject.BorderThickness;
+            Border.BorderBrush = AssociatedObject.BorderBrush ?? _borderColor;
         }
 
+        /// <summary>
+        /// show deactivated border with thickness from associated object
+        /// </summary>
         private void RemoveBorder()
         {
             if (Border == null)
                 return;
 
-            Border.BorderThickness = new Thickness(0);
-            Border.BorderBrush = null;
+            Border.BorderThickness = AssociatedObject.BorderThickness;
+            Border.BorderBrush = _borderColor;
         }
 
         private void SetDefaultBackgroundColor()
@@ -393,9 +411,9 @@ namespace MahApps.Metro.Behaviours
                         returnval = UnsafeNativeMethods.DefWindowProc(hWnd, message, wParam, new IntPtr(-1));
 
                         MetroWindow w = AssociatedObject as MetroWindow;
-                        if ((w != null && w.GlowBrush != null) || ShouldHaveBorder())
+                        if ((w != null && w.GlowBrush == null) || ShouldHaveBorder())
                         {
-                            if (wParam == IntPtr.Zero)
+                            if (wParam != IntPtr.Zero)
                                 AddBorder();
                             else
                                 RemoveBorder();

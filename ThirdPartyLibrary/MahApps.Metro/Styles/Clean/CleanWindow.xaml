@@ -12,15 +12,29 @@
                 <ControlTemplate TargetType="{x:Type Controls:MetroWindow}">
                     <ControlTemplate.Resources>
                         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+                        <Storyboard x:Key="OverlayFastSemiFadeIn" 
+                                    BeginTime="0:0:0"
+                                    AccelerationRatio=".97" 
+                                    Storyboard.TargetProperty="Opacity"
+                                    SpeedRatio="2.7">
+                            <DoubleAnimation To=".7" />
+                        </Storyboard>
+                        <Storyboard x:Key="OverlayFastSemiFadeOut" 
+                                    BeginTime="0:0:0"
+                                    AccelerationRatio=".97" 
+                                    Storyboard.TargetProperty="Opacity"
+                                    SpeedRatio="2.7">
+                            <DoubleAnimation To="0." />
+                        </Storyboard>
                     </ControlTemplate.Resources>
-                    <Grid Background="{TemplateBinding Background}">
+                    <Grid>
                         <AdornerDecorator>
                             <Controls:MetroContentControl IsTabStop="False"
-                                                          FocusVisualStyle="{x:Null}">
-                                <Grid>
-                                    <Grid.Background>
-                                        <SolidColorBrush Color="{DynamicResource WhiteColor}" />
-                                    </Grid.Background>
+                                                          FocusVisualStyle="{x:Null}"
+                                                          OnlyLoadTransition="True"
+                                                          TransitionsEnabled="{TemplateBinding WindowTransitionsEnabled}">
+                                <Grid Background="{DynamicResource WhiteBrush}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="*" />
@@ -42,7 +56,7 @@
                                                HorizontalContentAlignment="Center"
                                                VerticalAlignment="Top"
                                                Content="{Binding Title, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
-                                               FontSize="14" />
+                                               FontSize="{DynamicResource WindowTitleFontSize}" />
 
                                         <Grid VerticalAlignment="Top"
                                               HorizontalAlignment="Right">
@@ -53,31 +67,51 @@
 
                                             <!-- the window commands -->
                                             <ContentPresenter Content="{Binding WindowCommands, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
-                                                              x:Name="PART_WindowCommands"
-                                                              Panel.ZIndex="1"
-                                                              Grid.Column="0" />
+                                                        x:Name="PART_WindowCommands"
+                                                        Panel.ZIndex="1"
+                                                        Grid.Column="0" />
                                             <!-- the window button commands -->
                                             <Controls:WindowButtonCommands x:Name="PART_WindowButtonCommands"
-                                                                           Panel.ZIndex="1"
-                                                                           Grid.Column="1" />
+                                                        Panel.ZIndex="1"
+                                                        Grid.Column="1" />
                                         </Grid>
 
                                     </Grid>
-                                    
+
                                     <ContentPresenter Grid.Row="1" />
 
-                                    <ItemsControl Grid.Row="0"
+                                    <!-- disables the main content when a modal flyout is shown -->
+                                    <Rectangle Grid.RowSpan="2" 
+                                               Grid.ColumnSpan="3" 
+                                               Name="PART_FlyoutModal" 
+                                               Fill="{DynamicResource BlackColorBrush}"
+                                               Opacity="0.5"
+                                               Visibility="Hidden"/>
+
+                                    <ContentControl Grid.Row="0"
                                                   Grid.RowSpan="2"
                                                   Panel.ZIndex="2"
                                                   KeyboardNavigation.TabNavigation="None"
-                                                  ItemsSource="{Binding Flyouts, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
+                                                  Content="{Binding Flyouts, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
                                                   VerticalAlignment="Stretch">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <Grid />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                    </ItemsControl>
+                                    </ContentControl>
+
+                                    <!--Used to create that overlay effect. Can be used for anything.-->
+                                    <Grid Grid.Row="0"
+                                          Grid.RowSpan="2"
+                                          Panel.ZIndex="3"
+                                          x:Name="PART_OverlayBox"
+                                          Background="{DynamicResource BlackColorBrush}"
+                                          Opacity=".7"
+                                          Visibility="Hidden">
+                                    </Grid>
+
+                                    <Grid Grid.Row="0"
+                                          Grid.RowSpan="2"
+                                          Panel.ZIndex="4"
+                                          x:Name="PART_MessageDialogContainer">
+
+                                    </Grid>
                                 </Grid>
                             </Controls:MetroContentControl>
                         </AdornerDecorator>
@@ -93,6 +127,7 @@
                                     Visibility="Collapsed"
                                     VerticalAlignment="Bottom" />
                     </Grid>
+                   
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -106,8 +141,8 @@
                                     Value="Visible" />
                         </MultiTrigger>
                         <!--<Trigger Property="TitleCaps" Value="True">
-                            <Setter TargetName="WindowTitleTextBlock" Property="Text" Value="{Binding Path=Title, Converter={StaticResource ToUpperConverter}, RelativeSource={RelativeSource TemplatedParent}}" />
-                        </Trigger>-->
+<Setter TargetName="WindowTitleTextBlock" Property="Text" Value="{Binding Path=Title, Converter={StaticResource ToUpperConverter}, RelativeSource={RelativeSource TemplatedParent}}" />
+</Trigger>-->
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

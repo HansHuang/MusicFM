@@ -20,10 +20,12 @@ namespace CommonHelperLibrary.WEB
         /// Get song's lyric(String Format)
         /// </summary>
         /// <param name="title">song title</param>
-        /// <param name="artist">song artist</param>
+        /// <param name="artist">song artist</param> 
+        /// <param name="mp3Urls">out song mp3 file url list</param> 
         /// <returns></returns>
-        public static string GetSongLrc(string title, string artist)
+        public static string GetSongLrc(string title, string artist, out List<string> mp3Urls)
         {
+            mp3Urls = new List<string>();
             var artist2 = string.Empty;
             if (artist.Contains("/")) 
             {
@@ -40,16 +42,30 @@ namespace CommonHelperLibrary.WEB
               string.Format("http://box.zhangmen.baidu.com/x?op=12&count=1&title={0}$${1}$$$$", uTitle, uArtist));
             if (string.IsNullOrEmpty(response)) return string.Empty;
 
-            //Console.WriteLine(response);
             //Get lrc id
             var xml = new XmlDocument();
             xml.LoadXml(response);
-            var list = xml.GetElementsByTagName("lrcid");
-            if (list.Count == 0 || list[0].InnerText.Equals("0"))
-                return string.IsNullOrEmpty(artist) ? string.Empty : GetSongLrc(title, artist2);
+            var lrcList = xml.GetElementsByTagName("lrcid");
+            if (lrcList.Count == 0 || lrcList[0].InnerText.Equals("0"))
+                return string.IsNullOrEmpty(artist) ? string.Empty : GetSongLrc(title, artist2, out mp3Urls);
+
+            //Get mp3 file url list
+            var part1 = xml.GetElementsByTagName("encode");
+            var part2 = xml.GetElementsByTagName("decode");
+            if (part1.Count.Equals(part2.Count))
+            {
+                for (var i = 0; i < part1.Count; i++)
+                {
+                    var part1Txt = part1[i].InnerText.Trim();
+                    var part2Txt = part2[i].InnerText.Trim();
+                    var encode = part1Txt.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries).Last();
+                    var mp3Url = part1Txt.Replace(encode, part2Txt);
+                    if (!mp3Urls.Contains(mp3Url)) mp3Urls.Add(mp3Url);
+                }
+            }
 
             int lId;
-            if (list.Count < 1 || !int.TryParse(list[0].InnerText, out lId) || lId < 1) return string.Empty;
+            if (lrcList.Count < 1 || !int.TryParse(lrcList[0].InnerText, out lId) || lId < 1) return string.Empty;
             var lrc = HttpWebDealer.GetHtml(string.Format("http://box.zhangmen.baidu.com/bdlrc/{0}/{1}.lrc", Math.Floor((decimal)lId / 100), lId));
             return lrc;
         }
@@ -62,7 +78,8 @@ namespace CommonHelperLibrary.WEB
         /// <returns></returns>
         public static SongLyric GetSongLyric(string title, string artist)
         {
-            var str = GetSongLrc(title, artist);
+            List<string> mp3Urls;
+            var str = GetSongLrc(title, artist, out mp3Urls);
             if (string.IsNullOrEmpty(str)) return null;
             str = str.Replace(" [", "\r\n");
             var lines = str.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -114,6 +131,8 @@ namespace CommonHelperLibrary.WEB
             var odered = lrc.Content.OrderBy(s => s.Key).ToList();
             lrc.Content.Clear();
             odered.ForEach(s => lrc.Content.Add(s.Key, s.Value));
+            lrc.Mp3Urls = mp3Urls;
+            mp3Urls.ForEach(Console.WriteLine);
             return lrc;
         }
     }
@@ -125,10 +144,12 @@ namespace CommonHelperLibrary.WEB
         public string Album { get; set; }
         public int Offset { get; set; }
         public Dictionary<TimeSpan, string> Content { get; set; }
+        public List<string> Mp3Urls { get; set; }
 
         public SongLyric()
         {
             Content = new Dictionary<TimeSpan, string>();
+            Mp3Urls = new List<string>();
         }
     }
 }

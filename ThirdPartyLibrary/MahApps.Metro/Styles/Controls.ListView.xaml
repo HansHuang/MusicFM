@@ -3,6 +3,87 @@
                     xmlns:Converters="clr-namespace:MahApps.Metro.Converters">
 
     <Converters:ToUpperConverter x:Key="ToUpperConverter" />
+
+    <Style x:Key="MetroGridViewScrollViewerStyle"
+           TargetType="{x:Type ScrollViewer}"
+           BasedOn="{StaticResource {x:Static GridView.GridViewScrollViewerStyleKey}}">
+        <Setter Property="Focusable"
+                Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                    <Grid Background="{TemplateBinding Background}"
+                          SnapsToDevicePixels="true">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <DockPanel Margin="{TemplateBinding Padding}">
+                            <ScrollViewer DockPanel.Dock="Top"
+                                          Focusable="false"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden">
+                                <GridViewHeaderRowPresenter AllowsColumnReorder="{Binding TemplatedParent.View.AllowsColumnReorder, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            ColumnHeaderContainerStyle="{Binding TemplatedParent.View.ColumnHeaderContainerStyle, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            ColumnHeaderToolTip="{Binding TemplatedParent.View.ColumnHeaderToolTip, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            ColumnHeaderStringFormat="{Binding TemplatedParent.View.ColumnHeaderStringFormat, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            ColumnHeaderContextMenu="{Binding TemplatedParent.View.ColumnHeaderContextMenu, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            ColumnHeaderTemplate="{Binding TemplatedParent.View.ColumnHeaderTemplate, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            Columns="{Binding TemplatedParent.View.Columns, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            ColumnHeaderTemplateSelector="{Binding TemplatedParent.View.ColumnHeaderTemplateSelector, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            Margin="2,0,2,0"
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </ScrollViewer>
+                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                                    CanContentScroll="{TemplateBinding CanContentScroll}"
+                                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                    Content="{TemplateBinding Content}"
+                                                    KeyboardNavigation.DirectionalNavigation="Local"
+                                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </DockPanel>
+                        <ScrollBar x:Name="PART_HorizontalScrollBar"
+                                   Cursor="Arrow"
+                                   Maximum="{TemplateBinding ScrollableWidth}"
+                                   Minimum="0.0"
+                                   Orientation="Horizontal"
+                                   Grid.Row="1"
+                                   Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                                   Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                   ViewportSize="{TemplateBinding ViewportWidth}" />
+                        <ScrollBar x:Name="PART_VerticalScrollBar"
+                                   Cursor="Arrow"
+                                   Grid.Column="1"
+                                   Maximum="{TemplateBinding ScrollableHeight}"
+                                   Minimum="0.0"
+                                   Orientation="Vertical"
+                                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                   Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                   ViewportSize="{TemplateBinding ViewportHeight}" />
+                        <!-- this is from original style, but we don't want it!!!
+                        <DockPanel Background="{Binding Background, ElementName=PART_VerticalScrollBar}"
+                                   Grid.Column="1"
+                                   LastChildFill="false"
+                                   Grid.Row="1">
+                            <Rectangle DockPanel.Dock="Left"
+                                       Fill="White"
+                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                       Width="1" />
+                            <Rectangle DockPanel.Dock="Top"
+                                       Fill="White"
+                                       Height="1"
+                                       Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" />
+                        </DockPanel>
+                        -->
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- 
     Do not set CanContentScroll=True below. This breaks the scrolling for groups with more items that will fit on screen. 
     It also (setting true) has the ugly side effect of scrolling the entire group and not the items. The downside is we lose 
@@ -13,7 +94,7 @@
         <Setter Property="BorderBrush"
                 Value="{DynamicResource BlackBrush}" />
         <Setter Property="Background"
-                Value="{DynamicResource WhiteColorBrush}" />
+                Value="{DynamicResource WhiteBrush}" />
         <Setter Property="BorderThickness"
                 Value="0 1 0 0" />
         <Setter Property="ScrollViewer.CanContentScroll"
@@ -35,11 +116,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListView">
-                    <Border Name="Border"
+                    <Border x:Name="Border"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <ScrollViewer Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}">
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="true">
+                        <ScrollViewer Padding="{TemplateBinding Padding}"
+                                      Style="{DynamicResource MetroGridViewScrollViewerStyle}">
                             <ItemsPresenter />
                         </ScrollViewer>
                     </Border>
@@ -52,11 +135,8 @@
                         <Trigger Property="IsEnabled"
                                  Value="false">
                             <Setter TargetName="Border"
-                                    Property="BorderBrush">
-                                <Setter.Value>
-                                    <SolidColorBrush Color="{DynamicResource Gray13}" />
-                                </Setter.Value>
-                            </Setter>
+                                    Property="BorderBrush"
+                                    Value="{DynamicResource GrayBrush9}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -90,7 +170,7 @@
         <Setter Property="Margin"
                 Value="0,0,0,0" />
         <Setter Property="Border.BorderBrush"
-                Value="{DynamicResource Gray3}" />
+                Value="{DynamicResource GrayBrush1}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -111,11 +191,8 @@
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Path=IsEnabled, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}"
                                                          Value="False">
-                                                <Setter Property="Foreground">
-                                                    <Setter.Value>
-                                                        <SolidColorBrush Color="{DynamicResource GrayNormal}" />
-                                                    </Setter.Value>
-                                                </Setter>
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource GrayNormalBrush}" />
                                             </DataTrigger>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -158,11 +235,8 @@
                         <Trigger Property="IsMouseOver"
                                  Value="True">
                             <Setter TargetName="Bd"
-                                    Property="Background">
-                                <Setter.Value>
-                                    <SolidColorBrush Color="{DynamicResource AccentColor3}" />
-                                </Setter.Value>
-                            </Setter>
+                                    Property="Background"
+                                    Value="{DynamicResource AccentColorBrush3}" />
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -172,11 +246,8 @@
                                            Value="True" />
                             </MultiTrigger.Conditions>
                             <Setter Property="Background"
-                                    TargetName="Bd">
-                                <Setter.Value>
-                                    <SolidColorBrush Color="{DynamicResource AccentColor2}" />
-                                </Setter.Value>
-                            </Setter>
+                                    TargetName="Bd"
+                                    Value="{DynamicResource AccentColorBrush2}" />
                             <Setter Property="BorderBrush"
                                     TargetName="Bd"
                                     Value="#FF143c65" />
@@ -193,7 +264,7 @@
                             <MultiTrigger.Setters>
                                 <Setter TargetName="Bd"
                                         Property="Background"
-                                        Value="{DynamicResource GrayBrush5}" />
+                                        Value="{DynamicResource GrayBrush7}" />
                             </MultiTrigger.Setters>
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
@@ -218,7 +289,7 @@
         <Setter Property="IsTabStop"
                 Value="False" />
         <Setter Property="Border.BorderBrush"
-                Value="{DynamicResource Gray3}" />
+                Value="{DynamicResource GrayBrush1}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListViewItem}">

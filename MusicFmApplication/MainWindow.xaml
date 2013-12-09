@@ -15,7 +15,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
@@ -92,7 +92,8 @@
                           Header="{lex:LocText MusicFmApplication:English:MyCentralRoom}"
                           IsOpen="{Binding ViewModel.IsShowPlayerDetail }">
                 <TabControl Width="230">
-                    <TabItem Header="{lex:LocText MusicFmApplication:English:DoubanFm}">
+                    <TabItem Header="{lex:LocText MusicFmApplication:English:DoubanFm}"
+                             metro:ControlsHelper.HeaderFontSize="18">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -265,7 +266,7 @@
         <!--Progress Indicator-->
         <DockPanel Grid.Row="0" Height="20">
             <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
-                                     ProgressColour="{DynamicResource AccentColorBrush}"
+                                     ProgressColor="{DynamicResource AccentColorBrush}"
                                      Width="{Binding ElementName=Root, Path=Width}"
                                      Visibility="{Binding IsBuffering, Converter={StaticResource Bool2Visbility}}"/>
         </DockPanel>
@@ -273,7 +274,7 @@
         <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
             <StackPanel.Resources>
                 <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="{StaticResource AccentColor2Brush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource AccentColorBrush2}"/>
                     <Setter Property="HorizontalAlignment" Value="Center"/>
                 </Style>
             </StackPanel.Resources>
@@ -414,7 +415,7 @@
             </Grid.RowDefinitions>
             <Rectangle Grid.Row="0" Fill="Silver" Opacity=".3" Width="{Binding ElementName=Root, Path=Width}"/>
             
-            <Rectangle Grid.Row="0" Fill="{StaticResource AccentColor3Brush}" Opacity=".4" >
+            <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush3}" Opacity=".4" >
                 <Rectangle.Width>
                     <MultiBinding Converter="{StaticResource MultiplyNum}">
                         <MultiBinding.Bindings>
@@ -479,7 +480,7 @@
                     <Setter Property="Foreground" Value="{StaticResource AccentColorBrush}"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="False">
-                            <Setter Property="Foreground" Value="{StaticResource AccentColor3Brush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource AccentColorBrush3}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>

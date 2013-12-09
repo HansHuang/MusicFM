@@ -4,19 +4,27 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace MahApps.Metro.Controls
 {
+    /// <summary>
+    /// A standard MetroTabControl (Pivot).
+    /// </summary>
     public class MetroTabControl : BaseMetroTabControl
     {
+        /// <summary>
+        /// Initializes a new instance of the MahApps.Metro.Controls.MetroTabControl class.
+        /// </summary>
         public MetroTabControl()
         {
             DefaultStyleKey = typeof(MetroTabControl);
         }
     }
 
+    /// <summary>
+    /// A base class for every MetroTabControl (Pivot).
+    /// </summary>
     public abstract class BaseMetroTabControl : TabControl
     {
         public BaseMetroTabControl()
@@ -72,6 +80,9 @@ namespace MahApps.Metro.Controls
             base.PrepareContainerForItemOverride(element, item);
         }
 
+        /// <summary>
+        /// Get/sets the command that executes when a MetroTabItem's close button is clicked.
+        /// </summary>
         public ICommand CloseTabCommand
         {
             get { return (ICommand)GetValue(CloseTabCommandProperty); }
@@ -92,6 +103,9 @@ namespace MahApps.Metro.Controls
 
 
         public delegate void TabItemClosingEventHandler(object sender, TabItemClosingEventArgs e);
+        /// <summary>
+        /// An event that is raised when a TabItem is closed.
+        /// </summary>
         public event TabItemClosingEventHandler TabItemClosingEvent;
 
         internal bool RaiseTabItemClosingEvent(MetroTabItem closingItem)
@@ -110,6 +124,9 @@ namespace MahApps.Metro.Controls
             return false;
         }
 
+        /// <summary>
+        /// Event args that is created when a TabItem is closed.
+        /// </summary>
         public class TabItemClosingEventArgs : CancelEventArgs
         {
             internal TabItemClosingEventArgs(MetroTabItem item)
@@ -117,6 +134,9 @@ namespace MahApps.Metro.Controls
                 ClosingTabItem = item;
             }
 
+            /// <summary>
+            /// Gets the MetroTabItem that will be closed.
+            /// </summary>
             public MetroTabItem ClosingTabItem { get; private set; }
         }
 

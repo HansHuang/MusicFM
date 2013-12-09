@@ -49,8 +49,6 @@ namespace Service
             url.Append("&type=" + type);
             url.Append("&r=" + _random.Next(0, 1000000));
 
-            Console.WriteLine(url.ToString());
-
             var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
             if (json == null || json["song"] == null) return GetSongList(param);
             var songs = json["song"] as IEnumerable;
