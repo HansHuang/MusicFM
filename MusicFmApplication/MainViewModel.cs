@@ -337,6 +337,7 @@ namespace MusicFmApplication
         {
             IsBuffering = true;
             IsDownlading = false;
+            DownloadProgress = 0;
             //If song is ended, add it to history(Display inverted order)
             if (isEnded.GetValueOrDefault())
             {

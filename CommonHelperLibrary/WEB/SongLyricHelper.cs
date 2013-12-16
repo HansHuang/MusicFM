@@ -132,7 +132,7 @@ namespace CommonHelperLibrary.WEB
             lrc.Content.Clear();
             odered.ForEach(s => lrc.Content.Add(s.Key, s.Value));
             lrc.Mp3Urls = mp3Urls;
-            mp3Urls.ForEach(Console.WriteLine);
+            //mp3Urls.ForEach(Console.WriteLine);
             return lrc;
         }
     }
