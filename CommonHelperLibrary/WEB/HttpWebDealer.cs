@@ -105,13 +105,19 @@ namespace CommonHelperLibrary.WEB
         /// <param name="fileName">File name to save</param>
         /// <param name="url">file url to download</param>
         /// <param name="path">file path to save</param>
+        /// <param name="monitor">Monitor action for download progress</param>
         /// <returns></returns>
-        public static bool DownloadFile(string fileName, string url, string path)
+        public static bool DownloadFile(string fileName, string url, string path,
+                                        DownloadProgressChangedEventHandler monitor = null)
         {
+            if (string.IsNullOrWhiteSpace(url)) return false;
             using (var wc = new WebClient())
             {
                 //if (File.Exists(path +"\\"+ fileName)) File.Delete(path +"\\"+ fileName);
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                if (monitor != null)
+                    wc.DownloadProgressChanged += monitor;
+                
                 wc.DownloadFileAsync(new Uri(url), path + "\\" + fileName);
             }
             return true;
@@ -123,12 +129,15 @@ namespace CommonHelperLibrary.WEB
         /// <param name="fileName">File name to save</param>
         /// <param name="urls">file url list to download</param>
         /// <param name="path">file path to save</param>
+        /// <param name="monitor">Monitor action for download progress</param>
         /// <returns>File Length</returns>
-        public static long DownloadLargestFile(string fileName, List<string> urls, string path)
+        public static long DownloadLargestFile(string fileName, List<string> urls, string path,
+                                               DownloadProgressChangedEventHandler monitor = null)
         {
             if (urls == null || urls.Count == 0) return 0;
             var results = new Dictionary<string, long>();
             var signals = new List<EventWaitHandle>();
+            var locker = new object();
             foreach (var url in urls)
             {
                 var signal = new EventWaitHandle(true, EventResetMode.ManualReset);
@@ -139,7 +148,7 @@ namespace CommonHelperLibrary.WEB
                     {
                         var rsponse = GetResponseByUrl(str, "", 3000);
                         if (rsponse == null) return;
-                        lock (results)
+                        lock (locker)
                         {
                             results.Add(str, rsponse.ContentLength);
                         }
@@ -150,11 +159,10 @@ namespace CommonHelperLibrary.WEB
             var largest = new KeyValuePair<string, long>(string.Empty, 0);
             foreach (var res in results)
             {
-                if (res.Value > largest.Value)
-                    largest = res;
+                if (res.Value > largest.Value) largest = res;
             }
 
-            return DownloadFile(fileName, largest.Key, path) ? largest.Value : 0;
+            return DownloadFile(fileName, largest.Key, path, monitor) ? largest.Value : 0;
         }
 
         #endregion

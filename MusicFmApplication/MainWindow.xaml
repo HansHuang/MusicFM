@@ -7,11 +7,19 @@
                    xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
                    xmlns:mdl="clr-namespace:Service.Model;assembly=Service"
+		           xmlns:sound="clr-namespace:WPFSoundVisualizationLib;assembly=WPFSoundVisualizationLib"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}"
                    Title="{lex:LocText MusicFmApplication:English:DoubanFm}" 
-                   ResizeMode="CanMinimize"
+                   ResizeMode="CanMinimize" AllowsTransparency="True" Background="#99FFFFFF"
                    Height="480"  Width="320">
+    <!--<Window.Background>
+        <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+            <GradientStop Color="#DDFFFFFF" Offset="0"/>
+            <GradientStop Color="#CCFFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Background>-->
+    
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -57,6 +65,23 @@
             </Style>
         </ResourceDictionary>
     </Window.Resources>
+
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo ProgressValue="{Binding ElementName=Root, Path=ViewModel.DownloadProgress}">
+            <TaskbarItemInfo.ThumbButtonInfos>
+                <ThumbButtonInfo ImageSource="{StaticResource Heart32}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
+                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Delete32}" 
+                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
+                                 CommandParameter="1"
+                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Play32}" 
+                                 Command="{Binding ElementName=Root, Path=ViewModel.NextSongCommand}"
+                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
+            </TaskbarItemInfo.ThumbButtonInfos>
+        </TaskbarItemInfo>
+    </Window.TaskbarItemInfo>
 
     <metro:MetroWindow.WindowCommands>
         <metro:WindowCommands DataContext="{Binding ElementName=Root}">
@@ -256,281 +281,347 @@
     </metro:MetroWindow.Flyouts>
 
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="4*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="2"/>
-            <RowDefinition Height="40"/>
-        </Grid.RowDefinitions>
-        <!--Progress Indicator-->
-        <DockPanel Grid.Row="0" Height="20">
-            <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
-                                     ProgressColor="{DynamicResource AccentColorBrush}"
-                                     Width="{Binding ElementName=Root, Path=Width}"
-                                     Visibility="{Binding IsBuffering, Converter={StaticResource Bool2Visbility}}"/>
-        </DockPanel>
-        <!--Song Photo & Lyric-->
-        <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
-            <StackPanel.Resources>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="{StaticResource AccentColorBrush2}"/>
-                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                </Style>
-            </StackPanel.Resources>
-            <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding Path=CurrentSong.Url}" />
-            <metro:ProgressRing IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                Width="120" Height="120"
-                                Visibility="{Binding Path=CurrentSong, Converter={StaticResource IvsNull2Vsby}}"/>
-            <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
-                <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
+        <!--Spectrum Panel-->
+        <Grid Height="135" Margin="-5,0,-5,-15" VerticalAlignment="Bottom" Opacity=".5"
+              Visibility="{Binding CurrentSong, Converter={StaticResource Null2Vsby}}">
+            <Grid.Effect>
+                <BlurEffect Radius="7"/>
+            </Grid.Effect>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Rectangle RenderTransformOrigin="0.5,0.5">
+                <Rectangle.RenderTransform>
+                    <ScaleTransform ScaleX="-1"/>
+                </Rectangle.RenderTransform>
+                <Rectangle.Fill>
+                    <VisualBrush Visual="{Binding ElementName=SpectrumAnalyzer}" Stretch="None" AlignmentX="Left" AlignmentY="Bottom"/>
+                </Rectangle.Fill>
+            </Rectangle>
+            <sound:SpectrumAnalyzer x:Name="SpectrumAnalyzer" Grid.Column="1" BarSpacing="0" PeakStyle="{x:Null}" 
+                                    IsFrequencyScaleLinear="True" Margin="-1,0,0,-1" AveragePeaks="True">
+                <sound:SpectrumAnalyzer.BarStyle>
+                    <Style TargetType="{x:Type Rectangle}">
+                        <Setter Property="Fill">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1" x:Name="BarBrush">
+                                    <GradientStop Color="{StaticResource AccentColor}" Offset="0"/>
+                                    <GradientStop Color="{StaticResource AccentColor4}" Offset="0.7"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </sound:SpectrumAnalyzer.BarStyle>
+            </sound:SpectrumAnalyzer>
+        </Grid>
+        <!--Main Content Panel-->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="2"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <!--Progress Indicator-->
+            <DockPanel Grid.Row="0" Height="20">
+                <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
+                                         ProgressColor="{DynamicResource AccentColorBrush}"
+                                         Width="{Binding ElementName=Root, Path=Width}"
+                                         Visibility="{Binding IsBuffering, Converter={StaticResource Bool2Visbility}}"/>
+            </DockPanel>
+            <!--Song Photo & Lyric-->
+            <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush2}"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Resources>
+                <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding Path=CurrentSong.Url}" />
+                <metro:ProgressRing IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Width="120" Height="120"
+                                    Visibility="{Binding Path=CurrentSong, Converter={StaticResource IvsNull2Vsby}}"/>
+                <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
+                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
+                        <cc:ImageButton.Image>
+                            <Image Source="{Binding Path=CurrentSong.Picture}" Stretch="Fill" HorizontalAlignment="Center">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Width">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource MultiplyNum}" ConverterParameter="0.75">
+                                                    <Binding ElementName="Root" Path="Width"/>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Height" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Opacity" Value=".8"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </cc:ImageButton.Image>
+                    </cc:ImageButton>
+                    <cc:ImageButton Visibility="{Binding IsDisylayLyric, Converter={StaticResource Bool2Visbility}}"
+                                    Command="{Binding ToggleLyricDisplayCommand}">
+                        <Grid Background="#CC000000" 
+                              Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
+                              Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
+                            <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False"
+                                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+                                <ItemsControl ItemsSource="{Binding Path=Lyric.Content}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel IsItemsHost="True" Orientation="Vertical" HorizontalAlignment="Center"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock TextAlignment="Center"  TextWrapping="Wrap" Margin="10,3" Text="{Binding Value}" >
+                                                <TextBlock.Foreground>
+                                                    <MultiBinding Converter="{StaticResource LrcHighLight}">
+                                                        <Binding Path="Key"/>
+                                                        <Binding ElementName="Root" Path="ViewModel.CurrnetLrcLine.Value"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </cc:ImageButton>
+                </Grid>
+                <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,8,0,3" />
+                <TextBlock FontSize="11"
+                           Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
+                    <Run Text="{Binding Path=CurrentSong.Artist}"/>
+                    <Run Text=" &lt;"/>
+                    <Run Text="{Binding CurrentSong.AlbumTitle}"/>
+                    <Run Text="&gt;"/>
+                </TextBlock>
+            </StackPanel>
+            <!--3 Control Btns-->
+            <Grid Grid.Row="2"
+                  IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <Style TargetType="Button" BasedOn="{StaticResource MetroCircleButtonStyle}">
+                        <Setter Property="Height" Value="52"/>
+                        <Setter Property="Width" Value="52"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Account.AccountInfo}" Value="{x:Null}">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style x:Key="SongCtrlBtnImg" TargetType="cc:ColorlizeImage">
+                        <Setter Property="Height" Value="28"/>
+                        <Setter Property="Width" Value="28"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="True">
+                                <Setter Property="Color" Value="Black"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Color" Value="DarkGray"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Resources>
+                <Button Grid.Column="0" Command="{Binding LikeSongCommand}">
+                    <cc:ColorlizeImage Image="{StaticResource Heart96}" >
+                        <cc:ColorlizeImage.Style>
+                            <Style BasedOn="{StaticResource SongCtrlBtnImg}" TargetType="cc:ColorlizeImage">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentSong.Like}" Value="1">
+                                        <Setter Property="Color" Value="Red"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </cc:ColorlizeImage.Style>
+                    </cc:ColorlizeImage>
+                </Button>
+                <Button Grid.Column="1"
+                        Command="{Binding LikeSongCommand}"
+                        CommandParameter="1">
+                    <cc:ColorlizeImage Image="{StaticResource Delete96}" Style="{StaticResource SongCtrlBtnImg}"/>
+                </Button>
+                <Button Grid.Column="2" 
+                        Command="{Binding NextSongCommand}"
+                        IsEnabled="{Binding SongList.Count, Converter={StaticResource Num2Bool}}">
+                    <cc:ColorlizeImage Image="{StaticResource Next96}" Style="{StaticResource SongCtrlBtnImg}"/>
+                </Button>
+            </Grid>
+            <!--Playing Progress Time Line-->
+            <Grid Grid.Row="3">
+                <Grid.Resources>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Height" Value="2"/>
+                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2"/>
+                </Grid.RowDefinitions>
+                <Rectangle Grid.Row="0" Fill="Silver" Opacity=".5" Width="{Binding ElementName=Root, Path=Width}"/>
+
+                <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush3}" Opacity=".7" >
+                    <Rectangle.Width>
+                        <MultiBinding Converter="{StaticResource MultiplyNum}">
+                            <MultiBinding.Bindings>
+                                <Binding Path="MediaManager.DownloadProgress"/>
+                                <Binding ElementName="Root" Path="Width"/>
+                            </MultiBinding.Bindings>
+                        </MultiBinding>
+                    </Rectangle.Width>
+                </Rectangle>
+
+                <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush}" >
+                    <Rectangle.Width>
+                        <MultiBinding Converter="{StaticResource MultiplyNum}">
+                            <MultiBinding.Bindings>
+                                <Binding Path="MediaManager.PlayProgress"/>
+                                <Binding ElementName="Root" Path="Width"/>
+                            </MultiBinding.Bindings>
+                        </MultiBinding>
+                    </Rectangle.Width>
+                </Rectangle>
+            </Grid>
+            <!--Pause, volume, download btns-->
+            <Grid Grid.Row="4" VerticalAlignment="Bottom" Margin="0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <Style TargetType="cc:ImageButton">
+                        <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Height" Value="18"/>
+                        <Setter Property="Width" Value="18"/>
+                    </Style>
+                    <Style TargetType="cc:ColorlizeImage">
+                        <Setter Property="Color" Value="{StaticResource AccentColorBrush}"/>
+                        <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                        <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Color">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="{StaticResource AccentColor2}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Color">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="{StaticResource AccentColor3}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource AccentColorBrush3}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Resources>
+                <cc:ImageButton Grid.Column="0"
+                                IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
+                                Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"
+                                Command="{Binding MediaManager.StartPlayerCommand}"
+                                Width="14">
                     <cc:ImageButton.Image>
-                        <Image Source="{Binding Path=CurrentSong.Picture}" Stretch="Fill" HorizontalAlignment="Center">
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Setter Property="Width">
-                                        <Setter.Value>
-                                            <MultiBinding Converter="{StaticResource MultiplyNum}" ConverterParameter="0.75">
-                                                <Binding ElementName="Root" Path="Width"/>
-                                            </MultiBinding>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter Property="Height" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity" Value=".8"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
+                        <cc:ColorlizeImage Image="{StaticResource Play32}"/>
                     </cc:ImageButton.Image>
                 </cc:ImageButton>
-                <cc:ImageButton Visibility="{Binding IsDisylayLyric, Converter={StaticResource Bool2Visbility}}"
-                                Command="{Binding ToggleLyricDisplayCommand}">
-                    <Grid Background="#CC000000" 
-                          Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
-                          Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
-                        <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False"
-                                      HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
-                            <ItemsControl ItemsSource="{Binding Path=Lyric.Content}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel IsItemsHost="True" Orientation="Vertical" HorizontalAlignment="Center"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock TextAlignment="Center"  TextWrapping="Wrap" Margin="10,3" Text="{Binding Value}" >
-                                            <TextBlock.Foreground>
-                                                <MultiBinding Converter="{StaticResource LrcHighLight}">
-                                                    <Binding Path="Key"/>
-                                                    <Binding ElementName="Root" Path="ViewModel.CurrnetLrcLine.Value"/>
-                                                </MultiBinding>
-                                            </TextBlock.Foreground>
-                                        </TextBlock>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Grid>
+                <cc:ImageButton Grid.Column="0"
+                                Command="{Binding MediaManager.PausePlayerCommand}"
+                                Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}">
+                    <cc:ImageButton.Image>
+                        <cc:ColorlizeImage Image="{StaticResource Pause32}"/>
+                    </cc:ImageButton.Image>
                 </cc:ImageButton>
-            </Grid>
-            <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,8,0,3" />
-            <TextBlock FontSize="11"
-                       Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
-                <Run Text="{Binding Path=CurrentSong.Artist}"/>
-                <Run Text=" &lt;"/>
-                <Run Text="{Binding CurrentSong.AlbumTitle}"/>
-                <Run Text="&gt;"/>
-            </TextBlock>
-        </StackPanel>
-        <!--3 Control Btns-->
-        <Grid Grid.Row="2"
-              IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.Resources>
-                <Style TargetType="Button" BasedOn="{StaticResource MetroCircleButtonStyle}">
-                    <Setter Property="Height" Value="52"/>
-                    <Setter Property="Width" Value="52"/>
-                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Account.AccountInfo}" Value="{x:Null}">
-                            <Setter Property="IsEnabled" Value="False"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-                <Style x:Key="SongCtrlBtnImg" TargetType="cc:ColorlizeImage">
-                    <Setter Property="Height" Value="28"/>
-                    <Setter Property="Width" Value="28"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsEnabled" Value="True">
-                            <Setter Property="Color" Value="Black"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Color" Value="DarkGray"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Resources>
-            <Button Grid.Column="0" Command="{Binding LikeSongCommand}">
-                <cc:ColorlizeImage Image="{StaticResource Heart96}" >
-                    <cc:ColorlizeImage.Style>
-                        <Style BasedOn="{StaticResource SongCtrlBtnImg}" TargetType="cc:ColorlizeImage">
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="{Binding MediaManager.Position, Mode=OneWay, Converter={StaticResource Time2Str}}"/>
+                    <TextBlock Text=" / "/>
+                    <TextBlock Text="{Binding MediaManager.SongLength, Mode=OneWay, Converter={StaticResource Time2Str}}"/>
+                </StackPanel>
+                <cc:ImageButton Grid.Column="2" HorizontalAlignment="Right"
+                                Visibility="{Binding MediaManager.Volume, Converter={StaticResource Num2Visbility}}"
+                                Command="{Binding MediaManager.MuteCommand}">
+                    <cc:ImageButton.Image>
+                        <cc:ColorlizeImage Image="{StaticResource Volume32}"/>
+                    </cc:ImageButton.Image>
+                </cc:ImageButton>
+                <cc:ImageButton Grid.Column="2" HorizontalAlignment="Right"
+                                Visibility="{Binding MediaManager.Volume, Converter={StaticResource IvsNum2Vsbty}}"
+                                Command="{Binding MediaManager.MuteCommand}">
+                    <cc:ImageButton.Image>
+                        <cc:ColorlizeImage Image="{StaticResource Mute32}"/>
+                    </cc:ImageButton.Image>
+                </cc:ImageButton>
+                <Slider Grid.Column="3" Width="70" Height="5" 
+                        Minimum="0" Maximum="1" LargeChange=".1"
+                        HorizontalAlignment="Left" Style="{StaticResource FlatSlider}"
+                        Value="{Binding MediaManager.Volume}"/>
+                <!--Download Btn & Download Progress Text-->
+                <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentSong.Like}" Value="1">
-                                    <Setter Property="Color" Value="Red"/>
+                                <DataTrigger Binding="{Binding ElementName=BtnOpenFolad, Path=Visibility}" 
+                                             Value="{x:Static Visibility.Visible}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </cc:ColorlizeImage.Style>
-                </cc:ColorlizeImage>
-            </Button>
-            <Button Grid.Column="1"
-                    Command="{Binding LikeSongCommand}"
-                    CommandParameter="1">
-                <cc:ColorlizeImage Image="{StaticResource Delete96}" Style="{StaticResource SongCtrlBtnImg}"/>
-            </Button>
-            <Button Grid.Column="2" 
-                    Command="{Binding NextSongCommand}"
-                    IsEnabled="{Binding SongList.Count, Converter={StaticResource Num2Bool}}">
-                <cc:ColorlizeImage Image="{StaticResource Next96}" Style="{StaticResource SongCtrlBtnImg}"/>
-            </Button>
-        </Grid>
-        <!--Playing Progress Time Line-->
-        <Grid Grid.Row="3">
-            <Grid.Resources>
-                <Style TargetType="Rectangle">
-                    <Setter Property="Height" Value="2"/>
-                    <Setter Property="HorizontalAlignment" Value="Left"/>
-                </Style>
-            </Grid.Resources>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="2"/>
-            </Grid.RowDefinitions>
-            <Rectangle Grid.Row="0" Fill="Silver" Opacity=".3" Width="{Binding ElementName=Root, Path=Width}"/>
-            
-            <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush3}" Opacity=".4" >
-                <Rectangle.Width>
-                    <MultiBinding Converter="{StaticResource MultiplyNum}">
-                        <MultiBinding.Bindings>
-                            <Binding Path="MediaManager.DownloadProgress"/>
-                            <Binding ElementName="Root" Path="Width"/>
-                        </MultiBinding.Bindings>
-                    </MultiBinding>
-                </Rectangle.Width>
-            </Rectangle>
-
-            <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush}" >
-                <Rectangle.Width>
-                    <MultiBinding Converter="{StaticResource MultiplyNum}">
-                        <MultiBinding.Bindings>
-                            <Binding Path="MediaManager.PlayProgress"/>
-                            <Binding ElementName="Root" Path="Width"/>
-                        </MultiBinding.Bindings>
-                    </MultiBinding>
-                </Rectangle.Width>
-            </Rectangle>
-        </Grid>
-        <!--Pause, volume, download btns-->
-        <Grid Grid.Row="4" VerticalAlignment="Bottom" Margin="0,8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="4*"/>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="4*"/>
-                <ColumnDefinition Width="3*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.Resources>
-                <Style TargetType="cc:ImageButton">
-                    <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                    <Setter Property="Height" Value="18"/>
-                    <Setter Property="Width" Value="18"/>
-                </Style>
-                <Style TargetType="cc:ColorlizeImage">
-                    <Setter Property="Color" Value="{StaticResource AccentColorBrush}"/>
-                    <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
-                    <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Color">
-                                <Setter.Value>
-                                    <SolidColorBrush Color="{StaticResource AccentColor2}" />
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Color">
-                                <Setter.Value>
-                                    <SolidColorBrush Color="{StaticResource AccentColor3}" />
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="FontSize" Value="12"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                    <Setter Property="Foreground" Value="{StaticResource AccentColorBrush}"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="False">
-                            <Setter Property="Foreground" Value="{StaticResource AccentColorBrush3}"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Resources>
-            <cc:ImageButton Grid.Column="0"
-                            IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
-                            Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"
-                            Command="{Binding MediaManager.StartPlayerCommand}"
-                            Width="14">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Play32}"/>
-                </cc:ImageButton.Image>
-            </cc:ImageButton>
-            <cc:ImageButton Grid.Column="0"
-                            Command="{Binding MediaManager.PausePlayerCommand}"
-                            Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Pause32}"/>
-                </cc:ImageButton.Image>
-            </cc:ImageButton>
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <TextBlock Text="{Binding MediaManager.Position, Mode=OneWay, Converter={StaticResource Time2Str}}"/>
-                <TextBlock Text=" / "/>
-                <TextBlock Text="{Binding MediaManager.SongLength, Mode=OneWay, Converter={StaticResource Time2Str}}"/>
-            </StackPanel>
-            <cc:ImageButton Grid.Column="2" HorizontalAlignment="Right"
-                            Visibility="{Binding MediaManager.Volume, Converter={StaticResource Num2Visbility}}"
-                            Command="{Binding MediaManager.MuteCommand}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Volume32}"/>
-                </cc:ImageButton.Image>
-            </cc:ImageButton>
-            <cc:ImageButton Grid.Column="2" HorizontalAlignment="Right"
-                            Visibility="{Binding MediaManager.Volume, Converter={StaticResource IvsNum2Vsbty}}"
-                            Command="{Binding MediaManager.MuteCommand}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Mute32}"/>
-                </cc:ImageButton.Image>
-            </cc:ImageButton>
-            <Slider Grid.Column="3" Width="70" Height="5" 
-                    Minimum="0" Maximum="1" LargeChange=".1"
-                    HorizontalAlignment="Left" Style="{StaticResource FlatSlider}"
-                    Value="{Binding MediaManager.Volume}"/>
-            <cc:ImageButton Grid.Column="4"
-                            IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
-                            Command="{Binding DownloadSongCommand}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Download32}"/>
-                </cc:ImageButton.Image>
-            </cc:ImageButton>
+                    </StackPanel.Style>
+                    <cc:ImageButton IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
+                                    Command="{Binding DownloadSongCommand}"
+                                    Visibility="{Binding IsDownlading, Converter={StaticResource IvsBooltVsby}}">
+                        <cc:ImageButton.Image>
+                            <cc:ColorlizeImage Image="{StaticResource Download32}"/>
+                        </cc:ImageButton.Image>
+                    </cc:ImageButton>
+                    <!--Download Progress Text-->
+                    <TextBlock HorizontalAlignment="Center"
+                               Text="{Binding DownloadProgress, StringFormat='{}{0}%'}"
+                               Visibility="{Binding IsDownlading, Converter={StaticResource Bool2Visbility}}"/>
+                </StackPanel>
+                <!--Open Download Folder Btn-->
+                <cc:ImageButton Grid.Column="4" x:Name="BtnOpenFolad"
+                                Command="{Binding OpenDownloadFolderCommand}">
+                    <cc:ImageButton.Visibility>
+                        <MultiBinding Converter="{StaticResource Equ2Vsbty}" ConverterParameter="100">
+                            <Binding Path="DownloadProgress"/>
+                        </MultiBinding>
+                    </cc:ImageButton.Visibility>
+                    <cc:ImageButton.Image>
+                        <cc:ColorlizeImage Image="{StaticResource Folder32}"/>
+                    </cc:ImageButton.Image>
+                </cc:ImageButton>
+            </Grid>
         </Grid>
     </Grid>
 

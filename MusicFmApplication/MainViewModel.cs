@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -289,6 +290,23 @@ namespace MusicFmApplication
 
         #endregion
 
+        #region DownloadProgress (INotifyPropertyChanged Property)
+
+        private int _downloadProgress;
+
+        public int DownloadProgress
+        {
+            get { return _downloadProgress; }
+            set
+            {
+                if (_downloadProgress.Equals(value)) return;
+                _downloadProgress = value;
+                RaisePropertyChanged("DownloadProgress");
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Delegate Commands
@@ -318,6 +336,7 @@ namespace MusicFmApplication
         private void NextSongExecute(bool? isEnded = false)
         {
             IsBuffering = true;
+            IsDownlading = false;
             //If song is ended, add it to history(Display inverted order)
             if (isEnded.GetValueOrDefault())
             {
@@ -406,13 +425,27 @@ namespace MusicFmApplication
         public DelegateCommand DownloadSongCommand { get; private set; }
         private void DownloadSongExetute()
         {
-            if (IsDownlading) return;
             IsDownlading = true;
+            DownloadProgress = 0;
             var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
-            //Task.Run(() => HttpWebDealer.DownloadFile(name, CurrentSong.Url, "DownloadSongs"))
-            //    .ContinueWith(task => { IsDownlading = false; });
-            HttpWebDealer.DownloadLargestFile(name, Lyric.Mp3Urls, "DownloadSongs");
-            IsDownlading = false;
+            var folder = Environment.CurrentDirectory + "\\DownloadSongs";
+            HttpWebDealer.DownloadLargestFile(name, Lyric.Mp3Urls, folder, DownloadMonitor);
+        }
+
+        private void DownloadMonitor(object webClient, DownloadProgressChangedEventArgs e)
+        {
+            DownloadProgress = e.ProgressPercentage;
+            if (DownloadProgress == 100) IsDownlading = false;
+        }
+
+        public DelegateCommand OpenDownloadFolderCommand { get; private set; }
+        public void OpenDownloadFolderExecute()
+        {
+            Task.Run(() =>
+                {
+                    var folder = SettingHelper.GetSetting("DownloadFolder", AppName);
+                    System.Diagnostics.Process.Start("Explorer.exe", folder);
+                });
         }
 
         #endregion
@@ -432,9 +465,17 @@ namespace MusicFmApplication
             TogglePlayerDetailCommand=new DelegateCommand(TogglePlayerDetailExecute);
             SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
             DownloadSongCommand=new DelegateCommand(DownloadSongExetute);
+            OpenDownloadFolderCommand = new DelegateCommand(OpenDownloadFolderExecute);
 
-            //Change this with MEF
+            //TODO: Change this with MEF
             SongService = new DoubanFm();
+            //TODO: Change this to setting pannel
+            Task.Run(() =>
+                {
+                    if (!string.IsNullOrWhiteSpace(SettingHelper.GetSetting("DownloadFolder", AppName))) return;
+                    var folder = Environment.CurrentDirectory + "\\DownloadSongs";
+                    SettingHelper.SetSetting("DownloadFolder", folder, AppName);
+                });
 
             GetChannels();
             Account.GerAccountFromConfig();

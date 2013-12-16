@@ -3,8 +3,10 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <ImageSource x:Key="LogoIco32">Images/logo32.png</ImageSource>
     <ImageSource x:Key="LogoIco96">Images/logo96.png</ImageSource>
+    <ImageSource x:Key="Heart32">Images/heart32.png</ImageSource>
     <ImageSource x:Key="Heart96">Images/heart96.png</ImageSource>
     <ImageSource x:Key="Delete96">Images/delete96.png</ImageSource>
+    <ImageSource x:Key="Delete32">Images/delete32.png</ImageSource>
     <ImageSource x:Key="Next96">Images/next96.png</ImageSource>
     <ImageSource x:Key="Play32">Images/play32.png</ImageSource>
     <ImageSource x:Key="Pause32">Images/pause32.png</ImageSource>
@@ -16,4 +18,5 @@
     <system:String x:Key="CrtChelStr">/CustomControlResources;component/Images/CurChannel.gif</system:String>
     <ImageSource x:Key="User48">Images/User48.png</ImageSource>
     <ImageSource x:Key="Login64">Images/Login64.png</ImageSource>
+    <ImageSource x:Key="Folder32">Images/folder32.png</ImageSource>
 </ResourceDictionary>

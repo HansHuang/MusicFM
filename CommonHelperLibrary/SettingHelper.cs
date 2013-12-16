@@ -6,7 +6,7 @@ namespace CommonHelperLibrary
 {
     public static class SettingHelper
     {
-        internal static string ConfigFileName = "AppConfig.xml";
+        internal static string ConfigFileName = "AppSetting.xml";
 
         /// <summary>
         /// Set Setting into config
@@ -56,7 +56,7 @@ namespace CommonHelperLibrary
         /// <returns>XmlDocument</returns>
         private static XmlDocument GetConfigXml(string appName = "App")
         {
-            if (appName != "App") ConfigFileName = appName + "Config.xml";
+            if (appName != "App") ConfigFileName = appName + "Setting.xml";
             var xmlDoc = new XmlDocument();
             //Create config file if not exist
             if (File.Exists(ConfigFileName)) xmlDoc.Load(ConfigFileName);
