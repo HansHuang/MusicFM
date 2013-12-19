@@ -429,7 +429,7 @@ namespace MusicFmApplication
             IsDownlading = true;
             DownloadProgress = 0;
             var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
-            var folder = Environment.CurrentDirectory + "\\DownloadSongs";
+            var folder = SettingHelper.GetSetting("DownloadFolder", AppName);
             HttpWebDealer.DownloadLargestFile(name, Lyric.Mp3Urls, folder, DownloadMonitor);
         }
 
@@ -445,7 +445,9 @@ namespace MusicFmApplication
             Task.Run(() =>
                 {
                     var folder = SettingHelper.GetSetting("DownloadFolder", AppName);
-                    System.Diagnostics.Process.Start("Explorer.exe", folder);
+                    var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
+                    var path = folder.EndsWith(@"\") ? folder + name : folder + "\\" + name;
+                    System.Diagnostics.Process.Start("Explorer.exe", "/select," + path);
                 });
         }
 
@@ -474,7 +476,7 @@ namespace MusicFmApplication
             Task.Run(() =>
                 {
                     if (!string.IsNullOrWhiteSpace(SettingHelper.GetSetting("DownloadFolder", AppName))) return;
-                    var folder = Environment.CurrentDirectory + "\\DownloadSongs";
+                    var folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
                     SettingHelper.SetSetting("DownloadFolder", folder, AppName);
                 });
 

@@ -247,7 +247,13 @@ namespace MusicFmApplication
 
         public int GetFFTFrequencyIndex(int frequency)
         {
-            throw new NotImplementedException();
+            //var mp3=_mediaMgr.Player.m
+            double maxFrequency;
+            //if (ActiveStream != null)
+            // maxFrequency = ActiveStream.WaveFormat.SampleRate / 2.0d;
+            //else
+            maxFrequency = 22050; // Assume a default 44.1 kHz sample rate.
+            return (int)(frequency / maxFrequency * 1024);
         }
 
         public bool IsPlaying { get { return _mediaMgr.IsPlaying; } }

@@ -10,7 +10,7 @@
 		           xmlns:sound="clr-namespace:WPFSoundVisualizationLib;assembly=WPFSoundVisualizationLib"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}"
-                   Title="{lex:LocText MusicFmApplication:English:DoubanFm}" 
+                   Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
                    ResizeMode="CanMinimize" AllowsTransparency="True" Background="#99FFFFFF"
                    Height="480"  Width="320">
     <!--<Window.Background>
@@ -67,8 +67,16 @@
     </Window.Resources>
 
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo ProgressValue="{Binding ElementName=Root, Path=ViewModel.DownloadProgress}">
+        <TaskbarItemInfo>
             <TaskbarItemInfo.ThumbButtonInfos>
+                <ThumbButtonInfo ImageSource="{StaticResource Pause32}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PausePlayerCommand}"
+                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"
+                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Play32}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.StartPlayerCommand}"
+                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"
+                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Heart32}"
                                  Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
@@ -76,7 +84,7 @@
                                  Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
                                  CommandParameter="1"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
-                <ThumbButtonInfo ImageSource="{StaticResource Play32}" 
+                <ThumbButtonInfo ImageSource="{StaticResource Next32}" 
                                  Command="{Binding ElementName=Root, Path=ViewModel.NextSongCommand}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
             </TaskbarItemInfo.ThumbButtonInfos>

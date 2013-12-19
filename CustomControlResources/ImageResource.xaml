@@ -8,6 +8,7 @@
     <ImageSource x:Key="Delete96">Images/delete96.png</ImageSource>
     <ImageSource x:Key="Delete32">Images/delete32.png</ImageSource>
     <ImageSource x:Key="Next96">Images/next96.png</ImageSource>
+    <ImageSource x:Key="Next32">Images/next32.png</ImageSource>
     <ImageSource x:Key="Play32">Images/play32.png</ImageSource>
     <ImageSource x:Key="Pause32">Images/pause32.png</ImageSource>
     <ImageSource x:Key="Volume32">Images/volume32.png</ImageSource>
