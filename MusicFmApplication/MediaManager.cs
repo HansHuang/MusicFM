@@ -9,7 +9,6 @@ using System.Windows.Data;
 using System.Windows.Threading;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
-using WPFSoundVisualizationLib;
 
 namespace MusicFmApplication
 {
@@ -159,15 +158,11 @@ namespace MusicFmApplication
 
         private List<TimeSpan> lrcKeys=new List<TimeSpan>();
 
-        private readonly SpectrumPlayer spectrumPlayer;
-
         public MediaManager(MainViewModel viewModel)
         {
             PausePlayerCommand = new DelegateCommand(PausePlayerExecute);
             StartPlayerCommand = new DelegateCommand(StartPlayerExecute);
             MuteCommand = new DelegateCommand(MuteExecute);
-
-            spectrumPlayer = new SpectrumPlayer(this);
 
             this.viewModel = viewModel;
             Volume = 0.75;
@@ -187,11 +182,13 @@ namespace MusicFmApplication
             viewModel.MainWindow.LrcContaner.ScrollToTop();
 
             var player = (MediaElement)sender;
-            SongLength = player.NaturalDuration.TimeSpan;
-
+            if (player.NaturalDuration.HasTimeSpan)
+                SongLength = player.NaturalDuration.TimeSpan;
+            else
+                SongLength = new TimeSpan(0, 0, viewModel.CurrentSong.Length);
             //viewModel.MainWindow.SpectrumAnalyzer.RegisterSoundPlayer(spectrumPlayer);
 
-            var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(300)};
+            var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(500)};
             timer.Tick += TimeTick;
             timer.Start();
         }
@@ -227,35 +224,5 @@ namespace MusicFmApplication
                     viewModel.MainWindow.LrcContaner.LineDown();
             }
         }
-    }
-
-
-    internal class SpectrumPlayer:ISpectrumPlayer
-    {
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-        private readonly MediaManager _mediaMgr;
-        public SpectrumPlayer(MediaManager mediaMgr)
-        {
-            _mediaMgr = mediaMgr;
-        }
-
-        public bool GetFFTData(float[] fftDataBuffer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetFFTFrequencyIndex(int frequency)
-        {
-            //var mp3=_mediaMgr.Player.m
-            double maxFrequency;
-            //if (ActiveStream != null)
-            // maxFrequency = ActiveStream.WaveFormat.SampleRate / 2.0d;
-            //else
-            maxFrequency = 22050; // Assume a default 44.1 kHz sample rate.
-            return (int)(frequency / maxFrequency * 1024);
-        }
-
-        public bool IsPlaying { get { return _mediaMgr.IsPlaying; } }
     }
 }

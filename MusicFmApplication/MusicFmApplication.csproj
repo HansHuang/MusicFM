@@ -68,9 +68,6 @@
     <Reference Include="PresentationFramework">
       <Private>False</Private>
     </Reference>
-    <Reference Include="WPFSoundVisualizationLib">
-      <HintPath>..\packages\WPFSoundVisualizationLib.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -133,10 +130,6 @@
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{57150ee1-7e83-4ff2-98f4-151bc19c3c7a}</Project>
       <Name>Service</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ThirdPartyLibrary\MahApps.Metro.Resources\MahApps.Metro.Resources.csproj">
-      <Project>{e708ac99-605b-42a0-8d20-abca8fe42dd2}</Project>
-      <Name>MahApps.Metro.Resources</Name>
     </ProjectReference>
     <ProjectReference Include="..\ThirdPartyLibrary\MahApps.Metro\MahApps.Metro.NET45.csproj">
       <Project>{942d11c4-29f5-46c4-8c14-4b976d56c637}</Project>

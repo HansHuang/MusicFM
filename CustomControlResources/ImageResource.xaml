@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <ImageSource x:Key="LogoIco32">Images/logo32.png</ImageSource>
-    <ImageSource x:Key="LogoIco96">Images/logo96.png</ImageSource>
+    <ImageSource x:Key="LogoIco64">Images/logo64.png</ImageSource>
     <ImageSource x:Key="Heart32">Images/heart32.png</ImageSource>
     <ImageSource x:Key="Heart96">Images/heart96.png</ImageSource>
     <ImageSource x:Key="Delete96">Images/delete96.png</ImageSource>

@@ -7,9 +7,8 @@
                    xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
                    xmlns:mdl="clr-namespace:Service.Model;assembly=Service"
-		           xmlns:sound="clr-namespace:WPFSoundVisualizationLib;assembly=WPFSoundVisualizationLib"
                    x:Name="Root"
-                   Icon="{DynamicResource LogoIco32}"
+                   Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
                    ResizeMode="CanMinimize" AllowsTransparency="True" Background="#99FFFFFF"
                    Height="480"  Width="320">
@@ -28,7 +27,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro.Resources;component/Icons.xaml" />
+                <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro.Resources;component/Icons.xaml" />-->
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
@@ -71,12 +70,11 @@
             <TaskbarItemInfo.ThumbButtonInfos>
                 <ThumbButtonInfo ImageSource="{StaticResource Pause32}"
                                  Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PausePlayerCommand}"
-                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"
-                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}"/>
-                <ThumbButtonInfo ImageSource="{StaticResource Play32}"
+                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
+                <!--<ThumbButtonInfo ImageSource="{StaticResource Play32}"
                                  Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.StartPlayerCommand}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"
-                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>
+                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>-->
                 <ThumbButtonInfo ImageSource="{StaticResource Heart32}"
                                  Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
@@ -289,40 +287,6 @@
     </metro:MetroWindow.Flyouts>
 
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
-        <!--Spectrum Panel-->
-        <Grid Height="135" Margin="-5,0,-5,-15" VerticalAlignment="Bottom" Opacity=".5"
-              Visibility="{Binding CurrentSong, Converter={StaticResource Null2Vsby}}">
-            <Grid.Effect>
-                <BlurEffect Radius="7"/>
-            </Grid.Effect>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Rectangle RenderTransformOrigin="0.5,0.5">
-                <Rectangle.RenderTransform>
-                    <ScaleTransform ScaleX="-1"/>
-                </Rectangle.RenderTransform>
-                <Rectangle.Fill>
-                    <VisualBrush Visual="{Binding ElementName=SpectrumAnalyzer}" Stretch="None" AlignmentX="Left" AlignmentY="Bottom"/>
-                </Rectangle.Fill>
-            </Rectangle>
-            <sound:SpectrumAnalyzer x:Name="SpectrumAnalyzer" Grid.Column="1" BarSpacing="0" PeakStyle="{x:Null}" 
-                                    IsFrequencyScaleLinear="True" Margin="-1,0,0,-1" AveragePeaks="True">
-                <sound:SpectrumAnalyzer.BarStyle>
-                    <Style TargetType="{x:Type Rectangle}">
-                        <Setter Property="Fill">
-                            <Setter.Value>
-                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1" x:Name="BarBrush">
-                                    <GradientStop Color="{StaticResource AccentColor}" Offset="0"/>
-                                    <GradientStop Color="{StaticResource AccentColor4}" Offset="0.7"/>
-                                </LinearGradientBrush>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </sound:SpectrumAnalyzer.BarStyle>
-            </sound:SpectrumAnalyzer>
-        </Grid>
         <!--Main Content Panel-->
         <Grid>
             <Grid.RowDefinitions>

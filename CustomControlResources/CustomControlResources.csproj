@@ -342,7 +342,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\logo32.png" />
-    <Resource Include="Images\logo96.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommonHelperLibrary\CommonHelperLibrary.csproj">
@@ -397,6 +396,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\next32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\logo64.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

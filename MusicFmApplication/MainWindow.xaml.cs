@@ -87,7 +87,7 @@ namespace MusicFmApplication
                 handled = true;
             }
             return IntPtr.Zero;
-        } 
+        }
         #endregion
 
     }
