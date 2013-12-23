@@ -12,12 +12,6 @@
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
                    ResizeMode="CanMinimize" AllowsTransparency="True" Background="#99FFFFFF"
                    Height="480"  Width="320">
-    <!--<Window.Background>
-        <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
-            <GradientStop Color="#DDFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="1"/>
-        </LinearGradientBrush>
-    </Window.Background>-->
     
     <Window.Resources>
         <ResourceDictionary>
@@ -49,6 +43,8 @@
             <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
             <cvt:EqualiencyConverter x:Key="EquCvt"/>
             <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
+            <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
+            <cvt:NumberToProgressState x:Key="Num2Pgs"/>
             <Style TargetType="Grid" x:Key="ChannelCell">
                 <Setter Property="Background">
                     <Setter.Value>
@@ -66,15 +62,17 @@
     </Window.Resources>
 
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo>
+        <TaskbarItemInfo ProgressState="{Binding ElementName=Root, Path=ViewModel.DownloadProgress, Converter={StaticResource Num2Pgs}}"
+                         ProgressValue="{Binding ElementName=Root, Path=ViewModel.DownloadProgress, Converter={StaticResource Pct2Dcml}}">
             <TaskbarItemInfo.ThumbButtonInfos>
-                <ThumbButtonInfo ImageSource="{StaticResource Pause32}"
+                <ThumbButtonInfo ImageSource="{StaticResource Pause32}" DismissWhenClicked="True"
                                  Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PausePlayerCommand}"
-                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
-                <!--<ThumbButtonInfo ImageSource="{StaticResource Play32}"
+                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"
+                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Play32}" DismissWhenClicked="True"
                                  Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.StartPlayerCommand}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"
-                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>-->
+                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Heart32}"
                                  Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
