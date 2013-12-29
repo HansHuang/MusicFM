@@ -216,8 +216,8 @@ namespace MusicFmApplication
             if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + viewModel.Lyric.Offset)
             {
                 viewModel.CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex, nextTime);
-                //not scroll at first 4 line
-                if (nextIndex < 4) return;
+                //not scroll at first 5 lines
+                if (nextIndex < 5) return;
                 viewModel.MainWindow.LrcContaner.LineDown();
                 //Scroll two lines every 3 times
                 if (nextIndex % 3 == 1)

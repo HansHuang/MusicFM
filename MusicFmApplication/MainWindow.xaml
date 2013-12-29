@@ -290,25 +290,20 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="4*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="2"/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
-            <!--Progress Indicator-->
+            <!--1 Progress Indicator-->
             <DockPanel Grid.Row="0" Height="20">
                 <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
                                          ProgressColor="{DynamicResource AccentColorBrush}"
                                          Width="{Binding ElementName=Root, Path=Width}"
                                          Visibility="{Binding IsBuffering, Converter={StaticResource Bool2Visbility}}"/>
             </DockPanel>
-            <!--Song Photo & Lyric-->
-            <StackPanel Grid.Row="1" VerticalAlignment="Center" Orientation="Vertical">
-                <StackPanel.Resources>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush2}"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                    </Style>
-                </StackPanel.Resources>
+            <!--2 Song Photo & Lyric-->
+            <Grid Grid.Row="1" VerticalAlignment="Center">
                 <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding Path=CurrentSong.Url}" />
                 <metro:ProgressRing IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center"
                                     Width="120" Height="120"
@@ -316,27 +311,34 @@
                 <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
                     <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
                         <cc:ImageButton.Image>
-                            <Image Source="{Binding Path=CurrentSong.Picture}" Stretch="Fill" HorizontalAlignment="Center">
-                                <Image.Style>
-                                    <Style TargetType="Image">
-                                        <Setter Property="Width">
-                                            <Setter.Value>
-                                                <MultiBinding Converter="{StaticResource MultiplyNum}" ConverterParameter="0.75">
-                                                    <Binding ElementName="Root" Path="Width"/>
-                                                </MultiBinding>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Setter Property="Height" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Opacity" Value=".8"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Image.Style>
-                            </Image>
+                            <StackPanel Orientation="Vertical">
+                                <Image x:Name="AlbumPicture" 
+                                       Source="{Binding Path=CurrentSong.Picture}" Stretch="Fill" HorizontalAlignment="Center">
+                                        <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Width">
+                                                <Setter.Value>
+                                                    <MultiBinding Converter="{StaticResource MultiplyNum}" ConverterParameter="0.75">
+                                                        <Binding ElementName="Root" Path="Width"/>
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Setter Property="Height" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Opacity" Value=".8"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <cc:ControlReflection Host="{Binding ElementName=AlbumPicture}"
+                                                      ReflectionPercent=".3"
+                                                      Opacity=".9"/>
+                            </StackPanel>
                         </cc:ImageButton.Image>
                     </cc:ImageButton>
+
                     <cc:ImageButton Visibility="{Binding IsDisylayLyric, Converter={StaticResource Bool2Visbility}}"
                                     Command="{Binding ToggleLyricDisplayCommand}">
                         <Grid Background="#CC000000" 
@@ -367,17 +369,27 @@
                         </Grid>
                     </cc:ImageButton>
                 </Grid>
-                <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,8,0,3" />
+            </Grid>
+            <!--3 Song Title & Album Title-->
+            <StackPanel Grid.Row="2"
+                        Orientation="Vertical">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush2}"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Resources>
+                <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,3" />
                 <TextBlock FontSize="11"
                            Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
-                    <Run Text="{Binding Path=CurrentSong.Artist}"/>
-                    <Run Text=" &lt;"/>
-                    <Run Text="{Binding CurrentSong.AlbumTitle}"/>
-                    <Run Text="&gt;"/>
+                        <Run Text="{Binding Path=CurrentSong.Artist}"/>
+                        <Run Text=" &lt;"/>
+                        <Run Text="{Binding CurrentSong.AlbumTitle}"/>
+                        <Run Text="&gt;"/>
                 </TextBlock>
             </StackPanel>
             <!--3 Control Btns-->
-            <Grid Grid.Row="2"
+            <Grid Grid.Row="3"
                   IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -434,7 +446,7 @@
                 </Button>
             </Grid>
             <!--Playing Progress Time Line-->
-            <Grid Grid.Row="3">
+            <Grid Grid.Row="4">
                 <Grid.Resources>
                     <Style TargetType="Rectangle">
                         <Setter Property="Height" Value="2"/>
@@ -469,7 +481,7 @@
                 </Rectangle>
             </Grid>
             <!--Pause, volume, download btns-->
-            <Grid Grid.Row="4" VerticalAlignment="Bottom" Margin="0,8">
+            <Grid Grid.Row="5" VerticalAlignment="Bottom" Margin="0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="4*"/>

@@ -25,6 +25,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		packages\WPFSoundVisualizationLib.dll = packages\WPFSoundVisualizationLib.dll
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{55401168-1E97-4AA7-8BD5-2310406EC97F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvApp", "Plugin\MvApp\MvApp.csproj", "{A9D13B67-FD20-49A3-AB93-B6DC9046DB1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +63,10 @@ Global
 		{57150EE1-7E83-4FF2-98F4-151BC19C3C7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57150EE1-7E83-4FF2-98F4-151BC19C3C7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57150EE1-7E83-4FF2-98F4-151BC19C3C7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9D13B67-FD20-49A3-AB93-B6DC9046DB1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9D13B67-FD20-49A3-AB93-B6DC9046DB1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9D13B67-FD20-49A3-AB93-B6DC9046DB1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9D13B67-FD20-49A3-AB93-B6DC9046DB1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,5 +75,6 @@ Global
 		{E708AC99-605B-42A0-8D20-ABCA8FE42DD2} = {EF065702-F4A2-40AD-A01A-3957152C7C45}
 		{942D11C4-29F5-46C4-8C14-4B976D56C637} = {EF065702-F4A2-40AD-A01A-3957152C7C45}
 		{E8C5B094-2CB4-4C26-87F0-351B03612179} = {EF065702-F4A2-40AD-A01A-3957152C7C45}
+		{A9D13B67-FD20-49A3-AB93-B6DC9046DB1A} = {55401168-1E97-4AA7-8BD5-2310406EC97F}
 	EndGlobalSection
 EndGlobal

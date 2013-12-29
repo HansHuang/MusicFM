@@ -67,6 +67,7 @@
     <Compile Include="ColorlizeImage.xaml.cs">
       <DependentUpon>ColorlizeImage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ControlReflection.cs" />
     <Compile Include="Converter\EqualiencyConverter.cs" />
     <Compile Include="Converter\EqualiencyToVisibilityConverter.cs" />
     <Compile Include="Converter\InverseEqualiencyConverter.cs" />
