@@ -222,11 +222,9 @@ namespace MusicFmApplication
 
         #region CurrnetLrcLine (INotifyPropertyChanged Property)
 
-        #region CurrnetLrcLine (INotifyPropertyChanged Property)
+        private KeyValuePair<int, TimeSpan> _CurrnetLrcLine;
 
-        private KeyValuePair<int,TimeSpan> _CurrnetLrcLine;
-
-        public KeyValuePair<int,TimeSpan> CurrnetLrcLine
+        public KeyValuePair<int, TimeSpan> CurrnetLrcLine
         {
             get { return _CurrnetLrcLine; }
             set
@@ -236,8 +234,6 @@ namespace MusicFmApplication
                 RaisePropertyChanged("CurrnetLrcLine");
             }
         }
-
-        #endregion
 
         #endregion
 

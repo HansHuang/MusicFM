@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 
-namespace MvApp
+namespace MvPlayer
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

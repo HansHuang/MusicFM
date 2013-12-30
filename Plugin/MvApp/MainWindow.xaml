@@ -1,4 +1,4 @@
-﻿<metro:MetroWindow x:Class="MvApp.MainWindow"
+﻿<metro:MetroWindow x:Class="MvPlayer.MainWindow"
                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"

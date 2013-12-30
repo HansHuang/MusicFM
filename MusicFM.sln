@@ -27,7 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{55401168-1E97-4AA7-8BD5-2310406EC97F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvApp", "Plugin\MvApp\MvApp.csproj", "{A9D13B67-FD20-49A3-AB93-B6DC9046DB1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvPlayer", "Plugin\MvApp\MvPlayer.csproj", "{A9D13B67-FD20-49A3-AB93-B6DC9046DB1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
