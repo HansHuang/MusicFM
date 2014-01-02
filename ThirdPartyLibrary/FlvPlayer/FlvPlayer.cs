@@ -13,7 +13,7 @@ namespace FlvPlayer
     {
         protected FlashPlayer Player { get; private set; }
 
-        public FlvPlayer() 
+        public FlvPlayer()
         {
             Player = new FlashPlayer();
             Content = new WindowsFormsHost { Child = Player};
@@ -40,6 +40,7 @@ namespace FlvPlayer
                             para.IsAllowFullScreen;
 
             control.Player.Movie = Environment.CurrentDirectory + @"\ToobPlayer.swf?";
+            control.Player.WMode = "transparent";
             control.Player.FlashVars = flashVars;
             control.Player.AllowFullScreen = para.IsAllowFullScreen.ToString();
             control.Player.Play();

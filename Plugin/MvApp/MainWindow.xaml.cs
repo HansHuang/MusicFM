@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,11 +36,26 @@ namespace MvPlayer
         public MainWindow()
         {
             InitializeComponent();
-            ViewModel = MainViewModel.Instance;
+            ViewModel = MainViewModel.GetInstance(Dispatcher);
 
-            Loaded += (s, e) => { ViewModel.IsWindowLoaded = true; };
+            Loaded += (s, e) =>
+            {
+                ViewModel.IsWindowLoaded = true;
+                //ViewModel.MvList.CollectionChanged += MvListChanged;
+            };
         }
 
+        //private void MvListChanged(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    if (e.Action == NotifyCollectionChangedAction.Add&&
+        //        MainGrid.Children.Count==0)
+        //    {
+        //        var binding = new Binding("ViewModel.PlayPara");
+        //        var player = new FlvPlayer.FlvPlayer();
+        //        player.SetBinding(player.PlayerParameter, binding);
 
+        //        MainGrid.Children.Add(player);
+        //    }
+        //}
     }
 }

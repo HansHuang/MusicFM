@@ -4,7 +4,7 @@
         xmlns:f="clr-namespace:FlvPlayer;assembly=FlvPlayer"
         xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
         xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
-        Title="Music Video" Height="740" Width="1280"
+        Title="Music Video" Height="740" Width="1280" 
         cc:AeroGlassEffect.IsEnabled="True"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
@@ -12,7 +12,7 @@
             <cvt:NumberToVisibilityConverter x:Key="Num2Vsty"/>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid>
+    <Grid x:Name="MainGrid">
         <f:FlvPlayer x:Name="Player" 
                      Visibility="{Binding ViewModel.MvList.Count, Converter={StaticResource Num2Vsty}}"
                      PlayerParameter="{Binding Path=ViewModel.PlayPara}"/>

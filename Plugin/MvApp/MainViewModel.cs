@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using CommonHelperLibrary.WEB;
 using FlvPlayer;
 using Microsoft.Practices.Prism.ViewModel;
@@ -31,6 +32,8 @@ namespace MvPlayer
         }
 
         #endregion
+
+        public Dispatcher UiDispatcher { get; set; }
 
         #region PlayPara (INotifyPropertyChanged Property)
 
@@ -64,29 +67,38 @@ namespace MvPlayer
         }
         #endregion
 
-        private MainViewModel()
+        private MainViewModel(Dispatcher dispatcher)
         {
-            Task.Run(() =>
-            {
-                YinYueTai.GetIndexMvList(YinYueTai.IndexMvType.Premiere, YinYueTai.IndexMvArea.All)
-                         .ForEach(s => MvList.Add(s));
-                if (MvList.Count == 0) return;
-                //Note: Important!!! Player must be called after window loaded. 
-                if (IsWindowLoaded) 
-                {
-                    var mv = MvList[0];
-                    PlayPara = new PlayerParameters
-                    {
-                        CaptureUrl = MvList[0].Image
-                    };
-                    mv.FlvUrl = mv.PlayPageUrl.FlvUrl();
-                    PlayPara = new PlayerParameters(mv.FlvUrl);
-                }
-                //TODO :if not loaded, then...wait...
-                //else
-            });
+            UiDispatcher = dispatcher;
+            Task.Run((Action) GetMvList);
         }
 
-        public static readonly MainViewModel Instance = new MainViewModel();
+        private static MainViewModel _instance;
+        public static MainViewModel GetInstance(Dispatcher dispatcher)
+        {
+            return _instance ?? (_instance = new MainViewModel(dispatcher));
+        }
+
+        private void GetMvList()
+        {
+            var list = YinYueTai.GetIndexMvList(YinYueTai.IndexMvType.Premiere, YinYueTai.IndexMvArea.All);
+            if (list.Count == 0 || UiDispatcher == null) return;
+            UiDispatcher.BeginInvoke((Action) (() => list.ForEach(s => MvList.Add(s))));
+            //Note: Important!!! Player must be called after window loaded. 
+            if (IsWindowLoaded)
+            {
+                var mv = list[0];
+                PlayPara = new PlayerParameters
+                {
+                    CaptureUrl = list[0].Image
+                };
+                mv.FlvUrl = mv.PlayPageUrl.FlvUrl();
+                PlayPara = new PlayerParameters(mv.FlvUrl);
+            }
+            //TODO :if not loaded, then...wait...
+            //else
+        }
+
+        
     }
 }
