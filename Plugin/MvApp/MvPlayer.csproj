@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Practices.Prism">
+      <HintPath>..\..\..\SmartTool\SharedBinaries\Microsoft.Practices.Prism.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -53,6 +56,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MainViewModel.cs" />
     <Compile Include="Service\Model\MusicVideo.cs" />
     <Compile Include="Service\YinYueTai.cs" />
     <Page Include="MainWindow.xaml">
@@ -104,9 +108,9 @@
       <Project>{c0f93d06-8f96-452f-9cc8-bfbefff87858}</Project>
       <Name>CustomControlResources</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ThirdPartyLibrary\MahApps.Metro\MahApps.Metro.NET45.csproj">
-      <Project>{942d11c4-29f5-46c4-8c14-4b976d56c637}</Project>
-      <Name>MahApps.Metro.NET45</Name>
+    <ProjectReference Include="..\..\ThirdPartyLibrary\FlvPlayer\FlvPlayer.csproj">
+      <Project>{8a89d206-b22a-4fc6-80df-a888ebedbf7e}</Project>
+      <Name>FlvPlayer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ThirdPartyLibrary\WPFLocalizeExtension\WPFLocalizeExtension.csproj">
       <Project>{e8c5b094-2cb4-4c26-87f0-351b03612179}</Project>

@@ -18,15 +18,15 @@ namespace MvPlayer.Service
             var typeStr = EnumHelper.GetEnumDescription(type);
             var areaStr = EnumHelper.GetEnumDescription(area);
 
-            var json = HttpWebDealer.GetJsonObject(string.Format("http://www.yinyuetai.com/ajax/{0}?area={1}", typeStr, areaStr));
-            foreach (var item in json)
+            var json = HttpWebDealer.GetJsonObject(string.Format("http://www.yinyuetai.com/ajax/{0}?area={1}", typeStr, areaStr),Encoding.UTF8);
+            foreach (var item in json) 
             {
                 var mv = new MusicVideo
                 {
-                    Id = json["id"],
-                    Title = json["title"],
-                    Image = json["image"],
-                    PlayPageUrl = "http://v.yinyuetai.com/video/" + json["id"]
+                    Id = item["videoId"],
+                    Title = item["title"],
+                    Image = item["image"],
+                    PlayPageUrl = "http://v.yinyuetai.com/video/" + item["videoId"]
                 };
                 foreach (var arts in item["artists"])
                 {
@@ -37,15 +37,8 @@ namespace MvPlayer.Service
                         MainPage = "http://www.yinyuetai.com/fanclub/mv/" + arts["id"] + "/toNew"
                     });
                 }
-
+                mvList.Add(mv);
             }
-            mvList.Add(new MusicVideo
-            {
-                Id = json["id"],
-                Title = json["id"],
-                Image = json["id"],
-                PlayPageUrl = json["id"]
-            });
             return mvList;
         }
 

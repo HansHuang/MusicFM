@@ -8,7 +8,7 @@ namespace MvPlayer.Service.Model
 {
     public class MusicVideo
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Image { get; set; }
         public string Description { get; set; }
@@ -27,7 +27,7 @@ namespace MvPlayer.Service.Model
     /// </summary>
     public class MvArtist
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public string MainPage { get; set; }
     }
