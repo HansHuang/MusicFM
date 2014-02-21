@@ -34,7 +34,7 @@ namespace Service
             url.Append("&channel=" + param.ChannelId);
             url.Append("&sid=" + (string.IsNullOrWhiteSpace(param.SongId) ? "0" : param.SongId));
             if (!string.IsNullOrWhiteSpace(param.UserId)) url.Append("&user_id=" + param.UserId);
-            if(!string.IsNullOrEmpty(param.Expire)) url.Append("&expire=" + param.Expire);
+            if (!string.IsNullOrEmpty(param.Expire)) url.Append("&expire=" + param.Expire);
             if (!string.IsNullOrEmpty(param.Token)) url.Append("&token=" + param.Token);
             if (!string.IsNullOrEmpty(param.History)) url.Append("&h=" + param.History);
 

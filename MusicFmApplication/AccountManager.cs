@@ -181,7 +181,7 @@ namespace MusicFmApplication
                     {
                         if ((account.Expire - DateTime.Now).Days < 3)
                         {
-                            UserName = account.UserName;
+                            UserName = account.Email;
                             Passwrod = account.Password;
                             LoginCommand.Execute(account.AccountType);
                         }
