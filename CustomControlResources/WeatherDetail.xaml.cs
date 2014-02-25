@@ -16,15 +16,15 @@ namespace CustomControlResources
         public WeatherDetail()
         {
             InitializeComponent();
-            //Get Weather Detail
-            var task = new Func<Task<Weather>>(() => Task.Run(() => {
-                var weather = CityWeatherHelper.GetWeather();
-                if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
-                    !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
-                    weather.LifeIndexes = new ObservableCollection<LifeIndex>(weather.LifeIndexes);
-                return weather;
-            }));
-            WeatherData = new AsyncProperty<Weather>(task);
+            ////Get Weather Detail
+            //var task = new Func<Task<Weather>>(() => Task.Run(() => {
+            //    var weather = CityWeatherHelper.GetWeather();
+            //    if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
+            //        !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
+            //        weather.LifeIndexes = new ObservableCollection<LifeIndex>(weather.LifeIndexes);
+            //    return weather;
+            //}));
+            //WeatherData = new AsyncProperty<Weather>(task);
         }
 
         #region WeatherData DependencyProperty
@@ -35,7 +35,7 @@ namespace CustomControlResources
         {
             get { return (AsyncProperty<Weather>)GetValue(WeatherDataProperty); }
             set { SetValue(WeatherDataProperty, value); }
-        } 
+        }
         #endregion
 
     }

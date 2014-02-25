@@ -83,7 +83,7 @@ namespace MvPlayer
         {
             var list = YinYueTai.GetIndexMvList(YinYueTai.IndexMvType.Premiere, YinYueTai.IndexMvArea.All);
             if (list.Count == 0 || UiDispatcher == null) return;
-            UiDispatcher.BeginInvoke((Action) (() => list.ForEach(s => MvList.Add(s))));
+            UiDispatcher.InvokeAsync(() => list.ForEach(s => MvList.Add(s)));
             //Note: Important!!! Player must be called after window loaded. 
             if (IsWindowLoaded)
             {

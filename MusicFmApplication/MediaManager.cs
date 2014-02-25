@@ -123,7 +123,7 @@ namespace MusicFmApplication
         #region DelegateCommand
 
         public DelegateCommand PausePlayerCommand { get; private set; }
-        private void PausePlayerExecute() 
+        private void PausePlayerExecute()
         {
             if (Player == null || !Player.CanPause) return;
             Player.Pause();
@@ -131,7 +131,7 @@ namespace MusicFmApplication
         }
 
         public DelegateCommand StartPlayerCommand { get; private set; }
-        private void StartPlayerExecute() 
+        private void StartPlayerExecute()
         {
             if (Player == null) return;
             Player.Play();
@@ -154,9 +154,9 @@ namespace MusicFmApplication
 
         public MediaElement Player { get; private set; }
 
-        private readonly MainViewModel viewModel;
+        protected readonly MainViewModel ViewModel;
 
-        private List<TimeSpan> lrcKeys=new List<TimeSpan>();
+        protected List<TimeSpan> LrcKeys = new List<TimeSpan>();
 
         public MediaManager(MainViewModel viewModel)
         {
@@ -164,31 +164,32 @@ namespace MusicFmApplication
             StartPlayerCommand = new DelegateCommand(StartPlayerExecute);
             MuteCommand = new DelegateCommand(MuteExecute);
 
-            this.viewModel = viewModel;
+            ViewModel = viewModel;
             Volume = 0.75;
             PlayerControl();
         }
 
         private void PlayerControl()
         {
-            Player = viewModel.MainWindow.Player;
+            Player = ViewModel.MainWindow.Player;
             Player.MediaOpened += PlayerMediaOpened;
         }
 
         private void PlayerMediaOpened(object sender, RoutedEventArgs e)
         {
             IsPlaying = true;
-            lrcKeys = viewModel.Lyric.Content.Keys.ToList();
-            viewModel.MainWindow.LrcContaner.ScrollToTop();
+            if (ViewModel.Lyric == null) return;
+            LrcKeys = ViewModel.Lyric.Content.Keys.ToList();
+            ViewModel.MainWindow.LrcContaner.ScrollToTop();
 
             var player = (MediaElement)sender;
             if (player.NaturalDuration.HasTimeSpan)
                 SongLength = player.NaturalDuration.TimeSpan;
             else
-                SongLength = new TimeSpan(0, 0, viewModel.CurrentSong.Length);
+                SongLength = new TimeSpan(0, 0, ViewModel.CurrentSong.Length);
             //viewModel.MainWindow.SpectrumAnalyzer.RegisterSoundPlayer(spectrumPlayer);
 
-            var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(500)};
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
             timer.Tick += TimeTick;
             timer.Start();
         }
@@ -197,31 +198,31 @@ namespace MusicFmApplication
         {
             Position = Player.Position;
             DownloadProgress = Player.DownloadProgress;
-            viewModel.IsBuffering = Player.IsBuffering;
-            PlayProgress = Position.TotalMilliseconds/SongLength.TotalMilliseconds;
+            ViewModel.IsBuffering = Player.IsBuffering;
+            PlayProgress = Position.TotalMilliseconds / SongLength.TotalMilliseconds;
             //Song is almost finish, jump to next one
             if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 100)
             {
-                viewModel.NextSongCommand.Execute(true);
+                ViewModel.NextSongCommand.Execute(true);
                 return;
             }
             //Lrc control
-            var lyricCount = viewModel.Lyric.Content.Count;
+            var lyricCount = ViewModel.Lyric.Content.Count;
             if (lyricCount < 2) return;
-            if (lrcKeys.Count != lyricCount) lrcKeys = viewModel.Lyric.Content.Keys.ToList();
-            var nextIndex = viewModel.CurrnetLrcLine.Key + 1;
-            if (nextIndex >= lrcKeys.Count) return;
+            if (LrcKeys.Count != lyricCount) LrcKeys = ViewModel.Lyric.Content.Keys.ToList();
+            var nextIndex = ViewModel.CurrnetLrcLine.Key + 1;
+            if (nextIndex >= LrcKeys.Count) return;
 
-            var nextTime = lrcKeys[nextIndex];
-            if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + viewModel.Lyric.Offset)
+            var nextTime = LrcKeys[nextIndex];
+            if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + ViewModel.Lyric.Offset)
             {
-                viewModel.CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex, nextTime);
+                ViewModel.CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex, nextTime);
                 //not scroll at first 5 lines
                 if (nextIndex < 5) return;
-                viewModel.MainWindow.LrcContaner.LineDown();
+                ViewModel.MainWindow.LrcContaner.LineDown();
                 //Scroll two lines every 3 times
                 if (nextIndex % 3 == 1)
-                    viewModel.MainWindow.LrcContaner.LineDown();
+                    ViewModel.MainWindow.LrcContaner.LineDown();
             }
         }
     }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Service.Model
 {
+    [Serializable]
     public class Song : INotifyPropertyChanged
     {
         #region INotifyPropertyChanged RaisePropertyChanged

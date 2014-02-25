@@ -219,7 +219,7 @@ namespace CommonHelperLibrary.WEB
     }
 
     #region Weahter Model class
-
+    [Serializable]
     public class Weather : WeatherBase
     {
         public string CityName { get; set; }
@@ -241,6 +241,7 @@ namespace CommonHelperLibrary.WEB
         public WeatherBase NextFiveDayWeather { get; set; }
     }
 
+    [Serializable]
     public class WeatherBase
     {
         public string Temperature { get; set; }
@@ -254,6 +255,7 @@ namespace CommonHelperLibrary.WEB
         public string Date { get; set; }
     }
 
+    [Serializable]
     public class LifeIndex
     {
         public string Name { get; set; }

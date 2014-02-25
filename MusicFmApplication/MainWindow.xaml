@@ -115,7 +115,7 @@
             <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000"
                           Header="{lex:LocText MusicFmApplication:English:WeatherDetail}"
                           IsOpen="{Binding ViewModel.IsShowWeatherDetail }">
-                <cc:WeatherDetail x:Name="WeatherDetail"/>
+                <cc:WeatherDetail x:Name="WeatherDetail" WeatherData="{Binding ElementName=Root, Path=ViewModel.WeatherMgr.WeatherData}"/>
             </metro:Flyout>
             <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000" Position="Right"
                           Header="{lex:LocText MusicFmApplication:English:MyCentralRoom}"

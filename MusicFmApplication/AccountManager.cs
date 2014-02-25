@@ -118,7 +118,7 @@ namespace MusicFmApplication
         public DelegateCommand<object> LoginCommand { get; private set; }
         public void LoginExcute(object type)
         {
-            var accType = type is AccountType ? (AccountType) type : AccountType.DoubanFM;
+            var accType = type is AccountType ? (AccountType)type : AccountType.DoubanFM;
             if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Passwrod))
             {
                 Feedback = LocalTextHelper.GetLocText("UnamePwdCantEmpty");
@@ -131,36 +131,37 @@ namespace MusicFmApplication
                                                            "&password=" + Passwrod +
                                                            "&app_name=radio_desktop_win&version=100");
                     if (json == null || json["err"] == null) return;
-                    ViewModel.MainWindow.Dispatcher.BeginInvoke((Action) (() =>
+                    ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                    {
+                        if (!json["err"].Equals("ok"))
                         {
-                            if (!json["err"].Equals("ok"))
-                            {
-                                Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
-                                return;
-                            }
-                            var expire = DateTime.Now.AddMilliseconds(Convert.ToInt64(json["expire"]));
-                            AccountInfo = new Account
-                                {
-                                    Email = json["email"],
-                                    Expire = expire,
-                                    ExpireString = json["expire"],
-                                    LoginTime = DateTime.Now,
-                                    Password = Passwrod,
-                                    R = json["r"].ToString(),
-                                    Token = json["token"],
-                                    UserId = json["user_id"].ToString(),
-                                    UserName = json["user_name"],
-                                    AccountType = accType
-                                };
-                            UserName = AccountInfo.UserName;
-                            IsShowLoginBox = false;
-                            Task.Run(() => SettingHelper.SetSetting("Account", AccountInfo.SerializeToString(), ViewModel.AppName));
-                    }));
+                            Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
+                            return;
+                        }
+                        var expire = DateTime.Now.AddMilliseconds(Convert.ToInt64(json["expire"]));
+                        AccountInfo = new Account
+                        {
+                            Email = json["email"],
+                            Expire = expire,
+                            ExpireString = json["expire"],
+                            LoginTime = DateTime.Now,
+                            Password = Passwrod,
+                            R = json["r"].ToString(),
+                            Token = json["token"],
+                            UserId = json["user_id"].ToString(),
+                            UserName = json["user_name"],
+                            AccountType = accType
+                        };
+                        UserName = AccountInfo.UserName;
+                        IsShowLoginBox = false;
+                        Task.Run(() => SettingHelper.SetSetting(CacheName, AccountInfo.SerializeToString(), ViewModel.AppName));
+                    });
                 });
         }
         #endregion
 
         protected MainViewModel ViewModel;
+        protected const string CacheName = "Account";
 
         public AccountManager(MainViewModel viewModel)
         {
@@ -169,15 +170,20 @@ namespace MusicFmApplication
 
             ShowLoginBoxCommand = new DelegateCommand(ShowLoginBoxExecute);
             LoginCommand = new DelegateCommand<object>(LoginExcute);
+
+            TryGetAccount();
         }
 
-        public void GerAccountFromConfig()
+        /// <summary>
+        /// Try to get account info from config file
+        /// </summary>
+        private void TryGetAccount()
         {
             Task.Run(() =>
                 {
-                    var account = SettingHelper.GetSetting("Account", ViewModel.AppName).Deserialize<Account>();
+                    var account = SettingHelper.GetSetting(CacheName, ViewModel.AppName).Deserialize<Account>();
                     if (account == null) return;
-                    ViewModel.MainWindow.Dispatcher.BeginInvoke((Action)(() =>
+                    ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
                     {
                         if ((account.Expire - DateTime.Now).Days < 3)
                         {
@@ -190,7 +196,7 @@ namespace MusicFmApplication
                             AccountInfo = account;
                             UserName = AccountInfo.UserName;
                         }
-                    }));
+                    });
                 });
         }
     }

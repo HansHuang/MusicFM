@@ -37,6 +37,8 @@ namespace MusicFmApplication
 
         public string AppName = "MusicFM";
 
+        private const string SongListCacheName = "SongList";
+
         #endregion
 
         #region Notify Properties
@@ -69,6 +71,23 @@ namespace MusicFmApplication
                 if (_account != null && _account.Equals(value)) return;
                 _account = value;
                 RaisePropertyChanged("Account");
+            }
+        }
+
+        #endregion
+
+        #region WeatherMgr (INotifyPropertyChanged Property)
+
+        private WeatherManager _weatherMgr;
+
+        public WeatherManager WeatherMgr
+        {
+            get { return _weatherMgr ?? (_weatherMgr = new WeatherManager(this)); }
+            private set
+            {
+                if (_weatherMgr != null && _weatherMgr.Equals(value)) return;
+                _weatherMgr = value;
+                RaisePropertyChanged("WeatherMgr");
             }
         }
 
@@ -316,11 +335,11 @@ namespace MusicFmApplication
         #endregion
 
         public DelegateCommand TogglePlayerDetailCommand { get; private set; }
-        private void TogglePlayerDetailExecute() 
+        private void TogglePlayerDetailExecute()
         {
             IsShowPlayerDetail = !IsShowPlayerDetail;
 
-            if (string.IsNullOrEmpty(Account.UserName) || Account.AccountInfo == null) 
+            if (string.IsNullOrEmpty(Account.UserName) || Account.AccountInfo == null)
                 Account.UserName = LocalTextHelper.GetLocText("LoginDouban");
             Account.IsShowLoginBox = false;
             Account.Feedback = string.Empty;
@@ -392,25 +411,25 @@ namespace MusicFmApplication
                     var songs = SongService.GetSongList(para).ToList();
                     if (songs.Count < 1) return;
                     //Notify song list back to the main thread
-                    MainWindow.Dispatcher.BeginInvoke((Action) (() =>
-                        {
-                            SongList.Clear();
-                            if (!ishate)
-                                CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
-                            songs.ForEach(s => SongList.Add(s));
-                        }));
+                    MainWindow.Dispatcher.InvokeAsync(() =>
+                    {
+                        SongList.Clear();
+                        if (!ishate)
+                            CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
+                        songs.ForEach(s => SongList.Add(s));
+                    });
                     IsBuffering = false;
                 });
         }
 
         public DelegateCommand ToggleLyricDisplayCommand { get; private set; }
-        private void ToggleLyricDisplayExecute() 
+        private void ToggleLyricDisplayExecute()
         {
             IsDisylayLyric = !IsDisylayLyric;
         }
 
         public DelegateCommand<int?> SetChannelCommand { get; private set; }
-        private void SetChannelExecute(int? cid) 
+        private void SetChannelExecute(int? cid)
         {
             var id = cid.GetValueOrDefault();
             CurrentChannel = Channels.AsyncValue.FirstOrDefault(s => s.Id == id);
@@ -449,6 +468,8 @@ namespace MusicFmApplication
 
         #endregion
 
+
+
         #region Construct Method
         /// <summary>
         /// Please call the GetInstance method
@@ -461,40 +482,61 @@ namespace MusicFmApplication
             NextSongCommand = new DelegateCommand<bool?>(NextSongExecute);
             LikeSongCommand = new DelegateCommand<string>(LikeSongExecute);
             ToggleLyricDisplayCommand = new DelegateCommand(ToggleLyricDisplayExecute);
-            TogglePlayerDetailCommand=new DelegateCommand(TogglePlayerDetailExecute);
+            TogglePlayerDetailCommand = new DelegateCommand(TogglePlayerDetailExecute);
             SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
-            DownloadSongCommand=new DelegateCommand(DownloadSongExetute);
+            DownloadSongCommand = new DelegateCommand(DownloadSongExetute);
             OpenDownloadFolderCommand = new DelegateCommand(OpenDownloadFolderExecute);
 
             //TODO: Change this with MEF
             SongService = new DoubanFm();
-            //TODO: Change this to setting pannel
-            Task.Run(() =>
-                {
-                    if (!string.IsNullOrWhiteSpace(SettingHelper.GetSetting("DownloadFolder", AppName))) return;
-                    var folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
-                    SettingHelper.SetSetting("DownloadFolder", folder, AppName);
-                });
 
-            GetChannels();
-            Account.GerAccountFromConfig();
+            StartPlayer();
         }
 
-        public static MainViewModel GetInstance(MainWindow window=null) 
+        public static MainViewModel GetInstance(MainWindow window = null)
         {
             return _instance ?? (_instance = new MainViewModel(window));
         }
         #endregion
 
         #region Processors
+
+        private void StartPlayer()
+        {
+            GetChannels();
+
+            Task.Run(() =>
+            {
+                //TODO: Change this to setting pannel
+                if (string.IsNullOrWhiteSpace(SettingHelper.GetSetting("DownloadFolder", AppName)))
+                {
+                    var folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
+                    SettingHelper.SetSetting("DownloadFolder", folder, AppName);
+                }
+
+                var songList = SettingHelper.GetSetting(SongListCacheName, AppName).Deserialize<List<Song>>();
+                MainWindow.Dispatcher.InvokeAsync(() =>
+                {
+                    if (songList != null && songList.Count > 0)
+                    {
+                        songList.ForEach(s => SongList.Add(s));
+                        NextSongCommand.Execute(false);
+                    }
+                    else
+                    {
+                        if (CurrentChannel != null)
+                            SetChannelCommand.Execute(CurrentChannel.Id);
+                    }
+                });
+            });
+        }
+
         private void GetChannels()
         {
             var basicChannels = SongService.GetChannels();
             var task = new Func<Task<ObservableCollection<Channel>>>(() => Task.Run(() => SongService.GetChannels(false)));
             Channels = new AsyncProperty<ObservableCollection<Channel>>(task, basicChannels);
-            var first = basicChannels.FirstOrDefault();
-            if (first != null)
-                SetChannelCommand.Execute(first.Id);
+            CurrentChannel = basicChannels.FirstOrDefault();
         }
 
         /// <summary>
@@ -510,12 +552,15 @@ namespace MusicFmApplication
                 var exitingIds = SongList.Select(s => s.Sid);
                 var para = CreateGetSongParamter();
                 var songs = SongService.GetSongList(para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
+
                 //Notify song list back to the main thread
-                MainWindow.Dispatcher.BeginInvoke((Action)(() =>
-                    {
-                        songs.ForEach(s => SongList.Add(s));
-                        if (callBack != null) callBack();
-                    }));
+                MainWindow.Dispatcher.InvokeAsync(() =>
+                {
+                    songs.ForEach(s => SongList.Add(s));
+                    if (callBack != null) callBack();
+                });
+                var list = songs.ToList();
+                SettingHelper.SetSetting(SongListCacheName, list.SerializeToString(), AppName);
                 IsBuffering = false;
             });
         }
@@ -530,15 +575,16 @@ namespace MusicFmApplication
             };
             Lyric.Mp3Urls.Add(CurrentSong.Url);
             Lyric.Content.Add(new TimeSpan(0), "Trying to Get Lyrics, Please wait");
+
             Task.Factory.StartNew(() =>
                 {
                     var lrc = SongLyricHelper.GetSongLyric(CurrentSong.Title, CurrentSong.Artist);
                     if (lrc == null || !lrc.Content.Any()) return;
-                    MainWindow.Dispatcher.BeginInvoke((Action)(() =>
-                        {
-                            Lyric = lrc;
-                            CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
-                        }));
+                    MainWindow.Dispatcher.InvokeAsync(() =>
+                    {
+                        Lyric = lrc;
+                        CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
+                    });
                 });
         }
 
