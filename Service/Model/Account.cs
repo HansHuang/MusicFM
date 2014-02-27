@@ -26,6 +26,8 @@ namespace Service.Model
     [Serializable]
     public enum AccountType
     {
-        DoubanFM
+        DoubanFm = 0,
+        Weibo = 1,
+        TencentQq = 2
     }
 }

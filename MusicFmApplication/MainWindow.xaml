@@ -181,14 +181,14 @@
                                                 <DataTrigger.EnterActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
-                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="65" Duration="0:0:0.3"/>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="95" Duration="0:0:0.3"/>
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </DataTrigger.EnterActions>
                                                 <DataTrigger.ExitActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
-                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="65" To="0" Duration="0:0:0.3"/>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Height" From="95" To="0" Duration="0:0:0.3"/>
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </DataTrigger.ExitActions>
@@ -203,19 +203,28 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
+                                <ComboBox SelectedIndex="0" Grid.Row="0" Grid.Column="0" Height="25" x:Name="CboxAccountType" >
+                                    <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:DoubanAct}" 
+                                                  DataContext="{x:Static mdl:AccountType.DoubanFm}" />
+                                    <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:TencentQq}" 
+                                                  DataContext="{x:Static mdl:AccountType.TencentQq}"/>
+                                    <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:Weibo}" 
+                                                  DataContext="{x:Static mdl:AccountType.Weibo}"/>
+                                </ComboBox>
                                 <TextBox metro:TextboxHelper.Watermark="Email" 
                                          metro:TextboxHelper.ClearTextButton="True" 
-                                         Grid.Row="0" Grid.Column="0" Height="25"
+                                         Grid.Row="1" Grid.Column="0" Height="25"
                                          Text="{Binding ViewModel.Account.UserName}"/>
                                 <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Password}"
                                               metro:TextboxHelper.ClearTextButton="True" 
-                                               Grid.Row="1" Grid.Column="0" Margin="0,2" Height="25"
+                                               Grid.Row="2" Grid.Column="0" Margin="0,2" Height="25"
                                                 cc:PasswordHelper.Password="{Binding ViewModel.Account.Passwrod, Mode=TwoWay}" />
                                 <cc:ImageButton HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
                                                 ToolTip="{lex:LocText MusicFmApplication:English:LoginDouban}"
                                                 Command="{Binding ViewModel.Account.LoginCommand}"
-                                                CommandParameter="{x:Static mdl:AccountType.DoubanFM}">
+                                                CommandParameter="{x:Static mdl:AccountType.DoubanFm}">
                                     <cc:ImageButton.Image>
                                         <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
                                     </cc:ImageButton.Image>

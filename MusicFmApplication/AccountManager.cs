@@ -118,45 +118,33 @@ namespace MusicFmApplication
         public DelegateCommand<object> LoginCommand { get; private set; }
         public void LoginExcute(object type)
         {
-            var accType = type is AccountType ? (AccountType)type : AccountType.DoubanFM;
+            var accType = type is AccountType ? (AccountType)type : AccountType.DoubanFm;
             if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Passwrod))
             {
                 Feedback = LocalTextHelper.GetLocText("UnamePwdCantEmpty");
                 return;
             }
             Feedback = string.Empty;
-            Task.Run(() =>
+
+            var loginTask = Task.Run(() => ViewModel.SongService.Login(UserName, Passwrod, accType));
+
+            loginTask.GetAwaiter().OnCompleted(() =>
+            {
+                var account = loginTask.Result;
+                ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
                 {
-                    var json = HttpWebDealer.GetJsonObject("https://www.douban.com/j/app/login?email=" + UserName +
-                                                           "&password=" + Passwrod +
-                                                           "&app_name=radio_desktop_win&version=100");
-                    if (json == null || json["err"] == null) return;
-                    ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                    if (account == null)
                     {
-                        if (!json["err"].Equals("ok"))
-                        {
-                            Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
-                            return;
-                        }
-                        var expire = DateTime.Now.AddMilliseconds(Convert.ToInt64(json["expire"]));
-                        AccountInfo = new Account
-                        {
-                            Email = json["email"],
-                            Expire = expire,
-                            ExpireString = json["expire"],
-                            LoginTime = DateTime.Now,
-                            Password = Passwrod,
-                            R = json["r"].ToString(),
-                            Token = json["token"],
-                            UserId = json["user_id"].ToString(),
-                            UserName = json["user_name"],
-                            AccountType = accType
-                        };
-                        UserName = AccountInfo.UserName;
-                        IsShowLoginBox = false;
-                        Task.Run(() => SettingHelper.SetSetting(CacheName, AccountInfo.SerializeToString(), ViewModel.AppName));
-                    });
+                        Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
+                        return;
+                    }
+                    AccountInfo = account;
+                    UserName = account.UserName;
+                    IsShowLoginBox = false;
                 });
+                //Write account info to local file
+                SettingHelper.SetSetting(CacheName, AccountInfo.SerializeToString(), ViewModel.AppName);
+            });
         }
         #endregion
 

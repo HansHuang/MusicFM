@@ -20,11 +20,11 @@ namespace Service
     public class DoubanFm : ISongService
     {
         //Random for get song list
-        private Random _random;
+        protected Random Randomer;
 
         public DoubanFm()
         {
-            _random = new Random(1000000);
+            Randomer = new Random(1000000);
         }
 
         public List<Song> GetSongList(GetSongParameter param) 
@@ -47,7 +47,7 @@ namespace Service
                 else if (param.History.Contains(":s")) type = "b"; //Hate song
             }
             url.Append("&type=" + type);
-            url.Append("&r=" + _random.Next(0, 1000000));
+            url.Append("&r=" + Randomer.Next(0, 1000000));
 
             var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
             if (json == null || json["song"] == null) return GetSongList(param);
@@ -91,43 +91,38 @@ namespace Service
         {
             var list = new ObservableCollection<Channel> 
             {
-                new Channel(0, "私人 MHz"),
-                new Channel(-3, "红心 MHz"),
-                new Channel(1, "华语 MHz"),
-                new Channel(2, "欧美 MHz"),
-                new Channel(3, "70 MHz"),
-                new Channel(4, "80 MHz"),
-                new Channel(5, "90 MHz"),
-                new Channel(7, "摇滚 MHz"),
-                new Channel(8, "民谣 MHz"),
-                new Channel(9, "轻音乐 MHz"),
-                new Channel(10, "电影原声 MHz"),
-                new Channel(13, "爵士 MHz,"),
-                new Channel(14, "电子 MHz"),
-                new Channel(15, "说唱 MHz"),
-                new Channel(16, "R&B MHz"),
-                new Channel(17, "日语 MHz"),
-                new Channel(18, "韩语 MHz"),
-                new Channel(20, "女声 MHz"),
-                new Channel(22, "法语 MHz")
+                new Channel(0, "私人"),
+                new Channel(-3, "红心"),
+                new Channel(1, "华语"),
+                new Channel(2, "欧美"),
+                new Channel(3, "70"),
+                new Channel(4, "80"),
+                new Channel(5, "90"),
+                new Channel(7, "摇滚"),
+                new Channel(8, "民谣"),
+                new Channel(9, "轻音乐"),
+                new Channel(10, "电影原声"),
+                new Channel(13, "爵士,"),
+                new Channel(14, "电子"),
+                new Channel(15, "说唱"),
+                new Channel(16, "R&B"),
+                new Channel(17, "日语"),
+                new Channel(18, "韩语"),
+                new Channel(20, "女声"),
+                new Channel(22, "法语")
             };
             if (isBasic) return list;
 
             //Get expansion channels
-            var html = HttpWebDealer.GetHtml("http://douban.fm", Encoding.UTF8);
-            var doc = new HtmlDocument();
-            doc.LoadHtml(html);
-            var chls = doc.DocumentNode.SelectNodes("//ul[@id=\"promotion_chls\"]");
-            if (chls == null) return list;
-            foreach (var node in chls.Nodes().Where(s => !string.IsNullOrWhiteSpace(s.InnerHtml)))
-            {
-                var cid = node.GetAttributeValue("cid", 0);
-                if (list.Any(s => s.Id == cid)) continue;
-                var desc = node.GetAttributeValue("data-intro", "");
-                var conver = node.GetAttributeValue("data-cover", "");
-                var name = node.ChildNodes.First(s => !string.IsNullOrWhiteSpace(s.InnerHtml)).InnerText;
+            var json = HttpWebDealer.GetJsonObject(
+                "http://www.douban.com/j/app/radio/channels?version=100&app_name=radio_desktop_win", Encoding.UTF8);
+            if (json == null || json["channels"] == null) return GetChannelsFromWebpage(list);
 
-                list.Add(new Channel(cid, name, desc, conver));
+            foreach (var element in json["channels"]) 
+            {
+                var cid = Convert.ToInt32(element["channel_id"]);
+                if (list.Any(s => s.Id == cid)) continue;
+                list.Add(new Channel(cid, element["name"]));
             }
 
             return list;
@@ -152,5 +147,72 @@ namespace Service
 
             return json != null && json["r"] == 0;
         }
+
+        /// <summary>
+        /// Get douban fm channels by browsering webpage then select channels from html document
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        private ObservableCollection<Channel> GetChannelsFromWebpage(ObservableCollection<Channel> list)
+        {
+            if (list == null) list = new ObservableCollection<Channel>();
+            var html = HttpWebDealer.GetHtml("http://douban.fm", Encoding.UTF8);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            var chls = doc.DocumentNode.SelectNodes("//ul[@id=\"promotion_chls\"]");
+            if (chls == null) return list;
+            foreach (var node in chls.Nodes().Where(s => !string.IsNullOrWhiteSpace(s.InnerHtml)))
+            {
+                var cid = node.GetAttributeValue("cid", 0);
+                if (list.Any(s => s.Id == cid)) continue;
+                var desc = node.GetAttributeValue("data-intro", "");
+                var conver = node.GetAttributeValue("data-cover", "");
+                var name = node.ChildNodes.First(s => !string.IsNullOrWhiteSpace(s.InnerHtml)).InnerText;
+
+                list.Add(new Channel(cid, name, desc, conver));
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Login douban fm server
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="password"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public Account Login(string userName, string password, AccountType type)
+        {
+            switch (type)
+            {
+                case AccountType.DoubanFm:
+                    return LoginByDoubanAccount(userName, password);
+            }
+            return null;
+        }
+
+        private Account LoginByDoubanAccount(string userName, string password)
+        {
+            var json = HttpWebDealer.GetJsonObject("https://www.douban.com/j/app/login?email=" + userName +
+                                                          "&password=" + password +
+                                                          "&app_name=radio_desktop_win&version=100");
+            if (json == null || json["err"] == null) return null;
+            var expire = DateTime.Now.AddMilliseconds(Convert.ToInt64(json["expire"]));
+            var account = new Account
+            {
+                Email = json["email"],
+                Expire = expire,
+                ExpireString = json["expire"],
+                LoginTime = DateTime.Now,
+                Password = password,
+                R = json["r"].ToString(),
+                Token = json["token"],
+                UserId = json["user_id"].ToString(),
+                UserName = json["user_name"],
+                AccountType = AccountType.DoubanFm
+            };
+            return account;
+        }
+
     }
 }
