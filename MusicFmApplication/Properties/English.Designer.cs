@@ -79,11 +79,11 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Login Douban FM.
+        ///   Looks up a localized string similar to Login.
         /// </summary>
-        internal static string LoginDouban {
+        internal static string Login {
             get {
-                return ResourceManager.GetString("LoginDouban", resourceCulture);
+                return ResourceManager.GetString("Login", resourceCulture);
             }
         }
         
@@ -111,6 +111,15 @@ namespace MusicFmApplication.Properties {
         internal static string Password {
             get {
                 return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sina Weibo.
+        /// </summary>
+        internal static string SinaWeibo {
+            get {
+                return ResourceManager.GetString("SinaWeibo", resourceCulture);
             }
         }
         
@@ -156,15 +165,6 @@ namespace MusicFmApplication.Properties {
         internal static string WeatherDetail {
             get {
                 return ResourceManager.GetString("WeatherDetail", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Weibo.
-        /// </summary>
-        internal static string Weibo {
-            get {
-                return ResourceManager.GetString("Weibo", resourceCulture);
             }
         }
     }

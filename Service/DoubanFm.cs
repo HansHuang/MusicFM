@@ -5,9 +5,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
-using HtmlAgilityPack;
 using Service.Model;
+using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
 namespace Service
 {
@@ -183,12 +185,13 @@ namespace Service
         /// <returns></returns>
         public Account Login(string userName, string password, AccountType type)
         {
-            switch (type)
+            switch (type) 
             {
                 case AccountType.DoubanFm:
                     return LoginByDoubanAccount(userName, password);
+                default:
+                    return LoginByThirdPartyAccount(userName, password, type);
             }
-            return null;
         }
 
         private Account LoginByDoubanAccount(string userName, string password)
@@ -211,6 +214,49 @@ namespace Service
                 UserName = json["user_name"],
                 AccountType = AccountType.DoubanFm
             };
+            return account;
+        }
+
+        private Account LoginByThirdPartyAccount(string userName, string password, AccountType type) 
+        {
+            Account account = null;
+            var loginUrl = "http://douban.fm/partner/login?target=" + type;
+            var browser=new WebBrowser();
+            browser.DocumentCompleted += (sdr, e) => 
+            {
+
+                if (browser.Document.Url.Host.Contains("api.weibo.com")) 
+                {
+                    var isDisplayError = browser.Document.GetElementsByTagName("div")
+                                                .OfType<HtmlElement>()
+                                                .Any(s => s.GetAttribute("style").Equals("display:none"));
+                    if (isDisplayError) return;
+
+                    browser.Document.GetElementById("userId").SetAttribute("value", userName);
+                    //Browser.Document.GetElementById("passwd").Focus();
+                    browser.Document.GetElementById("passwd").SetAttribute("value", password);
+                    var submitBtn = browser.Document.GetElementsByTagName("a")
+                                           .OfType<HtmlElement>()
+                                           .FirstOrDefault(s => s.GetAttribute("action-type").Equals("submit"));
+                    if (submitBtn != null) submitBtn.InvokeMember("click");
+                }
+                
+                var cookie = IeCookieHelper.GetCookieData("http://douban.fm");
+                if (!cookie.Contains("dbcl2")) return;
+                cookie = cookie.Split(' ')
+                               .Where(s => !s.Contains("_"))
+                               .Aggregate("", (seed, ele) => seed + ele + " ");
+                account = new Account {AccountType = type, Email = userName};
+                Console.WriteLine(cookie);
+                browser.Dispose();
+            };
+            browser.Navigate(loginUrl);
+            while (true)
+            {
+                if (browser.IsDisposed) break;
+                Task.Delay(100);
+            }
+
             return account;
         }
 

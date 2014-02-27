@@ -17,6 +17,7 @@ namespace Service.Model
         public DateTime LoginTime { get; set; }
         public string ExpireString { get; set; }
         public DateTime Expire { get; set; }
+        public string Cookie { get; set; }
 
         public string R { get; set; }
 
@@ -26,8 +27,9 @@ namespace Service.Model
     [Serializable]
     public enum AccountType
     {
-        DoubanFm = 0,
-        Weibo = 1,
-        TencentQq = 2
+        DoubanFm = 1,
+        Weibo = 2,
+        TencentQq = 6,
+        Msn = 5
     }
 }

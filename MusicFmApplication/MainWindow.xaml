@@ -210,8 +210,10 @@
                                                   DataContext="{x:Static mdl:AccountType.DoubanFm}" />
                                     <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:TencentQq}" 
                                                   DataContext="{x:Static mdl:AccountType.TencentQq}"/>
-                                    <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:Weibo}" 
+                                    <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:SinaWeibo}" 
                                                   DataContext="{x:Static mdl:AccountType.Weibo}"/>
+                                    <ComboBoxItem Content="MSN" 
+                                                  DataContext="{x:Static mdl:AccountType.Msn}"/>
                                 </ComboBox>
                                 <TextBox metro:TextboxHelper.Watermark="Email" 
                                          metro:TextboxHelper.ClearTextButton="True" 
@@ -221,10 +223,11 @@
                                               metro:TextboxHelper.ClearTextButton="True" 
                                                Grid.Row="2" Grid.Column="0" Margin="0,2" Height="25"
                                                 cc:PasswordHelper.Password="{Binding ViewModel.Account.Passwrod, Mode=TwoWay}" />
-                                <cc:ImageButton HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
-                                                ToolTip="{lex:LocText MusicFmApplication:English:LoginDouban}"
+                                <cc:ImageButton HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"
+                                                ToolTip="{lex:LocText MusicFmApplication:English:Login}"
                                                 Command="{Binding ViewModel.Account.LoginCommand}"
-                                                CommandParameter="{x:Static mdl:AccountType.DoubanFm}">
+                                                CommandParameter="{Binding ElementName=CboxAccountType, Path=SelectedItem.DataContext}">
                                     <cc:ImageButton.Image>
                                         <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
                                     </cc:ImageButton.Image>
