@@ -141,9 +141,9 @@ namespace MusicFmApplication
                     AccountInfo = account;
                     UserName = account.UserName;
                     IsShowLoginBox = false;
+                    //Write account info to local file
+                    SettingHelper.SetSetting(CacheName, AccountInfo.SerializeToString(), ViewModel.AppName);
                 });
-                //Write account info to local file
-                SettingHelper.SetSetting(CacheName, AccountInfo.SerializeToString(), ViewModel.AppName);
             });
         }
         #endregion

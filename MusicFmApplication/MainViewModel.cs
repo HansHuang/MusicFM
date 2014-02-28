@@ -340,7 +340,7 @@ namespace MusicFmApplication
             IsShowPlayerDetail = !IsShowPlayerDetail;
 
             if (string.IsNullOrEmpty(Account.UserName) || Account.AccountInfo == null)
-                Account.UserName = LocalTextHelper.GetLocText("LoginDouban");
+                Account.UserName = LocalTextHelper.GetLocText("Login");
             Account.IsShowLoginBox = false;
             Account.Feedback = string.Empty;
             if (Account.AccountInfo != null && Account.UserName != Account.AccountInfo.UserName)
@@ -468,8 +468,6 @@ namespace MusicFmApplication
 
         #endregion
 
-
-
         #region Construct Method
         /// <summary>
         /// Please call the GetInstance method
@@ -588,15 +586,13 @@ namespace MusicFmApplication
                 });
         }
 
-
-
         /// <summary>
         /// Get Song History String to bulid URL
         /// </summary>
         /// <param name="action">Played: ":p|"  Like: ":r|"  Unlike: ":u|"  Hate: ":s|"</param>
         /// <param name="needHistory">need history or not(default true)</param>
         /// <returns></returns>
-        public GetSongParameter CreateGetSongParamter(string action = ":p|", bool needHistory = true)
+        public GainSongParameter CreateGetSongParamter(string action = ":p|", bool needHistory = true)
         {
             var sb = new StringBuilder();
             if (needHistory)
@@ -608,7 +604,7 @@ namespace MusicFmApplication
                 if (CurrentSong != null) sb.Append(CurrentSong.Sid + action);
             }
 
-            var para = new GetSongParameter
+            var para = new GainSongParameter
                 {
                     ChannelId = CurrentChannel == null ? 0 : CurrentChannel.Id,
                     SongId = CurrentSong == null ? "0" : CurrentSong.Sid.ToString()
@@ -619,6 +615,8 @@ namespace MusicFmApplication
                 para.UserId = Account.AccountInfo.UserId;
                 para.Token = Account.AccountInfo.Token;
                 para.Expire = Account.AccountInfo.ExpireString;
+                para.Cookie = Account.AccountInfo.Cookie;
+                para.Position = Convert.ToDecimal(MediaManager.Position.TotalSeconds);
             }
             return para;
         }

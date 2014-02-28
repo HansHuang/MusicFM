@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommonHelperLibrary;
@@ -29,7 +30,7 @@ namespace Service
             Randomer = new Random(1000000);
         }
 
-        public List<Song> GetSongList(GetSongParameter param) 
+        public List<Song> GetSongList(GainSongParameter param)
         {
             if (param == null) return new List<Song>();
             var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100"));
@@ -56,7 +57,7 @@ namespace Service
             var songs = json["song"] as IEnumerable;
             //This list will always appear at first time, almost 100% probability
             var count = 1;
-            var filterList = new List<string>{"107686","280187","1000411","1027380","1381349"};
+            var filterList = new List<string> { "107686", "280187", "1000411", "1027380", "1381349" };
             var list = new List<Song>();
             foreach (dynamic song in songs)
             {
@@ -120,7 +121,7 @@ namespace Service
                 "http://www.douban.com/j/app/radio/channels?version=100&app_name=radio_desktop_win", Encoding.UTF8);
             if (json == null || json["channels"] == null) return GetChannelsFromWebpage(list);
 
-            foreach (var element in json["channels"]) 
+            foreach (var element in json["channels"])
             {
                 var cid = Convert.ToInt32(element["channel_id"]);
                 if (list.Any(s => s.Id == cid)) continue;
@@ -135,7 +136,7 @@ namespace Service
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        public bool CompletedSong(GetSongParameter parameter)
+        public bool CompletedSong(GainSongParameter parameter)
         {
             if (parameter == null) return false;
             var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&type=e"));
@@ -185,7 +186,7 @@ namespace Service
         /// <returns></returns>
         public Account Login(string userName, string password, AccountType type)
         {
-            switch (type) 
+            switch (type)
             {
                 case AccountType.DoubanFm:
                     return LoginByDoubanAccount(userName, password);
@@ -219,44 +220,70 @@ namespace Service
 
         private Account LoginByThirdPartyAccount(string userName, string password, AccountType type) 
         {
+            var timeOut = 3000;//3s
             Account account = null;
-            var loginUrl = "http://douban.fm/partner/login?target=" + type;
-            var browser=new WebBrowser();
-            browser.DocumentCompleted += (sdr, e) => 
+            var loginUrl = "http://douban.fm/partner/login?target=" + (int)type;
+            var trd = new Thread(() =>
             {
-
-                if (browser.Document.Url.Host.Contains("api.weibo.com")) 
+                var browser = new WebBrowser { ScriptErrorsSuppressed = true };
+                browser.DocumentCompleted += (sdr, e) =>
                 {
-                    var isDisplayError = browser.Document.GetElementsByTagName("div")
-                                                .OfType<HtmlElement>()
-                                                .Any(s => s.GetAttribute("style").Equals("display:none"));
-                    if (isDisplayError) return;
+                    if (browser.Document.Url.Host.Contains("api.weibo.com"))
+                    {
+                        browser.Document.GetElementById("userId").SetAttribute("value", userName);
+                        //Browser.Document.GetElementById("passwd").Focus();
+                        browser.Document.GetElementById("passwd").SetAttribute("value", password);
+                        var submitBtn = browser.Document.GetElementsByTagName("a")
+                                               .OfType<HtmlElement>()
+                                               .FirstOrDefault(s => s.GetAttribute("action-type").Equals("submit"));
+                        if (submitBtn != null)
+                        {
+                            submitBtn.InvokeMember("click");
+                            timeOut = 3000;
+                        }
+                        return;
+                    }
 
-                    browser.Document.GetElementById("userId").SetAttribute("value", userName);
-                    //Browser.Document.GetElementById("passwd").Focus();
-                    browser.Document.GetElementById("passwd").SetAttribute("value", password);
-                    var submitBtn = browser.Document.GetElementsByTagName("a")
-                                           .OfType<HtmlElement>()
-                                           .FirstOrDefault(s => s.GetAttribute("action-type").Equals("submit"));
-                    if (submitBtn != null) submitBtn.InvokeMember("click");
-                }
-                
-                var cookie = IeCookieHelper.GetCookieData("http://douban.fm");
-                if (!cookie.Contains("dbcl2")) return;
-                cookie = cookie.Split(' ')
-                               .Where(s => !s.Contains("_"))
-                               .Aggregate("", (seed, ele) => seed + ele + " ");
-                account = new Account {AccountType = type, Email = userName};
-                Console.WriteLine(cookie);
-                browser.Dispose();
-            };
-            browser.Navigate(loginUrl);
+                    var name = string.Empty;
+                    var nameBox = browser.Document.GetElementById("user_name");
+                    if (nameBox != null) name = nameBox.InnerText;
+
+                    var cookie = IeCookieHelper.GetCookieData("http://douban.fm");
+                    if (cookie.Contains("dbcl2"))
+                    {
+                        var cookieList = cookie.Split(' ').Where(s => !s.Contains("_")).ToList();
+                        var userId = cookieList.First(s => s.Contains("dbcl2"))
+                                               .Split(new[] { '=', '"', ':' }, StringSplitOptions.RemoveEmptyEntries)[1];
+                        cookie = cookieList.Aggregate("", (seed, ele) => seed + ele + " ");
+                        account = new Account
+                        {
+                            AccountType = type,
+                            Email = userName,
+                            UserName = name,
+                            Password = password,
+                            UserId = userId,
+                            Cookie = cookie,
+                            LoginTime = DateTime.Now,
+                            Expire = DateTime.Now.AddDays(5)
+                        };
+                        browser.Dispose();
+                        Application.ExitThread();
+                        return;
+                    }
+                };
+                browser.Navigate(loginUrl);
+                Application.Run();
+            }) { IsBackground = true };
+            trd.SetApartmentState(ApartmentState.STA);
+            trd.Start();
+            //trd.Join();
+
             while (true)
             {
-                if (browser.IsDisposed) break;
-                Task.Delay(100);
+                if (timeOut < 1 || account != null) break;
+                timeOut -= 100;
+                Thread.Sleep(100);
             }
-
             return account;
         }
 

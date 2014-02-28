@@ -10,9 +10,9 @@ namespace Service
 {
     public interface ISongService 
     {
-        List<Song> GetSongList(GetSongParameter parameter);
+        List<Song> GetSongList(GainSongParameter parameter);
         ObservableCollection<Channel> GetChannels(bool isBasic = true);
-        bool CompletedSong(GetSongParameter parameter);
+        bool CompletedSong(GainSongParameter parameter);
         Account Login(string userName, string password, AccountType type);
     }
 }
