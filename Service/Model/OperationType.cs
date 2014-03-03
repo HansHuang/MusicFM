@@ -10,6 +10,7 @@ namespace Service.Model
     {
         Like,
         DisLike,
-        Hate//Delete
+        Hate,//Delete,
+        Played
     }
 }

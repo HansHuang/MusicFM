@@ -17,18 +17,26 @@ namespace Service.Model
         //Get from webpage
         public string Cookie { get; set; }
         //Song played position(second, one decimal place)
-        public decimal Position { get; set; }
+        public string Position { get; set; }
 
         public GainSongParameter(){}
+        public GainSongParameter(Account account)
+        {
+            UserId = account.UserId;
+            Token = account.Token;
+            Expire = account.ExpireString;
+            Cookie = account.Cookie;
+        }
 
         /// <summary>
-        /// Bulid history string inside
+        /// Get history string inside
         /// </summary>
         /// <param name="songs">Song list(20 elements at most)</param>
         /// <param name="type">Operation type</param>
-        public GainSongParameter(ICollection<Song> songs, OperationType type)
+        public GainSongParameter HistoryString(ICollection<Song> songs, OperationType type) 
         {
-            if (songs == null || songs.Count < 1) return;
+            History = string.Empty;
+            if (songs == null || songs.Count < 1) return this;
             var sb = new StringBuilder();
             if (songs.Count > 20) songs = songs.Skip(songs.Count - 20).ToList();
 
@@ -48,9 +56,37 @@ namespace Service.Model
                 case OperationType.Hate:
                     lastAction = ":s|";
                     break;
+                case OperationType.Played:
+                    lastAction = ":p|";
+                    break;
+                    default:
+                    break;
             }
             var history = sb.ToString();
-            History = history.Substring(0, history.Length - 3) + lastAction; ;
+            History = history.Substring(0, history.Length - 3) + lastAction;
+            return this;
+        }
+
+        /// <summary>
+        /// Get the postion second of song played(one decimal place)
+        /// </summary>
+        /// <param name="seconds">second, one decimal place</param>
+        /// <returns></returns>
+        public GainSongParameter PositionSeconds(decimal seconds)
+        {
+            Position = seconds.ToString("N1");
+            return this;
+        }
+
+        /// <summary>
+        /// Get the postion second of song played
+        /// </summary>
+        /// <param name="seconds">second</param>
+        /// <returns></returns>
+        public GainSongParameter PositionSeconds(int seconds)
+        {
+            Position = seconds.ToString("N1");
+            return this;
         }
     }
 }

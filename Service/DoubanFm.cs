@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -51,6 +52,8 @@ namespace Service
             }
             url.Append("&type=" + type);
             url.Append("&r=" + Randomer.Next(0, 1000000));
+
+            Debug.WriteLine(url);
 
             var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
             if (json == null || json["song"] == null) return GetSongList(param);

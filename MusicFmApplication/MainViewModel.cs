@@ -359,7 +359,8 @@ namespace MusicFmApplication
                 HistorySongList.Insert(0, CurrentSong);
                 if (Account.AccountInfo != null)
                 {
-                    var para = CreateGetSongParamter("", false);
+                    var para = new GainSongParameter(Account.AccountInfo)
+                        .PositionSeconds((int)MediaManager.Position.TotalSeconds);
                     Task.Run(() => SongService.CompletedSong(para));
                 }
             }
@@ -390,36 +391,35 @@ namespace MusicFmApplication
         public DelegateCommand<string> LikeSongCommand { get; private set; }
         public void LikeSongExecute(string isHate)
         {
-            string action;
             var ishate = !string.IsNullOrWhiteSpace(isHate);
-            if (ishate)
-            {
-                action = ":s|";
-
-                //Play Next Song
-                CurrentSong = SongList[0];
-                GetLyric();
-                MediaManager.StartPlayerCommand.Execute();
-                SongList.RemoveAt(0);
+            OperationType actionType;
+            if (ishate) {
+                actionType = OperationType.Hate;
+                NextSongCommand.Execute(false);
             }
-            else action = CurrentSong.Like == 0 ? ":r|" : ":u|";
+            else
+                actionType = CurrentSong.Like == 0 ? OperationType.Like : OperationType.DisLike;
 
-            var para = CreateGetSongParamter(action);
+
+            var history = new List<Song>(HistorySongList) {CurrentSong};
+            var para = new GainSongParameter(Account.AccountInfo)
+                .HistoryString(history, actionType).PositionSeconds((int) MediaManager.Position.TotalSeconds);
             IsBuffering = true;
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
+            {
+                var songs = SongService.GetSongList(para).ToList();
+                if (songs.Count < 1) return;
+                Task.Delay(200);
+                //Notify song list back to the main thread
+                MainWindow.Dispatcher.InvokeAsync(() =>
                 {
-                    var songs = SongService.GetSongList(para).ToList();
-                    if (songs.Count < 1) return;
-                    //Notify song list back to the main thread
-                    MainWindow.Dispatcher.InvokeAsync(() =>
-                    {
-                        SongList.Clear();
-                        if (!ishate)
-                            CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
-                        songs.ForEach(s => SongList.Add(s));
-                    });
-                    IsBuffering = false;
+                    SongList.Clear();
+                    if (!ishate)
+                        CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
+                    songs.ForEach(s => SongList.Add(s));
                 });
+                IsBuffering = false;
+            });
         }
 
         public DelegateCommand ToggleLyricDisplayCommand { get; private set; }
@@ -548,7 +548,10 @@ namespace MusicFmApplication
             {
                 //Get Song List
                 var exitingIds = SongList.Select(s => s.Sid);
-                var para = CreateGetSongParamter();
+                //var para = CreateGetSongParamter();
+                var para = new GainSongParameter(Account.AccountInfo)
+                    .HistoryString(new List<Song> {CurrentSong}, OperationType.Played)
+                    .PositionSeconds((int) MediaManager.Position.TotalSeconds);
                 var songs = SongService.GetSongList(para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
 
                 //Notify song list back to the main thread
@@ -584,41 +587,6 @@ namespace MusicFmApplication
                         CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
                     });
                 });
-        }
-
-        /// <summary>
-        /// Get Song History String to bulid URL
-        /// </summary>
-        /// <param name="action">Played: ":p|"  Like: ":r|"  Unlike: ":u|"  Hate: ":s|"</param>
-        /// <param name="needHistory">need history or not(default true)</param>
-        /// <returns></returns>
-        public GainSongParameter CreateGetSongParamter(string action = ":p|", bool needHistory = true)
-        {
-            var sb = new StringBuilder();
-            if (needHistory)
-            {
-                //History can add 20 songs at most
-                var historyCount = HistorySongList.Count > 19 ? 19 : HistorySongList.Count;
-                for (var i = 0; i < historyCount; i++)
-                    sb.Append(HistorySongList[i].Sid + ":p|");
-                if (CurrentSong != null) sb.Append(CurrentSong.Sid + action);
-            }
-
-            var para = new GainSongParameter
-                {
-                    ChannelId = CurrentChannel == null ? 0 : CurrentChannel.Id,
-                    SongId = CurrentSong == null ? "0" : CurrentSong.Sid.ToString()
-                };
-            if (Account.AccountInfo != null)
-            {
-                para.History = sb.ToString();
-                para.UserId = Account.AccountInfo.UserId;
-                para.Token = Account.AccountInfo.Token;
-                para.Expire = Account.AccountInfo.ExpireString;
-                para.Cookie = Account.AccountInfo.Cookie;
-                para.Position = Convert.ToDecimal(MediaManager.Position.TotalSeconds);
-            }
-            return para;
         }
         #endregion
 
