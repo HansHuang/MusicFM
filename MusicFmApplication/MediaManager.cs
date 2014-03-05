@@ -133,7 +133,7 @@ namespace MusicFmApplication
         public DelegateCommand StartPlayerCommand { get; private set; }
         private void StartPlayerExecute()
         {
-            if (Player == null) return;
+            if (Player == null || ViewModel.CurrentSong == null) return;
             Player.Play();
             IsPlaying = true;
         }

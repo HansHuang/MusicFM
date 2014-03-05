@@ -139,7 +139,7 @@ namespace Service
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        public bool CompletedSong(GainSongParameter parameter)
+        public bool CompletedSong(SongActionParameter parameter)
         {
             if (parameter == null) return false;
             var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&type=e"));

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace CustomControlResources
 {
@@ -15,6 +18,11 @@ namespace CustomControlResources
         public static bool False
         {
             get { return false; }
+        }
+
+        public static bool NotNull(object obj) 
+        {
+            return obj != null;
         }
     }
 }

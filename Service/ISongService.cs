@@ -12,7 +12,7 @@ namespace Service
     {
         List<Song> GetSongList(GainSongParameter parameter);
         ObservableCollection<Channel> GetChannels(bool isBasic = true);
-        bool CompletedSong(GainSongParameter parameter);
+        bool CompletedSong(SongActionParameter parameter);
         Account Login(string userName, string password, AccountType type);
     }
 }

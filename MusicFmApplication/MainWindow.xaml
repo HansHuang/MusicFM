@@ -7,6 +7,7 @@
                    xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
                    xmlns:mdl="clr-namespace:Service.Model;assembly=Service"
+                   xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
@@ -45,6 +46,12 @@
             <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
             <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
             <cvt:NumberToProgressState x:Key="Num2Pgs"/>
+            <ObjectDataProvider x:Key="CrtSongNotNull" ObjectType="{x:Type cc:BooleanClass}" MethodName="NotNull" >
+                <ObjectDataProvider.MethodParameters>
+                    <Binding ElementName="Root" Path="ViewModel.CurrentSong"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+
             <Style TargetType="Grid" x:Key="ChannelCell">
                 <Setter Property="Background">
                     <Setter.Value>
@@ -58,6 +65,7 @@
                 <Setter Property="Width" Value="95"/>
                 <Setter Property="Height" Value="25"/>
             </Style>
+            
         </ResourceDictionary>
     </Window.Resources>
 
@@ -67,20 +75,20 @@
             <TaskbarItemInfo.ThumbButtonInfos>
                 <ThumbButtonInfo ImageSource="{StaticResource Pause32}" DismissWhenClicked="True"
                                  Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PausePlayerCommand}"
-                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"
+                                 IsEnabled="{StaticResource CrtSongNotNull}"
                                  Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Play32}" DismissWhenClicked="True"
                                  Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.StartPlayerCommand}"
-                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"
+                                 IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"
                                  Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Heart32}"
                                  Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
-                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
+                                 IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Delete32}" 
                                  Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
                                  CommandParameter="1"
-                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
-                <ThumbButtonInfo ImageSource="{StaticResource Next32}" 
+                                 IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Next32}"  x:Name="TmbBtnNext"
                                  Command="{Binding ElementName=Root, Path=ViewModel.NextSongCommand}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
             </TaskbarItemInfo.ThumbButtonInfos>

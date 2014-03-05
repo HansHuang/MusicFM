@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -185,7 +186,6 @@ namespace MusicFmApplication
                 if (_currentSong != null && _currentSong.Equals(value)) return;
                 _currentSong = value;
                 RaisePropertyChanged("CurrentSong");
-
             }
         }
 
@@ -359,14 +359,17 @@ namespace MusicFmApplication
                 HistorySongList.Insert(0, CurrentSong);
                 if (Account.AccountInfo != null)
                 {
-                    var para = new GainSongParameter(Account.AccountInfo)
+                    var para = new SongActionParameter(Account.AccountInfo)
+                        .CurrentSongID(CurrentSong)
+                        .CurrentChennalId(CurrentChannel)
                         .PositionSeconds((int)MediaManager.Position.TotalSeconds);
                     Task.Run(() => SongService.CompletedSong(para));
                 }
             }
 
-            Action action = () =>
+            Action<List<Song>> action = (songs) =>
             {
+                if (songs != null) songs.ForEach(s => SongList.Add(s));
                 //Set current song & playing
                 CurrentSong = SongList[0];
                 //Get song lyric
@@ -376,50 +379,43 @@ namespace MusicFmApplication
                     MediaManager.StartPlayerCommand.Execute();
                 SongList.RemoveAt(0);
             };
-            //At first, only can play after get song list
+            //Can only play after get song list
             if (SongList.Count < 1) GetSongList(action);
             //Directlly play next & get song list in another thread when list count less then elements
             else if (SongList.Count < 3)
             {
-                GetSongList();
-                action();
+                //Play first
+                action(null);
+                //Then get song list
+                GetSongList((songs) => songs.ForEach(s => SongList.Add(s)));
             }
             //Directlly play next
-            else action();
+            else action(null);
         }
 
         public DelegateCommand<string> LikeSongCommand { get; private set; }
         public void LikeSongExecute(string isHate)
         {
-            var ishate = !string.IsNullOrWhiteSpace(isHate);
             OperationType actionType;
-            if (ishate) {
+            var ishate = !string.IsNullOrWhiteSpace(isHate);
+            if (ishate)
+            {
                 actionType = OperationType.Hate;
                 NextSongCommand.Execute(false);
             }
             else
                 actionType = CurrentSong.Like == 0 ? OperationType.Like : OperationType.DisLike;
 
-
-            var history = new List<Song>(HistorySongList) {CurrentSong};
-            var para = new GainSongParameter(Account.AccountInfo)
-                .HistoryString(history, actionType).PositionSeconds((int) MediaManager.Position.TotalSeconds);
             IsBuffering = true;
-            Task.Run(() =>
+            Action<List<Song>> action = (songs) =>
             {
-                var songs = SongService.GetSongList(para).ToList();
-                if (songs.Count < 1) return;
-                Task.Delay(200);
-                //Notify song list back to the main thread
-                MainWindow.Dispatcher.InvokeAsync(() =>
-                {
-                    SongList.Clear();
-                    if (!ishate)
-                        CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
-                    songs.ForEach(s => SongList.Add(s));
-                });
+                SongList.Clear();
+                if (!ishate && songs.Count > 0)
+                    CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
+                songs.ForEach(s => SongList.Add(s));
                 IsBuffering = false;
-            });
+            };
+            GetSongList(action, actionType);
         }
 
         public DelegateCommand ToggleLyricDisplayCommand { get; private set; }
@@ -499,7 +495,7 @@ namespace MusicFmApplication
 
         #region Processors
 
-        private void StartPlayer()
+        private void StartPlayer() 
         {
             GetChannels();
 
@@ -540,34 +536,37 @@ namespace MusicFmApplication
         /// <summary>
         /// Get Song List
         /// </summary>
-        /// <param name="callBack">Call Back Function</param>
-        private void GetSongList(Action callBack = null)
+        /// <param name="callBack">Call Back Function(para is song list get from server)</param>
+        /// <param name="actionType">OperationType (Played is default)</param>
+        private void GetSongList(Action<List<Song>> callBack = null, OperationType actionType = OperationType.Played)
         {
             IsBuffering = true;
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
             {
-                //Get Song List
+                //Get existed songs id list
                 var exitingIds = SongList.Select(s => s.Sid);
-                //var para = CreateGetSongParamter();
+                //Generate gain song parameter
                 var para = new GainSongParameter(Account.AccountInfo)
-                    .HistoryString(new List<Song> {CurrentSong}, OperationType.Played)
-                    .PositionSeconds((int) MediaManager.Position.TotalSeconds);
-                var songs = SongService.GetSongList(para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
+                    .HistoryString(new List<Song>(SongList) { CurrentSong }, actionType)
+                    .PositionSeconds((int)MediaManager.Position.TotalSeconds)
+                    .CurrentSongID(CurrentSong)
+                    .CurrentChennalId(CurrentChannel);
+                var songs = SongService.GetSongList((GainSongParameter)para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
 
                 //Notify song list back to the main thread
-                MainWindow.Dispatcher.InvokeAsync(() =>
+                MainWindow.Dispatcher.InvokeAsync(() => 
                 {
-                    songs.ForEach(s => SongList.Add(s));
-                    if (callBack != null) callBack();
+                    if (callBack != null) callBack(songs);
                 });
-                var list = songs.ToList();
+                var list = songs.Count > 2 ? songs.Skip(songs.Count - 2).ToList() : songs.ToList();
                 SettingHelper.SetSetting(SongListCacheName, list.SerializeToString(), AppName);
                 IsBuffering = false;
             });
         }
 
-        private void GetLyric()
+        private void GetLyric() 
         {
+            if (CurrentSong == null) return;
             Lyric = new SongLyric
             {
                 Title = CurrentSong.Title,
@@ -577,7 +576,7 @@ namespace MusicFmApplication
             Lyric.Mp3Urls.Add(CurrentSong.Url);
             Lyric.Content.Add(new TimeSpan(0), "Trying to Get Lyrics, Please wait");
 
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
                 {
                     var lrc = SongLyricHelper.GetSongLyric(CurrentSong.Title, CurrentSong.Artist);
                     if (lrc == null || !lrc.Content.Any()) return;

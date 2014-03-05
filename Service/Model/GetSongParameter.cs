@@ -6,27 +6,84 @@ using System.Threading.Tasks;
 
 namespace Service.Model
 {
-    public class GainSongParameter
+    public class SongActionParameter 
     {
         public string UserId { get; set; }
         public string Expire { get; set; }
         public string Token { get; set; }
-        public string History { get; set; }
+        //Get user account from webpage
+        public string Cookie { get; set; }
+
         public string SongId { get; set; }
         public int ChannelId { get; set; }
-        //Get from webpage
-        public string Cookie { get; set; }
         //Song played position(second, one decimal place)
         public string Position { get; set; }
 
-        public GainSongParameter(){}
-        public GainSongParameter(Account account)
+        public SongActionParameter (){}
+
+        public SongActionParameter(Account account) 
         {
+            if (account == null) return;
             UserId = account.UserId;
             Token = account.Token;
             Expire = account.ExpireString;
             Cookie = account.Cookie;
         }
+
+        /// <summary>
+        /// Get the postion second of song played(one decimal place)
+        /// </summary>
+        /// <param name="seconds">second, one decimal place</param>
+        /// <returns></returns>
+        public SongActionParameter PositionSeconds(decimal seconds)
+        {
+            Position = seconds.ToString("N1");
+            return this;
+        }
+
+        /// <summary>
+        /// Get the postion second of song played
+        /// </summary>
+        /// <param name="seconds">second</param>
+        /// <returns></returns>
+        public SongActionParameter PositionSeconds(int seconds)
+        {
+            Position = seconds.ToString("N1");
+            return this;
+        }
+
+        /// <summary>
+        /// Get Current song id
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns></returns>
+        public SongActionParameter CurrentSongID(Song song) 
+        {
+            if (song != null)
+                SongId = song.Sid.ToString();
+            return this;
+        }
+
+        /// <summary>
+        /// GEt current channel id
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        public SongActionParameter CurrentChennalId(Channel channel) 
+        {
+            if (channel != null) ChannelId = channel.Id;
+            return this;
+        }
+    }
+
+    public class GainSongParameter:SongActionParameter
+    {
+        
+        public string History { get; set; }
+
+        public GainSongParameter(){}
+
+        public GainSongParameter(Account account) : base(account) {}
 
         /// <summary>
         /// Get history string inside
@@ -40,7 +97,7 @@ namespace Service.Model
             var sb = new StringBuilder();
             if (songs.Count > 20) songs = songs.Skip(songs.Count - 20).ToList();
 
-            foreach (var song in songs)
+            foreach (var song in songs.Where(s => s != null))
             {
                 sb.Append(song.Sid + ":p|");
             }
@@ -64,28 +121,6 @@ namespace Service.Model
             }
             var history = sb.ToString();
             History = history.Substring(0, history.Length - 3) + lastAction;
-            return this;
-        }
-
-        /// <summary>
-        /// Get the postion second of song played(one decimal place)
-        /// </summary>
-        /// <param name="seconds">second, one decimal place</param>
-        /// <returns></returns>
-        public GainSongParameter PositionSeconds(decimal seconds)
-        {
-            Position = seconds.ToString("N1");
-            return this;
-        }
-
-        /// <summary>
-        /// Get the postion second of song played
-        /// </summary>
-        /// <param name="seconds">second</param>
-        /// <returns></returns>
-        public GainSongParameter PositionSeconds(int seconds)
-        {
-            Position = seconds.ToString("N1");
             return this;
         }
     }
