@@ -8,6 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -188,7 +189,6 @@ namespace MusicFmApplication
                 RaisePropertyChanged("CurrentSong");
             }
         }
-
         #endregion
 
         #region IsBuffering (INotifyPropertyChanged Property)
@@ -258,11 +258,11 @@ namespace MusicFmApplication
 
         #region Channels (INotifyPropertyChanged Property)
 
-        private AsyncProperty<ObservableCollection<Channel>> _channels;
+        private ObservableCollection<Channel> _channels;
 
-        public AsyncProperty<ObservableCollection<Channel>> Channels
+        public ObservableCollection<Channel> Channels
         {
-            get { return _channels; }
+            get { return _channels??(_channels=new ObservableCollection<Channel>()); }
             set
             {
                 if (_channels != null && _channels.Equals(value)) return;
@@ -368,26 +368,29 @@ namespace MusicFmApplication
             }
 
             Action<List<Song>> action = (songs) =>
-            {
-                if (songs != null) songs.ForEach(s => SongList.Add(s));
-                //Set current song & playing
-                CurrentSong = SongList[0];
-                //Get song lyric
-                GetLyric();
-                //Play current new song with new url
-                if (!MediaManager.IsPlaying)
-                    MediaManager.StartPlayerCommand.Execute();
-                SongList.RemoveAt(0);
-            };
+                {
+                    if (songs != null) songs.ForEach(s => SongList.Add(s));
+                    if (SongList.Count < 1) return;
+                    //Set current song & playing
+                    Debug.WriteLine("Begin to set current song: " + DateTime.Now);
+                    CurrentSong = SongList[0];
+                    //Get song lyric
+                    GetLyric();
+                    //Play current new song with new url
+                    if (!MediaManager.IsPlaying)
+                        MediaManager.StartPlayerCommand.Execute();
+                    SongList.RemoveAt(0);
+                    Debug.WriteLine(DateTime.Now + ", Played");
+                };
             //Can only play after get song list
             if (SongList.Count < 1) GetSongList(action);
             //Directlly play next & get song list in another thread when list count less then elements
             else if (SongList.Count < 3)
             {
-                //Play first
-                action(null);
-                //Then get song list
+                //Task to et song list
                 GetSongList((songs) => songs.ForEach(s => SongList.Add(s)));
+                //Play
+                action(null);
             }
             //Directlly play next
             else action(null);
@@ -428,7 +431,7 @@ namespace MusicFmApplication
         private void SetChannelExecute(int? cid)
         {
             var id = cid.GetValueOrDefault();
-            CurrentChannel = Channels.AsyncValue.FirstOrDefault(s => s.Id == id);
+            CurrentChannel = Channels.FirstOrDefault(s => s.Id == id);
             SongList.Clear();
             NextSongCommand.Execute(false);
             IsShowPlayerDetail = false;
@@ -458,7 +461,7 @@ namespace MusicFmApplication
                     var folder = SettingHelper.GetSetting("DownloadFolder", AppName);
                     var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
                     var path = folder.EndsWith(@"\") ? folder + name : folder + "\\" + name;
-                    System.Diagnostics.Process.Start("Explorer.exe", "/select," + path);
+                    Process.Start("Explorer.exe", "/select," + path);
                 });
         }
 
@@ -483,8 +486,10 @@ namespace MusicFmApplication
 
             //TODO: Change this with MEF
             SongService = new DoubanFm();
-
+            var dt = DateTime.Now;
             StartPlayer();
+            Debug.WriteLine("Start player spent: " + (DateTime.Now - dt).TotalMilliseconds);
+            Debug.WriteLine(DateTime.Now+", Constrution completed");
         }
 
         public static MainViewModel GetInstance(MainWindow window = null)
@@ -495,43 +500,43 @@ namespace MusicFmApplication
 
         #region Processors
 
-        private void StartPlayer() 
+        private void StartPlayer()
         {
             GetChannels();
-
-            Task.Run(() =>
+            var songList = SettingHelper.GetSetting(SongListCacheName, AppName).Deserialize<List<Song>>();
+            if (songList != null && songList.Count > 0)
             {
-                //TODO: Change this to setting pannel
-                if (string.IsNullOrWhiteSpace(SettingHelper.GetSetting("DownloadFolder", AppName)))
-                {
-                    var folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
-                    SettingHelper.SetSetting("DownloadFolder", folder, AppName);
-                }
+                songList.ForEach(s => SongList.Add(s));
+                NextSongCommand.Execute(false);
+            }
+            else
+            {
+                if (CurrentChannel != null)
+                    SetChannelCommand.Execute(CurrentChannel.Id);
+            }
 
-                var songList = SettingHelper.GetSetting(SongListCacheName, AppName).Deserialize<List<Song>>();
-                Thread.Sleep(1000);
-                MainWindow.Dispatcher.InvokeAsync(() =>
-                {
-                    if (songList != null && songList.Count > 0)
-                    {
-                        songList.ForEach(s => SongList.Add(s));
-                        NextSongCommand.Execute(false);
-                    }
-                    else
-                    {
-                        if (CurrentChannel != null)
-                            SetChannelCommand.Execute(CurrentChannel.Id);
-                    }
-                });
-            });
+            //TODO: Change this to setting pannel
+            if (string.IsNullOrWhiteSpace(SettingHelper.GetSetting("DownloadFolder", AppName)))
+            {
+                var folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
+                SettingHelper.SetSetting("DownloadFolder", folder, AppName);
+            }
         }
 
         private void GetChannels()
         {
             var basicChannels = SongService.GetChannels();
-            var task = new Func<Task<ObservableCollection<Channel>>>(() => Task.Run(() => SongService.GetChannels(false)));
-            Channels = new AsyncProperty<ObservableCollection<Channel>>(task, basicChannels);
-            CurrentChannel = basicChannels.FirstOrDefault();
+            Channels = new ObservableCollection<Channel>(basicChannels);
+            CurrentChannel = Channels.FirstOrDefault();
+
+            Task.Run(() =>
+                {
+                    var allChannels = new ObservableCollection<Channel>(SongService.GetChannels(false));
+                    MainWindow.Dispatcher.InvokeAsync(() =>
+                        {
+                            Channels = allChannels;
+                        });
+                });
         }
 
         /// <summary>

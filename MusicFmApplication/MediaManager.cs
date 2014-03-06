@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
@@ -134,6 +135,15 @@ namespace MusicFmApplication
         private void StartPlayerExecute()
         {
             if (Player == null || ViewModel.CurrentSong == null) return;
+            //Task.Run(() =>
+            //    {
+            //        var image = new BitmapImage(new Uri(ViewModel.CurrentSong.Picture));
+            //        image.GetAsFrozen();
+            //        ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+            //            {
+            //                ViewModel.MainWindow.AlbumPicture.Source = image;
+            //            });
+            //    });
             Player.Play();
             IsPlaying = true;
         }

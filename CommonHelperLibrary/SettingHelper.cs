@@ -8,6 +8,8 @@ namespace CommonHelperLibrary
     {
         internal static string ConfigFileName = "AppSetting.xml";
 
+        internal static readonly object Locker = new object();
+
         /// <summary>
         /// Set Setting into config
         /// </summary>
@@ -29,7 +31,8 @@ namespace CommonHelperLibrary
             }
             else
                 settingNode.InnerText = value;
-            xmlDoc.Save(ConfigFileName);
+            lock (Locker)
+                xmlDoc.Save(ConfigFileName);
         }
 
         /// <summary>
@@ -59,7 +62,9 @@ namespace CommonHelperLibrary
             if (appName != "App") ConfigFileName = appName + "Setting.xml";
             var xmlDoc = new XmlDocument();
             //Create config file if not exist
-            if (File.Exists(ConfigFileName)) xmlDoc.Load(ConfigFileName);
+            if (File.Exists(ConfigFileName))
+                lock (Locker)
+                    xmlDoc.Load(ConfigFileName);
             else
             {
                 var node = xmlDoc.CreateNode(XmlNodeType.Element, appName + "Config", "");

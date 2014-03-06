@@ -129,22 +129,22 @@ namespace MusicFmApplication
             var loginTask = Task.Run(() => ViewModel.SongService.Login(UserName, Passwrod, accType));
 
             loginTask.GetAwaiter().OnCompleted(() =>
-            {
-                var account = loginTask.Result;
-                ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
                 {
-                    if (account == null)
-                    {
-                        Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
-                        return;
-                    }
-                    AccountInfo = account;
-                    UserName = account.UserName;
-                    IsShowLoginBox = false;
+                    var account = loginTask.Result;
+                    ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                        {
+                            if (account == null)
+                            {
+                                Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
+                                return;
+                            }
+                            AccountInfo = account;
+                            UserName = account.UserName;
+                            IsShowLoginBox = false;
+                        });
                     //Write account info to local file
-                    SettingHelper.SetSetting(CacheName, AccountInfo.SerializeToString(), ViewModel.AppName);
+                    SettingHelper.SetSetting(CacheName, account.SerializeToString(), ViewModel.AppName);
                 });
-            });
         }
         #endregion
 

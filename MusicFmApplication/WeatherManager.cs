@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
@@ -36,19 +37,21 @@ namespace MusicFmApplication
         public WeatherManager(MainViewModel viewModel) 
         {
             ViewModel = viewModel;
+
             //Get Weather Detail
             Task.Run(() =>
-            {
-                var weather = CityWeatherHelper.GetWeather();
-                if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
-                    !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
-                    weather.LifeIndexes = new ObservableCollection<LifeIndex>(weather.LifeIndexes);
-                viewModel.MainWindow.Dispatcher.InvokeAsync(() =>
                 {
-                    WeatherData = weather;
+                    Thread.Sleep(200);
+                    var weather = CityWeatherHelper.GetWeather();
+                    if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
+                        !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
+                        weather.LifeIndexes = new ObservableCollection<LifeIndex>(weather.LifeIndexes);
+                    viewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                        {
+                            WeatherData = weather;
+                        });
+                    SettingHelper.SetSetting(CacheName, weather.SerializeToString(), ViewModel.AppName);
                 });
-                SettingHelper.SetSetting(CacheName, weather.SerializeToString(), ViewModel.AppName);
-            });
 
             //Get Weather cache from file system
             WeatherData = SettingHelper.GetSetting(CacheName, ViewModel.AppName).Deserialize<Weather>();

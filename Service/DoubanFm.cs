@@ -56,7 +56,11 @@ namespace Service
             Debug.WriteLine(url);
 
             var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
-            if (json == null || json["song"] == null) return GetSongList(param);
+            if (json == null || json["song"] == null)
+            {
+                //TODO: Can't connect to internet
+                return new List<Song>();
+            }
             var songs = json["song"] as IEnumerable;
             //This list will always appear at first time, almost 100% probability
             var count = 1;
@@ -93,9 +97,9 @@ namespace Service
         /// </summary>
         /// <param name="isBasic">Basic channels or entire channel list</param>
         /// <returns></returns>
-        public ObservableCollection<Channel> GetChannels(bool isBasic = true)
+        public List<Channel> GetChannels(bool isBasic = true)
         {
-            var list = new ObservableCollection<Channel> 
+            var list = new List<Channel> 
             {
                 new Channel(0, "私人"),
                 new Channel(-3, "红心"),
@@ -159,9 +163,9 @@ namespace Service
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
-        private ObservableCollection<Channel> GetChannelsFromWebpage(ObservableCollection<Channel> list)
+        private List<Channel> GetChannelsFromWebpage(List<Channel> list)
         {
-            if (list == null) list = new ObservableCollection<Channel>();
+            if (list == null) list = new List<Channel>();
             var html = HttpWebDealer.GetHtml("http://douban.fm", Encoding.UTF8);
             var doc = new HtmlDocument();
             doc.LoadHtml(html);

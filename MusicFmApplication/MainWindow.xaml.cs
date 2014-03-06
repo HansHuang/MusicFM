@@ -1,21 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-using CustomControlResources.Aero;
-using CustomControlResources.Interop;
+using CommonHelperLibrary.Dwm;
 using MahApps.Metro.Controls;
 
 namespace MusicFmApplication
@@ -41,54 +28,45 @@ namespace MusicFmApplication
         public MainWindow()
         {
             InitializeComponent();
-            ViewModel = MainViewModel.GetInstance(this);
 
-            //Enable Aero Grass Effect
-            SourceInitialized += (s, e) =>
-                {
-                    if (Environment.OSVersion.Version.Major < 6) return;
-
-                    AeroGlassCompositionChanged += (sender, args) =>
-                        {
-                            if (args.GlassAvailable)
-                                AeroHelper.EnableBlurBehindWindow(this);
-                        };
-
-                    //Add hock to get DWM info
-                    var interopHelper = new WindowInteropHelper(this);
-                    var source = HwndSource.FromHwnd(interopHelper.Handle);
-                    if (source == null) return;
-                    source.AddHook(WndProc);
-
-                    //Try to enable aero effect
-                    AeroHelper.EnableBlurBehindWindow(this);
-                };
-
-            //SizeChanged += (sender, args) =>
-            //    {
-            //        if (Environment.OSVersion.Version.Major < 6) return;
-            //        AeroHelper.EnableBlurBehindWindow(this);
-            //    };
-        }
-
-        #region Aero Glass Effect
-        public event EventHandler<AeroGlassCompositionChangedEventArgs> AeroGlassCompositionChanged;
-
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            if (msg == WM.DwmCompositionChanged || msg == WM.DwmnCrenderingChanged)
+            if (DwmHelper.IsDwmSupported)
             {
-                if (AeroGlassCompositionChanged != null)
-                {
-                    AeroGlassCompositionChanged(this,
-                        new AeroGlassCompositionChangedEventArgs(AeroHelper.AeroGlassCompositionEnabled));
-                }
-
-                handled = true;
+                DwmHelper = new DwmHelper(this);
+                DwmHelper.AeroGlassEffectChanged += DwmHelper_AeroGlassEffectChanged;
             }
-            return IntPtr.Zero;
         }
-        #endregion
+
+        protected DwmHelper DwmHelper;
+
+        void DwmHelper_AeroGlassEffectChanged(object sender, EventArgs e)
+        {
+            if (DwmHelper.IsAeroGlassEffectEnabled)
+            {
+                DwmHelper.EnableBlurBehindWindow();
+            }
+            else
+            {
+                DwmHelper.EnableBlurBehindWindow(false);
+            }
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            if (DwmHelper != null && DwmHelper.IsAeroGlassEffectEnabled)
+            {
+                DwmHelper.EnableBlurBehindWindow();
+            }
+
+            Task.Run(() =>
+                {
+                    Thread.Sleep(500);
+                    Dispatcher.InvokeAsync(() =>
+                        {
+                            ViewModel = MainViewModel.GetInstance(this);
+                        });
+                });
+        }
 
     }
 }

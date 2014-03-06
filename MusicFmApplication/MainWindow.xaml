@@ -250,7 +250,7 @@
                             </StackPanel>
                             <!--Channel List-->
                             <ScrollViewer Grid.Row="3">
-                                <ItemsControl ItemsSource="{Binding ViewModel.Channels.AsyncValue}">
+                                <ItemsControl ItemsSource="{Binding ViewModel.Channels}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel IsItemsHost="True" Orientation="Horizontal" HorizontalAlignment="Left"/>
@@ -324,7 +324,7 @@
             </DockPanel>
             <!--2 Song Photo & Lyric-->
             <Grid Grid.Row="1" VerticalAlignment="Center">
-                <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding Path=CurrentSong.Url}" />
+                <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding CurrentSong.Url}"/>
                 <metro:ProgressRing IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center"
                                     Width="120" Height="120"
                                     Visibility="{Binding Path=CurrentSong, Converter={StaticResource IvsNull2Vsby}}"/>
@@ -332,8 +332,7 @@
                     <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
                         <cc:ImageButton.Image>
                             <StackPanel Orientation="Vertical">
-                                <Image x:Name="AlbumPicture" 
-                                       Source="{Binding Path=CurrentSong.Picture}" Stretch="Fill" HorizontalAlignment="Center">
+                                <Image x:Name="AlbumPicture" Stretch="Fill" HorizontalAlignment="Center">
                                         <Image.Style>
                                         <Style TargetType="Image">
                                             <Setter Property="Width">
@@ -359,8 +358,17 @@
                         </cc:ImageButton.Image>
                     </cc:ImageButton>
 
-                    <cc:ImageButton Visibility="{Binding IsDisylayLyric, Converter={StaticResource Bool2Visbility}}"
+                    <cc:ImageButton Visibility="Collapsed"
                                     Command="{Binding ToggleLyricDisplayCommand}">
+                        <cc:ImageButton.Style>
+                            <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDisylayLyric}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </cc:ImageButton.Style>
                         <Grid Background="#CC000000" 
                               Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                               Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">

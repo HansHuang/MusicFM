@@ -30,6 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
@@ -43,6 +45,7 @@
     <Reference Include="System.Web.Extensions">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq">
       <Private>False</Private>
     </Reference>
@@ -52,12 +55,17 @@
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\Mp3Header.cs" />
+    <Compile Include="Dwm\ColorizationColor.cs" />
+    <Compile Include="Dwm\DwmHelper.cs" />
+    <Compile Include="Dwm\DwmBlurbehind.cs" />
     <Compile Include="EnumHelper.cs" />
     <Compile Include="FileSystemHelper.cs" />
     <Compile Include="IeCookieHelper.cs" />
+    <Compile Include="Dwm\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializationHelper.cs" />
     <Compile Include="SettingHelper.cs" />
