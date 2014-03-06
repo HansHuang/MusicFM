@@ -93,7 +93,9 @@ namespace Service.Model
         public GainSongParameter HistoryString(ICollection<Song> songs, OperationType type) 
         {
             History = string.Empty;
-            if (songs == null || songs.Count < 1) return this;
+            if (songs == null) return this;
+            songs = songs.Where(s => s != null).ToList();
+            if (songs.Count < 1) return this;
             var sb = new StringBuilder();
             if (songs.Count > 20) songs = songs.Skip(songs.Count - 20).ToList();
 

@@ -509,6 +509,7 @@ namespace MusicFmApplication
                 }
 
                 var songList = SettingHelper.GetSetting(SongListCacheName, AppName).Deserialize<List<Song>>();
+                Thread.Sleep(1000);
                 MainWindow.Dispatcher.InvokeAsync(() =>
                 {
                     if (songList != null && songList.Count > 0)
@@ -547,7 +548,7 @@ namespace MusicFmApplication
                 var exitingIds = SongList.Select(s => s.Sid);
                 //Generate gain song parameter
                 var para = new GainSongParameter(Account.AccountInfo)
-                    .HistoryString(new List<Song>(SongList) { CurrentSong }, actionType)
+                    .HistoryString(new List<Song>(HistorySongList) { CurrentSong }, actionType)
                     .PositionSeconds((int)MediaManager.Position.TotalSeconds)
                     .CurrentSongID(CurrentSong)
                     .CurrentChennalId(CurrentChannel);
@@ -575,6 +576,7 @@ namespace MusicFmApplication
             };
             Lyric.Mp3Urls.Add(CurrentSong.Url);
             Lyric.Content.Add(new TimeSpan(0), "Trying to Get Lyrics, Please wait");
+            CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, Lyric.Content.First().Key);
 
             Task.Run(() =>
                 {

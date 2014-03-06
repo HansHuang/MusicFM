@@ -15,9 +15,9 @@ namespace MusicFmApplication
     {
         #region WeatherData (INotifyPropertyChanged Property)
 
-        private AsyncProperty<Weather> _weatherData;
+        private Weather _weatherData;
 
-        public AsyncProperty<Weather> WeatherData
+        public Weather WeatherData
         {
             get { return _weatherData; }
             set
@@ -37,19 +37,21 @@ namespace MusicFmApplication
         {
             ViewModel = viewModel;
             //Get Weather Detail
-            var task = new Func<Task<Weather>>(() => Task.Run(() =>
+            Task.Run(() =>
             {
                 var weather = CityWeatherHelper.GetWeather();
                 if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
                     !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
                     weather.LifeIndexes = new ObservableCollection<LifeIndex>(weather.LifeIndexes);
+                viewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                {
+                    WeatherData = weather;
+                });
                 SettingHelper.SetSetting(CacheName, weather.SerializeToString(), ViewModel.AppName);
-                return weather;
-            }));
+            });
 
             //Get Weather cache from file system
-            var cache = SettingHelper.GetSetting(CacheName, ViewModel.AppName).Deserialize<Weather>();
-            WeatherData = new AsyncProperty<Weather>(task, cache);
+            WeatherData = SettingHelper.GetSetting(CacheName, ViewModel.AppName).Deserialize<Weather>();
         }
     }
 }

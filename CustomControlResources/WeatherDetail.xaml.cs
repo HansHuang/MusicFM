@@ -29,11 +29,11 @@ namespace CustomControlResources
 
         #region WeatherData DependencyProperty
         public static readonly DependencyProperty WeatherDataProperty =
-            DependencyProperty.Register("WeatherData", typeof(AsyncProperty<Weather>), typeof(WeatherDetail), new PropertyMetadata(default(AsyncProperty<Weather>)));
+            DependencyProperty.Register("WeatherData", typeof(Weather), typeof(WeatherDetail), new PropertyMetadata(default(Weather)));
 
-        public AsyncProperty<Weather> WeatherData
+        public Weather WeatherData
         {
-            get { return (AsyncProperty<Weather>)GetValue(WeatherDataProperty); }
+            get { return (Weather)GetValue(WeatherDataProperty); }
             set { SetValue(WeatherDataProperty, value); }
         }
         #endregion

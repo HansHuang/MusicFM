@@ -46,11 +46,11 @@
             <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
             <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
             <cvt:NumberToProgressState x:Key="Num2Pgs"/>
-            <ObjectDataProvider x:Key="CrtSongNotNull" ObjectType="{x:Type cc:BooleanClass}" MethodName="NotNull" >
+            <!--<ObjectDataProvider x:Key="CrtSongNotNull" ObjectType="{x:Type cc:BooleanClass}" MethodName="NotNull" >
                 <ObjectDataProvider.MethodParameters>
                     <Binding ElementName="Root" Path="ViewModel.CurrentSong"/>
                 </ObjectDataProvider.MethodParameters>
-            </ObjectDataProvider>
+            </ObjectDataProvider>-->
 
             <Style TargetType="Grid" x:Key="ChannelCell">
                 <Setter Property="Background">
@@ -75,7 +75,7 @@
             <TaskbarItemInfo.ThumbButtonInfos>
                 <ThumbButtonInfo ImageSource="{StaticResource Pause32}" DismissWhenClicked="True"
                                  Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PausePlayerCommand}"
-                                 IsEnabled="{StaticResource CrtSongNotNull}"
+                                 IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"
                                  Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Play32}" DismissWhenClicked="True"
                                  Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.StartPlayerCommand}"
@@ -99,10 +99,10 @@
         <metro:WindowCommands DataContext="{Binding ElementName=Root}">
             <Button Command="{Binding ViewModel.ShowWeatherDetailCommmand}">
                 <Button.Content>
-                    <Image ToolTip="{Binding ElementName=WeatherDetail, Path=WeatherData.AsyncValue.WeatherImageTitle}" Width="24" Height="24">
+                    <Image ToolTip="{Binding ElementName=WeatherDetail, Path=WeatherData.WeatherImageTitle}" Width="24" Height="24">
                         <Image.Source>
                             <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="S">
-                                <Binding ElementName="WeatherDetail" Path="WeatherData.AsyncValue.WeatherImage"/>
+                                <Binding ElementName="WeatherDetail" Path="WeatherData.WeatherImage"/>
                                 <Binding Path="Resources"/>
                             </MultiBinding>
                         </Image.Source>

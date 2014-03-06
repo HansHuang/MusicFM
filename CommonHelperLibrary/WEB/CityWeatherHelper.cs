@@ -180,11 +180,11 @@ namespace CommonHelperLibrary.WEB
             var urlInfo = "http://m.weather.com.cn/data/" + cityCode + ".html";
             var urlIndex = "http://data.weather.com.cn/zsLenovo/" + cityCode + ".html";
             string weatherInfo = "", weatherIndex = "";
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
                 {
                     weatherInfo = HttpWebDealer.GetHtml(urlInfo, Encoding.UTF8).Trim();
                 });
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
                 {
                     weatherIndex = HttpWebDealer.GetHtml(urlIndex, Encoding.UTF8).Trim();
                 });
