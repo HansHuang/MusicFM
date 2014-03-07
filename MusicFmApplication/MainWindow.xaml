@@ -332,7 +332,8 @@
                     <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
                         <cc:ImageButton.Image>
                             <StackPanel Orientation="Vertical">
-                                <Image x:Name="AlbumPicture" Stretch="Fill" HorizontalAlignment="Center">
+                                <Image x:Name="AlbumPicture" Stretch="Fill" HorizontalAlignment="Center"
+                                       Source="{Binding CurrentSong.Picture}">
                                         <Image.Style>
                                         <Style TargetType="Image">
                                             <Setter Property="Width">

@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using CommonHelperLibrary.WEB;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
 
@@ -16,6 +18,22 @@ namespace MusicFmApplication
     public class MediaManager : NotificationObject
     {
         #region Notify Properties
+
+        #region SongImage (INotifyPropertyChanged Property)
+
+        private BitmapSource _songImage;
+
+        public BitmapSource SongImage
+        {
+            get { return _songImage; }
+            set
+            {
+                if (_songImage != null && _songImage.Equals(value)) return;
+                _songImage = value;
+                RaisePropertyChanged("SongImage");
+            }
+        }
+        #endregion
 
         #region DownloadProgress (INotifyPropertyChanged Property)
 
@@ -136,17 +154,30 @@ namespace MusicFmApplication
         {
             if (Player == null || ViewModel.CurrentSong == null) return;
             //Task.Run(() =>
+            //{
+            //    var image = new BitmapImage(new Uri(ViewModel.CurrentSong.Picture));
+            //    image.DownloadCompleted += ImageDownloadCompleted;
+
+            //    Console.WriteLine(image.IsDownloading);
+            //    while (image.IsDownloading) 
             //    {
-            //        var image = new BitmapImage(new Uri(ViewModel.CurrentSong.Picture));
-            //        image.GetAsFrozen();
-            //        ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
-            //            {
-            //                ViewModel.MainWindow.AlbumPicture.Source = image;
-            //            });
-            //    });
+            //        Thread.Sleep(50);
+            //    }
+            //    image.Freeze();
+            //});
             Player.Play();
             IsPlaying = true;
         }
+
+        //private void ImageDownloadCompleted(object sender, EventArgs e)
+        //{
+        //    var image = (BitmapSource)sender;
+        //    image.Freeze();
+        //    ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+        //    {
+        //        SongImage = image;
+        //    });
+        //}
 
         public DelegateCommand MuteCommand { get; private set; }
         private void MuteExecute()
