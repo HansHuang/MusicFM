@@ -153,31 +153,9 @@ namespace MusicFmApplication
         private void StartPlayerExecute()
         {
             if (Player == null || ViewModel.CurrentSong == null) return;
-            //Task.Run(() =>
-            //{
-            //    var image = new BitmapImage(new Uri(ViewModel.CurrentSong.Picture));
-            //    image.DownloadCompleted += ImageDownloadCompleted;
-
-            //    Console.WriteLine(image.IsDownloading);
-            //    while (image.IsDownloading) 
-            //    {
-            //        Thread.Sleep(50);
-            //    }
-            //    image.Freeze();
-            //});
             Player.Play();
             IsPlaying = true;
         }
-
-        //private void ImageDownloadCompleted(object sender, EventArgs e)
-        //{
-        //    var image = (BitmapSource)sender;
-        //    image.Freeze();
-        //    ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
-        //    {
-        //        SongImage = image;
-        //    });
-        //}
 
         public DelegateCommand MuteCommand { get; private set; }
         private void MuteExecute()

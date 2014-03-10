@@ -359,13 +359,15 @@
                         </cc:ImageButton.Image>
                     </cc:ImageButton>
 
-                    <cc:ImageButton Visibility="Collapsed"
-                                    Command="{Binding ToggleLyricDisplayCommand}">
+                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
                         <cc:ImageButton.Style>
                             <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDisylayLyric}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
+                                    <DataTrigger Binding="{Binding ElementName=Root, Path=ViewModel}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsDisylayLyric}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -374,7 +376,9 @@
                               Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                               Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
                             <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False"
-                                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="0,8">
                                 <ItemsControl ItemsSource="{Binding Path=Lyric.Content}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
