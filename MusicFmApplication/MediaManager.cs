@@ -177,6 +177,8 @@ namespace MusicFmApplication
 
         protected List<TimeSpan> LrcKeys = new List<TimeSpan>();
 
+        protected DispatcherTimer Timer;
+
         public MediaManager(MainViewModel viewModel)
         {
             PausePlayerCommand = new DelegateCommand(PausePlayerExecute);
@@ -206,22 +208,27 @@ namespace MusicFmApplication
                 SongLength = player.NaturalDuration.TimeSpan;
             else
                 SongLength = new TimeSpan(0, 0, ViewModel.CurrentSong.Length);
-            //viewModel.MainWindow.SpectrumAnalyzer.RegisterSoundPlayer(spectrumPlayer);
-
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
-            timer.Tick += TimeTick;
-            timer.Start();
+            if (Timer == null) 
+            {
+                Timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(500)};
+                Timer.Tick += TimeTick;
+            }
+            Timer.Start();
         }
 
-        private void TimeTick(object sender, EventArgs e)
+        private void TimeTick(object sender, EventArgs e) 
         {
+            if (!IsPlaying) return;
             Position = Player.Position;
             DownloadProgress = Player.DownloadProgress;
             ViewModel.IsBuffering = Player.IsBuffering;
             PlayProgress = Position.TotalMilliseconds / SongLength.TotalMilliseconds;
             //Song is almost finish, jump to next one
-            if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 100)
+            if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 100) 
             {
+                Timer.Stop();
+                LrcKeys.Clear();
+                IsPlaying = false;
                 ViewModel.NextSongCommand.Execute(true);
                 return;
             }

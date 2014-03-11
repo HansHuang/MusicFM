@@ -125,6 +125,7 @@ namespace CommonHelperLibrary.WEB
                             Date = date.AddDays(5).DayOfWeek.ToString(),
                         }
                 };
+
             //Add Life index
             weather.LifeIndexes.Add(new LifeIndex {Name = "穿衣指数", Hint = info["index"], Description = info["index_d"]});
             weather.LifeIndexes.Add(new LifeIndex
@@ -180,13 +181,13 @@ namespace CommonHelperLibrary.WEB
             var urlInfo = "http://m.weather.com.cn/data/" + cityCode + ".html";
             var urlIndex = "http://data.weather.com.cn/zsLenovo/" + cityCode + ".html";
             string weatherInfo = "", weatherIndex = "";
+            Task.Run(() => 
+            {
+                weatherInfo = HttpWebDealer.GetHtml(urlInfo, null, Encoding.UTF8).Trim();
+            });
             Task.Run(() =>
                 {
-                    weatherInfo = HttpWebDealer.GetHtml(urlInfo, Encoding.UTF8).Trim();
-                });
-            Task.Run(() =>
-                {
-                    weatherIndex = HttpWebDealer.GetHtml(urlIndex, Encoding.UTF8).Trim();
+                    weatherIndex = HttpWebDealer.GetHtml(urlIndex, null, Encoding.UTF8).Trim();
                 });
             while (string.IsNullOrEmpty(weatherInfo) || string.IsNullOrEmpty(weatherIndex))
             {

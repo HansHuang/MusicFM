@@ -18,7 +18,7 @@ namespace MvPlayer.Service
             var typeStr = EnumHelper.GetEnumDescription(type);
             var areaStr = EnumHelper.GetEnumDescription(area);
 
-            var json = HttpWebDealer.GetJsonObject(string.Format("http://www.yinyuetai.com/ajax/{0}?area={1}", typeStr, areaStr),Encoding.UTF8);
+            var json = HttpWebDealer.GetJsonObject(string.Format("http://www.yinyuetai.com/ajax/{0}?area={1}", typeStr, areaStr),null,Encoding.UTF8);
             foreach (var item in json) 
             {
                 var mv = new MusicVideo

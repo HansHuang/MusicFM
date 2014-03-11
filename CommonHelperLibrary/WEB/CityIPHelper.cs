@@ -66,7 +66,7 @@ namespace CommonHelperLibrary.WEB
              * http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js
              * 
              */
-            return HttpWebDealer.GetHtml("http://iframe.ip138.com/ic.asp", Encoding.Default);
+            return HttpWebDealer.GetHtml("http://iframe.ip138.com/ic.asp", null, Encoding.Default);
         }
 
         #endregion

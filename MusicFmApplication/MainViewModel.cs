@@ -362,7 +362,7 @@ namespace MusicFmApplication
                     var para = new SongActionParameter(Account.AccountInfo)
                         .CurrentSongID(CurrentSong)
                         .CurrentChennalId(CurrentChannel)
-                        .PositionSeconds((int)MediaManager.Position.TotalSeconds);
+                        .PositionSeconds(CurrentSong.Length);
                     Task.Run(() => SongService.CompletedSong(para));
                 }
             }

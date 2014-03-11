@@ -20,17 +20,19 @@ namespace CommonHelperLibrary.WEB
     public class HttpWebDealer
     {
         #region GetHtml
+
         /// <summary>
         /// Get Html text by URL
         /// I can't tell the encoding of page,So give me the encodeing best
         /// </summary>
         /// <param name="url">URL</param>
+        /// <param name="headers">http request headers</param>
         /// <param name="txtEncoding">The Encoding suggest of webpage</param>
         /// <returns></returns>
-        public static string GetHtml(string url, Encoding txtEncoding = null)
+        public static string GetHtml(string url, WebHeaderCollection headers = null, Encoding txtEncoding = null)
         {
             var html = "";
-            var response = GetResponseByUrl(url);
+            var response = GetResponseByUrl(url,headers);
             if (response == null) return html;
             if (response.ContentEncoding.ToLower().Equals("gzip"))
             {
@@ -56,14 +58,15 @@ namespace CommonHelperLibrary.WEB
         /// Get Dynamic Object (json)
         /// </summary>
         /// <param name="url">URL</param>
+        /// <param name="headers">http request headers</param>
         /// <param name="txtEncoding">The Encoding suggest of response</param>
         /// <returns></returns>
-        public static dynamic GetJsonObject(string url, Encoding txtEncoding = null)
+        public static dynamic GetJsonObject(string url,WebHeaderCollection headers = null, Encoding txtEncoding = null)
         {
-            var json = GetHtml(url, txtEncoding);
+            var json = GetHtml(url, headers, txtEncoding);
             var jsonSerializer = new JavaScriptSerializer();
             return jsonSerializer.Deserialize<dynamic>(json);
-        } 
+        }
         #endregion
 
 
@@ -76,11 +79,11 @@ namespace CommonHelperLibrary.WEB
         /// <param name="url">URL</param>
         /// <param name="path">The path to save the file</param>
         /// <param name="timeout">Request timeout</param>
-        /// <param name="referenceUrl">Reference URL(To prevent site blocking hotlinking)</param>
+        /// <param name="headers">http request header</param>
         /// <returns>Success:Ture</returns>
-        public static bool DownloadFile(string fileName, string url, string path, int timeout, string referenceUrl = "")
+        public static bool DownloadFile(string fileName, string url, string path, int timeout, WebHeaderCollection headers = null)
         {
-            var response = GetResponseByUrl(url, referenceUrl, timeout);
+            var response = GetResponseByUrl(url, headers, timeout);
             var stream = response.GetResponseStream();
             if (stream == null) return false;
             using (var bReader = new BinaryReader(stream))
@@ -145,15 +148,15 @@ namespace CommonHelperLibrary.WEB
                 var str = url;
                 signal.Reset();
                 Task.Run(() =>
+                {
+                    var rsponse = GetResponseByUrl(str, null, 3000);
+                    if (rsponse == null) return;
+                    lock (locker)
                     {
-                        var rsponse = GetResponseByUrl(str, "", 3000);
-                        if (rsponse == null) return;
-                        lock (locker)
-                        {
-                            results.Add(str, rsponse.ContentLength);
-                        }
-                        signal.Set();
-                    });
+                        results.Add(str, rsponse.ContentLength);
+                    }
+                    signal.Set();
+                });
             }
             signals.ForEach(s => s.WaitOne(3000));
             var largest = new KeyValuePair<string, long>(string.Empty, 0);
@@ -174,22 +177,26 @@ namespace CommonHelperLibrary.WEB
         /// Get response by url
         /// </summary>
         /// <param name="url">URL</param>
-        /// <param name="reference">Reference URL(To prevent site blocking hotlinking)</param>
+        /// <param name="headers">Request headers</param>
         /// <param name="requestTimeout">Request timeout(Set to 0 for no limit)</param>
         /// <returns></returns>
-        public static HttpWebResponse GetResponseByUrl(string url, string reference, int requestTimeout = 0)
+        public static HttpWebResponse GetResponseByUrl(string url, WebHeaderCollection headers = null, int requestTimeout = 0)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
-            if (string.IsNullOrEmpty(reference))
-                request.Referer = reference;
             //if (header != null)
             //{
             //    request.UserAgent = header[HttpRequestHeader.UserAgent];
             //    request.Connection = header[HttpRequestHeader.Connection];
             //    request.Accept = header[HttpRequestHeader.Accept];
             //}
-            if (requestTimeout > 0)
-                request.Timeout = requestTimeout;
+            //var header = new WebHeaderCollection();
+            //header.Add(HttpRequestHeader.Connection, "keep-alive");
+            if (headers != null)
+            {
+                request.Headers = headers;
+                request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0";
+            }
+            if (requestTimeout > 0) request.Timeout = requestTimeout;
 
             var count = 0;
             HttpWebResponse response = null;
@@ -207,14 +214,6 @@ namespace CommonHelperLibrary.WEB
                 }
             }
             return response;
-        }
-
-        public static HttpWebResponse GetResponseByUrl(string url)
-        {
-            //var header = new WebHeaderCollection();
-            //header.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
-            //header.Add(HttpRequestHeader.Connection, "keep-alive");
-            return GetResponseByUrl(url, string.Empty);
         }
 
         #endregion

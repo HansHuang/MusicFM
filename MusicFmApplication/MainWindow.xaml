@@ -325,10 +325,23 @@
             <!--2 Song Photo & Lyric-->
             <Grid Grid.Row="1" VerticalAlignment="Center">
                 <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding CurrentSong.Url}"/>
-                <metro:ProgressRing IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                    Width="120" Height="120"
-                                    Visibility="{Binding Path=CurrentSong, Converter={StaticResource IvsNull2Vsby}}"/>
+                <metro:ProgressRing IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                    Width="120" Height="120" Visibility="{Binding CurrentSong, Converter={StaticResource IvsNull2Vsby}}">
+                    <metro:ProgressRing.Style>
+                        <Style TargetType="metro:ProgressRing">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentSong}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=AlbumPicture, Path=Source}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </metro:ProgressRing.Style>
+                </metro:ProgressRing>
                 <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
+                    <!--Song Album Picture-->
                     <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
                         <cc:ImageButton.Image>
                             <StackPanel Orientation="Vertical">
@@ -358,7 +371,7 @@
                             </StackPanel>
                         </cc:ImageButton.Image>
                     </cc:ImageButton>
-
+                    <!--Song Lyric Containter-->
                     <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
                         <cc:ImageButton.Style>
                             <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
@@ -421,7 +434,7 @@
                         <Run Text="&gt;"/>
                 </TextBlock>
             </StackPanel>
-            <!--3 Control Btns-->
+            <!--4 Control Btns-->
             <Grid Grid.Row="3"
                   IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}">
                 <Grid.ColumnDefinitions>
@@ -478,7 +491,7 @@
                     <cc:ColorlizeImage Image="{StaticResource Next96}" Style="{StaticResource SongCtrlBtnImg}"/>
                 </Button>
             </Grid>
-            <!--Playing Progress Time Line-->
+            <!--5 Playing Progress Time Line-->
             <Grid Grid.Row="4">
                 <Grid.Resources>
                     <Style TargetType="Rectangle">
@@ -513,7 +526,7 @@
                     </Rectangle.Width>
                 </Rectangle>
             </Grid>
-            <!--Pause, volume, download btns-->
+            <!--6 Pause, volume, download btns-->
             <Grid Grid.Row="5" VerticalAlignment="Bottom" Margin="0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
@@ -639,5 +652,4 @@
             </Grid>
         </Grid>
     </Grid>
-
 </metro:MetroWindow>

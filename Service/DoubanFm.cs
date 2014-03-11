@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,31 +32,15 @@ namespace Service
             Randomer = new Random(1000000);
         }
 
-        public List<Song> GetSongList(GainSongParameter param)
+        public List<Song> GetSongList(GainSongParameter param) 
         {
-            if (param == null) return new List<Song>();
-            var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100"));
-            url.Append("&channel=" + param.ChannelId);
-            url.Append("&sid=" + (string.IsNullOrWhiteSpace(param.SongId) ? "0" : param.SongId));
-            if (!string.IsNullOrWhiteSpace(param.UserId)) url.Append("&user_id=" + param.UserId);
-            if (!string.IsNullOrEmpty(param.Expire)) url.Append("&expire=" + param.Expire);
-            if (!string.IsNullOrEmpty(param.Token)) url.Append("&token=" + param.Token);
-            if (!string.IsNullOrEmpty(param.History)) url.Append("&h=" + param.History);
+            var url = BulidUrlForGainSongs(param);
+            if (string.IsNullOrWhiteSpace(url)) return new List<Song>();
 
-
-            var type = "p";
-            if (!string.IsNullOrEmpty(param.History))
-            {
-                if (param.History.Contains(":r")) type = "r"; //Like song(red song)
-                else if (param.History.Contains(":u")) type = "u"; //Unlike song
-                else if (param.History.Contains(":s")) type = "b"; //Hate song
-            }
-            url.Append("&type=" + type);
-            url.Append("&r=" + Randomer.Next(0, 1000000));
-
-            Debug.WriteLine(url);
-
-            var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
+            WebHeaderCollection header = null;
+            if (!string.IsNullOrWhiteSpace(param.AccountCookie))
+                header = new WebHeaderCollection {{"Cookie", param.AccountCookie}};
+            var json = HttpWebDealer.GetJsonObject(url, header, Encoding.UTF8);
             if (json == null || json["song"] == null)
             {
                 //TODO: Can't connect to internet
@@ -92,6 +77,48 @@ namespace Service
             return list;
         }
 
+        private string BulidUrlForGainSongs(GainSongParameter para) 
+        {
+            if (para == null) return string.Empty;
+            var isFromWebsite = !string.IsNullOrWhiteSpace(para.AccountCookie);
+            var url = new StringBuilder();
+            if (isFromWebsite)
+            {
+                url.Append("http://douban.fm/j/mine/playlist?pb=64&from=mainsite");
+                if (!string.IsNullOrWhiteSpace(para.Position)) url.Append("&pt=" + para.Position);
+            }
+            else
+            {
+                url.Append("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100");
+                if (!string.IsNullOrWhiteSpace(para.UserId)) url.Append("&user_id=" + para.UserId);
+                if (!string.IsNullOrEmpty(para.Expire)) url.Append("&expire=" + para.Expire);
+                if (!string.IsNullOrEmpty(para.Token)) url.Append("&token=" + para.Token);
+                if (!string.IsNullOrEmpty(para.History)) url.Append("&h=" + para.History);
+            }
+            url.Append("&channel=" + para.ChannelId);
+            url.Append("&sid=" + (string.IsNullOrWhiteSpace(para.SongId) ? "0" : para.SongId));
+
+            //Next song
+            var type = isFromWebsite ? "s" : "p";
+            switch (para.OperationType)
+            {
+                case OperationType.Like:
+                    type = "r";
+                    break;
+                case OperationType.DisLike:
+                    type = "u";
+                    break;
+                case OperationType.Hate:
+                    type = "b";
+                    break;
+            }
+            url.Append("&type=" + type);
+            url.Append("&r=" + Randomer.Next(0, 1000000));
+
+            Debug.WriteLine(url);
+            return url.ToString();
+        }
+
         /// <summary>
         /// Get Music Channels
         /// </summary>
@@ -125,7 +152,7 @@ namespace Service
 
             //Get expansion channels
             var json = HttpWebDealer.GetJsonObject(
-                "http://www.douban.com/j/app/radio/channels?version=100&app_name=radio_desktop_win", Encoding.UTF8);
+                "http://www.douban.com/j/app/radio/channels?version=100&app_name=radio_desktop_win", null, Encoding.UTF8);
             if (json == null || json["channels"] == null) return GetChannelsFromWebpage(list);
 
             foreach (var element in json["channels"])
@@ -146,14 +173,28 @@ namespace Service
         public bool CompletedSong(SongActionParameter parameter)
         {
             if (parameter == null) return false;
-            var url = new StringBuilder(string.Format("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&type=e"));
-            url.Append("&user_id=" + parameter.UserId);
-            url.Append("&expire=" + parameter.Expire);
-            url.Append("&token=" + parameter.Token);
-            url.Append("&sid=" + parameter.SongId);
-            url.Append("&channel=" + parameter.ChannelId);
-
-            var json = HttpWebDealer.GetJsonObject(url.ToString(), Encoding.UTF8);
+            var isFromWebsite = !string.IsNullOrWhiteSpace(parameter.AccountCookie);
+            var url = new StringBuilder();
+            if (isFromWebsite)
+            {
+                url.Append("http://douban.fm/j/mine/playlist?pb=64&from=mainsite&type=e");
+                if (!string.IsNullOrWhiteSpace(parameter.Position)) url.Append("&pt=" + parameter.Position);
+                url.Append("&channel=" + parameter.ChannelId);
+                url.Append("&sid=" + (string.IsNullOrWhiteSpace(parameter.SongId) ? "0" : parameter.SongId));
+                url.Append("&r=" + Randomer.Next(0, 1000000));
+            }
+            else
+            {
+                url.Append("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&type=e");
+                url.Append("&user_id=" + parameter.UserId);
+                url.Append("&expire=" + parameter.Expire);
+                url.Append("&token=" + parameter.Token);
+                url.Append("&sid=" + parameter.SongId);
+                url.Append("&channel=" + parameter.ChannelId);
+            }
+            WebHeaderCollection header = null;
+            if (isFromWebsite) header = new WebHeaderCollection {{"Cookie", parameter.AccountCookie}};
+            var json = HttpWebDealer.GetJsonObject(url.ToString(), header, Encoding.UTF8);
 
             return json != null && json["r"] == 0;
         }
@@ -166,7 +207,7 @@ namespace Service
         private List<Channel> GetChannelsFromWebpage(List<Channel> list)
         {
             if (list == null) list = new List<Channel>();
-            var html = HttpWebDealer.GetHtml("http://douban.fm", Encoding.UTF8);
+            var html = HttpWebDealer.GetHtml("http://douban.fm", null, Encoding.UTF8);
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
             var chls = doc.DocumentNode.SelectNodes("//ul[@id=\"promotion_chls\"]");
@@ -227,7 +268,7 @@ namespace Service
 
         private Account LoginByThirdPartyAccount(string userName, string password, AccountType type) 
         {
-            var timeOut = 3000;//3s
+            var timeOut = 2000;//2s
             Account account = null;
             var loginUrl = "http://douban.fm/partner/login?target=" + (int)type;
             var trd = new Thread(() =>

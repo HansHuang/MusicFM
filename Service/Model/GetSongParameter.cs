@@ -12,7 +12,7 @@ namespace Service.Model
         public string Expire { get; set; }
         public string Token { get; set; }
         //Get user account from webpage
-        public string Cookie { get; set; }
+        public string AccountCookie { get; set; }
 
         public string SongId { get; set; }
         public int ChannelId { get; set; }
@@ -27,7 +27,7 @@ namespace Service.Model
             UserId = account.UserId;
             Token = account.Token;
             Expire = account.ExpireString;
-            Cookie = account.Cookie;
+            AccountCookie = account.Cookie;
         }
 
         /// <summary>
@@ -80,6 +80,7 @@ namespace Service.Model
     {
         
         public string History { get; set; }
+        public OperationType OperationType { get; set; }
 
         public GainSongParameter(){}
 
@@ -92,6 +93,7 @@ namespace Service.Model
         /// <param name="type">Operation type</param>
         public GainSongParameter HistoryString(ICollection<Song> songs, OperationType type) 
         {
+            OperationType = type;
             History = string.Empty;
             if (songs == null) return this;
             songs = songs.Where(s => s != null).ToList();

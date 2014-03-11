@@ -11,7 +11,7 @@ namespace CustomControlResources
     /// <summary>
     /// Interaction logic for WeatherDetail.xaml
     /// </summary>
-    public partial class WeatherDetail : UserControl
+    public partial class WeatherDetail : UserControl 
     {
         public WeatherDetail()
         {

@@ -6,7 +6,7 @@ namespace CommonHelperLibrary
 {
     public static class SettingHelper
     {
-        internal static string ConfigFileName = "AppSetting.xml";
+        internal static string ConfigFileName = "App.dat";
 
         internal static readonly object Locker = new object();
 
@@ -59,7 +59,7 @@ namespace CommonHelperLibrary
         /// <returns>XmlDocument</returns>
         private static XmlDocument GetConfigXml(string appName = "App")
         {
-            if (appName != "App") ConfigFileName = appName + "Setting.xml";
+            if (appName != "App") ConfigFileName = appName + ".dat";
             var xmlDoc = new XmlDocument();
             //Create config file if not exist
             if (File.Exists(ConfigFileName))
