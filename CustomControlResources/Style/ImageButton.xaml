@@ -1,0 +1,47 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:CustomControlResources">
+    <ControlTemplate x:Key="ImageButtonTemplate" TargetType="{x:Type controls:ImageButton}">
+        <Grid x:Name="Grid">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ContentPresenter Content="{Binding Path=Image, RelativeSource={RelativeSource TemplatedParent}}" />
+                <ContentPresenter Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </StackPanel>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter  Property="Cursor" Value="Hand" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter  Property="Cursor" Value="Hand" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ImageButtonWithTriggerTemplate" TargetType="{x:Type controls:ImageButton}">
+        <Grid x:Name="Grid">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ContentPresenter x:Name="buttonImage" 
+                                  Content="{Binding Path=Image, RelativeSource={RelativeSource TemplatedParent}}" />
+                <ContentPresenter Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </StackPanel>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter TargetName="buttonImage" Property="Content" Value="{Binding ImageHover, RelativeSource={RelativeSource TemplatedParent}}" />
+                <Setter  Property="Cursor" Value="Hand" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter TargetName="buttonImage" Property="Content" Value="{Binding ImagePressed, RelativeSource={RelativeSource TemplatedParent}}" />
+                <Setter  Property="Cursor" Value="Hand" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter TargetName="buttonImage" Property="Content" Value="{Binding ImageDisable, RelativeSource={RelativeSource TemplatedParent}}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type controls:ImageButton}" >
+        <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+    </Style>
+</ResourceDictionary>

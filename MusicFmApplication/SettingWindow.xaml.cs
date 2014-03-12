@@ -1,34 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using CommonHelperLibrary.Dwm;
 using MahApps.Metro.Controls;
 
 namespace MusicFmApplication
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for SettingWindow.xaml
     /// </summary>
-    public partial class MainWindow : MetroWindow
+    public partial class SettingWindow : MetroWindow
     {
-
-        #region ViewModel
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(MainViewModel), typeof(MainWindow), new PropertyMetadata(default(MainViewModel)));
-
-        public MainViewModel ViewModel
-        {
-            get { return (MainViewModel)GetValue(ViewModelProperty); }
-            set { SetValue(ViewModelProperty, value); }
-        }
-
-        #endregion
+        public MainViewModel ViewModel { get; set; }
 
         #region BackgroundColor(DependencyProperty)
         public static readonly DependencyProperty BackgroundColorProperty =
-            DependencyProperty.Register("BackgroundColor", typeof(SolidColorBrush), typeof(MainWindow), new PropertyMetadata(default(SolidColorBrush)));
+            DependencyProperty.Register("BackgroundColor", typeof(SolidColorBrush), typeof(SettingWindow), new PropertyMetadata(default(SolidColorBrush)));
 
         public SolidColorBrush BackgroundColor
         {
@@ -37,12 +35,16 @@ namespace MusicFmApplication
         }
         #endregion
 
-        public MainWindow()
+        public SettingWindow(MainViewModel viewModel)
         {
-            //var rdm = new Random();
-            //BackgroundColor = new SolidColorBrush(Color.FromArgb(150, (byte)rdm.Next(0, 255), (byte)rdm.Next(0, 255), (byte)rdm.Next(0, 255)));
+            ViewModel = viewModel;
+            var rdm = new Random();
+            BackgroundColor = new SolidColorBrush(Color.FromArgb(150, (byte)rdm.Next(0, 255), (byte)rdm.Next(0, 255), (byte)rdm.Next(0, 255)));
 
             InitializeComponent();
+
+            Loaded += (s, e) => { viewModel.IsSettingWindowOpened = true; };
+            Closed += (s, e) => { viewModel.IsSettingWindowOpened = false; };
 
             if (DwmHelper.IsDwmSupported)
             {
@@ -72,16 +74,6 @@ namespace MusicFmApplication
             {
                 DwmHelper.EnableBlurBehindWindow();
             }
-
-            Task.Run(() =>
-                {
-                    Thread.Sleep(500);
-                    Dispatcher.InvokeAsync(() =>
-                        {
-                            ViewModel = MainViewModel.GetInstance(this);
-                        });
-                });
         }
-
     }
 }

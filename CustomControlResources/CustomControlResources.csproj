@@ -312,9 +312,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="StyleResource.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Style\ImageButton.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Style\ScrollBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Style\ScrollViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WeatherDetail.xaml">
       <SubType>Designer</SubType>
@@ -387,6 +395,14 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\logo64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\setting32.png" />
+    <Resource Include="Images\setting64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\about24.png" />
+    <Resource Include="Images\about64.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

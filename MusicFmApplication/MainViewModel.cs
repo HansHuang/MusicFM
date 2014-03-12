@@ -41,6 +41,8 @@ namespace MusicFmApplication
 
         private const string SongListCacheName = "SongList";
 
+        public bool IsSettingWindowOpened { get; set; }
+
         #endregion
 
         #region Notify Properties
@@ -465,6 +467,14 @@ namespace MusicFmApplication
                 });
         }
 
+        public DelegateCommand OpenSettingWindowCommand { get; private set; }
+        public void OpenSettingWindowExeture() 
+        {
+            if (IsSettingWindowOpened) return;
+            var wd = new SettingWindow(this);
+            wd.Show();
+        }
+
         #endregion
 
         #region Construct Method
@@ -483,6 +493,7 @@ namespace MusicFmApplication
             SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
             DownloadSongCommand = new DelegateCommand(DownloadSongExetute);
             OpenDownloadFolderCommand = new DelegateCommand(OpenDownloadFolderExecute);
+            OpenSettingWindowCommand=new DelegateCommand(OpenSettingWindowExeture);
 
             //TODO: Change this with MEF
             SongService = new DoubanFm();

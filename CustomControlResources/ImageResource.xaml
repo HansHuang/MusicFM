@@ -20,4 +20,8 @@
     <ImageSource x:Key="User48">Images/User48.png</ImageSource>
     <ImageSource x:Key="Login64">Images/Login64.png</ImageSource>
     <ImageSource x:Key="Folder32">Images/folder32.png</ImageSource>
+    <ImageSource x:Key="Setting32">Images/setting32.png</ImageSource>
+    <ImageSource x:Key="Setting64">Images/setting64.png</ImageSource>
+    <ImageSource x:Key="About24">Images/about24.png</ImageSource>
+    <ImageSource x:Key="About64">Images/about64.png</ImageSource>
 </ResourceDictionary>
