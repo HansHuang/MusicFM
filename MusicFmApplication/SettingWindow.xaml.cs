@@ -58,13 +58,9 @@ namespace MusicFmApplication
         void DwmHelperAeroGlassEffectChanged(object sender, EventArgs e)
         {
             if (DwmHelper.IsAeroGlassEffectEnabled)
-            {
                 DwmHelper.EnableBlurBehindWindow();
-            }
             else
-            {
                 DwmHelper.EnableBlurBehindWindow(false);
-            }
         }
 
         protected override void OnSourceInitialized(EventArgs e)

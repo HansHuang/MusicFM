@@ -88,8 +88,7 @@ namespace CommonHelperLibrary.WEB
             var lrc = new SongLyric();
             var reg0 = new Regex(@"\[([a-z]+)\:(.+)]");
             var reg1 = new Regex(@"([\[\d{2}\:\d{2}\.\d{1,3}\]]+)(.*)");
-            var filters = new List<string>() { "☆", "51lrc", "@", "LRC by", "Lyrics by", "歌词吾爱",
-                "歌词库", "Lyriced By", "编辑：", "QQ", "PS：", "★", "http","www.","by:","制作",".com"};
+            var filters = new List<string>() { "☆", "51lrc", "@", "LRC by", "Lyrics by", "歌词", "Lyriced By", "编辑：", "QQ", "PS：", "★", "http","www.","by:","制作",".com"};
             foreach (var line in lines)
             {
                 if (string.IsNullOrEmpty(line.Trim())) continue;

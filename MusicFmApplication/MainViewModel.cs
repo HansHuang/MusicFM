@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
@@ -224,39 +225,7 @@ namespace MusicFmApplication
         }
         #endregion
 
-        #region Lyric (INotifyPropertyChanged Property)
-
-        private SongLyric _lyric;
-
-        public SongLyric Lyric
-        {
-            get { return _lyric; }
-            set
-            {
-                if (_lyric != null && _lyric.Equals(value)) return;
-                _lyric = value;
-                RaisePropertyChanged("Lyric");
-            }
-        }
-
-        #endregion
-
-        #region CurrnetLrcLine (INotifyPropertyChanged Property)
-
-        private KeyValuePair<int, TimeSpan> _CurrnetLrcLine;
-
-        public KeyValuePair<int, TimeSpan> CurrnetLrcLine
-        {
-            get { return _CurrnetLrcLine; }
-            set
-            {
-                if (_CurrnetLrcLine.Equals(value)) return;
-                _CurrnetLrcLine = value;
-                RaisePropertyChanged("CurrnetLrcLine");
-            }
-        }
-
-        #endregion
+        
 
         #region Channels (INotifyPropertyChanged Property)
 
@@ -324,6 +293,7 @@ namespace MusicFmApplication
 
         #endregion
 
+
         #endregion
 
         #region Delegate Commands
@@ -355,6 +325,7 @@ namespace MusicFmApplication
             IsBuffering = true;
             IsDownlading = false;
             DownloadProgress = 0;
+            MediaManager.SongPicture = null;
             //If song is ended, add it to history(Display inverted order)
             if (isEnded.GetValueOrDefault())
             {
@@ -377,10 +348,11 @@ namespace MusicFmApplication
                     Debug.WriteLine("Begin to set current song: " + DateTime.Now);
                     CurrentSong = SongList[0];
                     //Get song lyric
-                    GetLyric();
+                    MediaManager.GetLyric();
                     //Play current new song with new url
                     if (!MediaManager.IsPlaying)
                         MediaManager.StartPlayerCommand.Execute();
+                    MediaManager.GetSongPicture();
                     SongList.RemoveAt(0);
                     Debug.WriteLine(DateTime.Now + ", Played");
                 };
@@ -446,7 +418,7 @@ namespace MusicFmApplication
             DownloadProgress = 0;
             var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
             var folder = SettingHelper.GetSetting("DownloadFolder", AppName);
-            HttpWebDealer.DownloadLargestFile(name, Lyric.Mp3Urls, folder, DownloadMonitor);
+            HttpWebDealer.DownloadLargestFile(name, MediaManager.Lyric.Mp3Urls, folder, DownloadMonitor);
         }
 
         private void DownloadMonitor(object webClient, DownloadProgressChangedEventArgs e)
@@ -581,30 +553,6 @@ namespace MusicFmApplication
             });
         }
 
-        private void GetLyric() 
-        {
-            if (CurrentSong == null) return;
-            Lyric = new SongLyric
-            {
-                Title = CurrentSong.Title,
-                Album = CurrentSong.AlbumTitle,
-                Artist = CurrentSong.Artist
-            };
-            Lyric.Mp3Urls.Add(CurrentSong.Url);
-            Lyric.Content.Add(new TimeSpan(0), "Trying to Get Lyrics, Please wait");
-            CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, Lyric.Content.First().Key);
-
-            Task.Run(() =>
-                {
-                    var lrc = SongLyricHelper.GetSongLyric(CurrentSong.Title, CurrentSong.Artist);
-                    if (lrc == null || !lrc.Content.Any()) return;
-                    MainWindow.Dispatcher.InvokeAsync(() =>
-                    {
-                        Lyric = lrc;
-                        CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
-                    });
-                });
-        }
         #endregion
 
     }

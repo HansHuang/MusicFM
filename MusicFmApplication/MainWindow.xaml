@@ -8,14 +8,17 @@
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
                    xmlns:mdl="clr-namespace:Service.Model;assembly=Service"
                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                   xmlns:presentOpti="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                   xmlns:local="clr-namespace:MusicFmApplication"
+                   xmlns:animation="clr-namespace:CustomControlResources.Animation;assembly=CustomControlResources"
                    x:Name="Root"
-                   Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"
+                   Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False" TitleForeground="{DynamicResource AccentColorBrush}"
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
                    ResizeMode="CanMinimize" AllowsTransparency="True" 
-                   Background="#99FFFFFF"
+                   Background="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=BackgroundColorBrush}"
                    Height="480"  Width="320">
-    
-    <Window.Resources>
+
+    <metro:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
@@ -29,44 +32,55 @@
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/WeatherImagesResource.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
+                
+                <!--Style Rescorce Dictionary-->
+                <ResourceDictionary>
+                    <Style TargetType="Grid" x:Key="ChannelCell">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                                    <GradientStop Color="#aa3a3a3a" Offset="0.0" />
+                                    <GradientStop Color="#aa121212" Offset="1" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Margin" Value="3" />
+                        <Setter Property="Width" Value="95"/>
+                        <Setter Property="Height" Value="25"/>
+                    </Style>
+                    <PowerEase x:Key="Smooth" Power="3" presentOpti:Freeze="True"/>
+                </ResourceDictionary>
+                <!--Animation Stroybard Resource Dictionary-->
+                <ResourceDictionary>
+                    <Storyboard x:Key="BackgroundColorStoryboard">
+                        <ColorAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="(local:MainWindow.BackgroundColor)" Duration="0:0:5" EasingFunction="{StaticResource Smooth}"/>
+                    </Storyboard>
+                    <Storyboard x:Key="AlbumPictureFadeInStoryboard">
+                        <DoubleAnimation Storyboard.TargetName="AlbumPicture" Storyboard.TargetProperty="Opacity" From="0"  To ="1" Duration="0:0:.5"/>
+                    </Storyboard>
+                </ResourceDictionary>
+                <!--Converter Resource Dictionary-->
+                <ResourceDictionary>
+                    <cvt:WeatherImageSourceConverter x:Key="Num2Image" />
+                    <cvt:NullToBoolConverter x:Key="Null2Bool"/>
+                    <cvt:InverseNullToVisibilityConveter x:Key="IvsNull2Vsby"/>
+                    <cvt:NullToVisibility x:Key="Null2Vsby"/>
+                    <BooleanToVisibilityConverter x:Key="Bool2Visbility"/>
+                    <cvt:InverseBoolToVisibilityConverter x:Key="IvsBooltVsby"/>
+                    <cvt:TimeSpanToStringConverter x:Key="Time2Str"/>
+                    <cvt:NumberToVisibilityConverter x:Key="Num2Visbility"/>
+                    <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
+                    <cvt:MultiplyNumberConverter x:Key="MultiplyNum"/>
+                    <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
+                    <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
+                    <cvt:EqualiencyConverter x:Key="EquCvt"/>
+                    <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
+                    <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
+                    <cvt:NumberToProgressState x:Key="Num2Pgs"/>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-            <cvt:WeatherImageSourceConverter x:Key="Num2Image" />
-            <cvt:NullToBoolConverter x:Key="Null2Bool"/>
-            <cvt:InverseNullToVisibilityConveter x:Key="IvsNull2Vsby"/>
-            <cvt:NullToVisibility x:Key="Null2Vsby"/>
-            <BooleanToVisibilityConverter x:Key="Bool2Visbility"/>
-            <cvt:InverseBoolToVisibilityConverter x:Key="IvsBooltVsby"/>
-            <cvt:TimeSpanToStringConverter x:Key="Time2Str"/>
-            <cvt:NumberToVisibilityConverter x:Key="Num2Visbility"/>
-            <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
-            <cvt:MultiplyNumberConverter x:Key="MultiplyNum"/>
-            <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
-            <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
-            <cvt:EqualiencyConverter x:Key="EquCvt"/>
-            <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
-            <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
-            <cvt:NumberToProgressState x:Key="Num2Pgs"/>
-            <!--<ObjectDataProvider x:Key="CrtSongNotNull" ObjectType="{x:Type cc:BooleanClass}" MethodName="NotNull" >
-                <ObjectDataProvider.MethodParameters>
-                    <Binding ElementName="Root" Path="ViewModel.CurrentSong"/>
-                </ObjectDataProvider.MethodParameters>
-            </ObjectDataProvider>-->
-
-            <Style TargetType="Grid" x:Key="ChannelCell">
-                <Setter Property="Background">
-                    <Setter.Value>
-                        <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-                            <GradientStop Color="#aa3a3a3a" Offset="0.0" />
-                            <GradientStop Color="#aa121212" Offset="1" /> 
-                        </LinearGradientBrush>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="Margin" Value="3" />
-                <Setter Property="Width" Value="95"/>
-                <Setter Property="Height" Value="25"/>
-            </Style>
         </ResourceDictionary>
-    </Window.Resources>
+    </metro:MetroWindow.Resources>
 
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo ProgressState="{Binding ElementName=Root, Path=ViewModel.DownloadProgress, Converter={StaticResource Num2Pgs}}"
@@ -168,7 +182,7 @@
                                 <Image Source="{StaticResource Setting32}" Height="20" Width="20" Opacity=".6"/>
                             </cc:ImageButton.Image>
                             <cc:ImageButton.RenderTransform>
-                                <RotateTransform/>
+                                <RotateTransform />
                             </cc:ImageButton.RenderTransform>
                             <cc:ImageButton.Style>
                                 <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
@@ -177,7 +191,7 @@
                                         <EventTrigger RoutedEvent="MouseEnter">
                                             <BeginStoryboard x:Name="AliRotate">
                                                 <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="(cc:ImageButton.RenderTransform).(RotateTransform.Angle)" To="-90" Duration="0:0:1" RepeatBehavior="Forever"/>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(cc:ImageButton.RenderTransform).(RotateTransform.Angle)" To="-360" Duration="0:0:4" RepeatBehavior="Forever"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </EventTrigger>
@@ -338,7 +352,18 @@
                                            Text="{Binding ViewModel.Account.Feedback}"/>
                                 </StackPanel>
                                 <!--Channel List-->
-                                <ScrollViewer Grid.Row="3">
+                                <ScrollViewer Grid.Row="3" Height="315" x:Name="ChannelsViewer">
+                                    <ScrollViewer.Style>
+                                        <Style TargetType="ScrollViewer" BasedOn="{StaticResource {x:Type ScrollViewer}}">
+                                            <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ElementName=ChannelsViewer, Path=IsMouseOver}"
+                                                            Value="true">
+                                                    <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ScrollViewer.Style>
                                     <ItemsControl ItemsSource="{Binding ViewModel.Channels}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -390,14 +415,13 @@
                         </TabItem>
                     </TabControl>
                 </StackPanel>
-                
             </metro:Flyout>
         </metro:FlyoutsControl>
     </metro:MetroWindow.Flyouts>
 
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
         <!--Main Content Panel-->
-        <Grid>
+        <Grid MouseDown="MainGridOnPreviewMouseDown">
             <Grid.RowDefinitions>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="4*"/>
@@ -416,29 +440,34 @@
             <!--2 Song Photo & Lyric-->
             <Grid Grid.Row="1" VerticalAlignment="Center">
                 <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding CurrentSong.Url}"/>
-                <metro:ProgressRing IsActive="True" VerticalAlignment="Center" HorizontalAlignment="Center" 
-                                    Width="120" Height="120" Visibility="{Binding CurrentSong, Converter={StaticResource IvsNull2Vsby}}">
-                    <metro:ProgressRing.Style>
-                        <Style TargetType="metro:ProgressRing">
+                <Image VerticalAlignment="Center" HorizontalAlignment="Center" Width="220" Height="220"
+                       Visibility="{Binding MediaManager.SongPicture, Converter={StaticResource IvsNull2Vsby}}"
+                       Source="{StaticResource Vinyl256}" Opacity=".9">
+                    <Image.RenderTransform>
+                        <RotateTransform/>
+                    </Image.RenderTransform>
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Setter Property="RenderTransformOrigin" Value=".5, .5"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentSong}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding ElementName=AlbumPicture, Path=Source}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)" To="360" Duration="0:0:4" RepeatBehavior="Forever"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
                             </Style.Triggers>
                         </Style>
-                    </metro:ProgressRing.Style>
-                </metro:ProgressRing>
+                    </Image.Style>
+                </Image>
                 <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
                     <!--Song Album Picture-->
                     <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
                         <cc:ImageButton.Image>
                             <StackPanel Orientation="Vertical">
-                                <Image x:Name="AlbumPicture" Stretch="Fill" HorizontalAlignment="Center"
-                                       Source="{Binding CurrentSong.Picture}">
-                                        <Image.Style>
+                                <Image x:Name="AlbumPicture" Stretch="Fill" HorizontalAlignment="Center" Source="{Binding MediaManager.SongPicture}">
+                                    <Image.Style>
                                         <Style TargetType="Image">
                                             <Setter Property="Width">
                                                 <Setter.Value>
@@ -449,16 +478,40 @@
                                             </Setter>
                                             <Setter Property="Height" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
                                             <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
+                                                <!--<Trigger Property="IsMouseOver" Value="True">
                                                     <Setter Property="Opacity" Value=".8"/>
-                                                </Trigger>
+                                                </Trigger>-->
+                                                <EventTrigger RoutedEvent="MouseEnter">
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" To =".7" Duration="0:0:0.3"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </EventTrigger>
+                                                <!--This is not working fine-->
+                                                <!--<DataTrigger Binding="{Binding MediaManager.SongPicture, Converter={StaticResource Null2Bool}}" Value="True">
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0"  To ="1" Duration="0:0:1"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                </DataTrigger>-->
+                                                <EventTrigger RoutedEvent="MouseLeave">
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" To ="1" Duration="0:0:0.3"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </EventTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Image.Style>
                                 </Image>
                                 <cc:ControlReflection Host="{Binding ElementName=AlbumPicture}"
                                                       ReflectionPercent=".3"
-                                                      Opacity=".9"/>
+                                                      Opacity=".7"/>
                             </StackPanel>
                         </cc:ImageButton.Image>
                     </cc:ImageButton>
@@ -473,17 +526,32 @@
                                     <DataTrigger Binding="{Binding IsDisylayLyric}" Value="False">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
+                                    <DataTrigger Binding="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Visibility}" Value="Visible">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0" Duration="0:0:.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </cc:ImageButton.Style>
                         <Grid Background="#CC000000" 
                               Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                               Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
-                            <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False"
+                            <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False" Margin="0,8"
                                           HorizontalScrollBarVisibility="Disabled"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="0,8">
-                                <ItemsControl ItemsSource="{Binding Path=Lyric.Content}">
+                                          VerticalScrollBarVisibility="Hidden">
+                                <ItemsControl ItemsSource="{Binding Path=MediaManager.Lyric.Content}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel IsItemsHost="True" Orientation="Vertical" HorizontalAlignment="Center"/>
@@ -495,7 +563,7 @@
                                                 <TextBlock.Foreground>
                                                     <MultiBinding Converter="{StaticResource LrcHighLight}">
                                                         <Binding Path="Key"/>
-                                                        <Binding ElementName="Root" Path="ViewModel.CurrnetLrcLine.Value"/>
+                                                        <Binding ElementName="Root" Path="ViewModel.MediaManager.CurrnetLrcLine.Value"/>
                                                     </MultiBinding>
                                                 </TextBlock.Foreground>
                                             </TextBlock>

@@ -103,6 +103,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Animation\ScrollAnimationBehavior.cs" />
     <Compile Include="WeatherDetail.xaml.cs">
       <DependentUpon>WeatherDetail.xaml</DependentUpon>
     </Compile>
@@ -403,6 +404,9 @@
   <ItemGroup>
     <Resource Include="Images\about24.png" />
     <Resource Include="Images\about64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Vinyl256.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
