@@ -20,6 +20,8 @@ namespace MusicFmApplication
     {
         private const string PART_TitleBarBackground = "PART_WindowTitleBackground";
 
+        private const double WindowOpacity = .625;
+
         #region ViewModel
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(MainViewModel), typeof(MainWindow), new PropertyMetadata(default(MainViewModel),OnViewModelChanged));
@@ -42,12 +44,12 @@ namespace MusicFmApplication
                     var storyboard = wd.FindResource("BackgroundColorStoryboard") as Storyboard;
                     if (storyboard == null) return;
                     var color = viewModel.MediaManager.SongPictureColor;
-                    color.A = 150;
                     //Make color to darker
                     const double offset = .4;
                     color.R = (byte)(color.R * offset);
                     color.G = (byte)(color.G * offset);
                     color.B = (byte)(color.B * offset);
+                    color.A = (byte)(WindowOpacity*256);
                     ((ColorAnimation) storyboard.Children[0]).To = color;
                     storyboard.Begin();
                 }
@@ -64,15 +66,7 @@ namespace MusicFmApplication
 
         #region BackgroundColor(DependencyProperty)
         public static readonly DependencyProperty BackgroundColorProperty =
-            DependencyProperty.Register("BackgroundColor", typeof(Color), typeof(MainWindow), new PropertyMetadata(default(Color),OnBackgroundColorChanged));
-
-        private static void OnBackgroundColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) 
-        {
-            var wnd = d as MainWindow;
-            if (wnd == null || !(e.NewValue is Color)) return;
-            var color = (Color) e.NewValue;
-            wnd.BackgroundColorBrush = new SolidColorBrush(color);
-        }
+            DependencyProperty.Register("BackgroundColor", typeof(Color), typeof(MainWindow), new PropertyMetadata(default(Color)));
 
         public Color BackgroundColor
         {
@@ -81,22 +75,8 @@ namespace MusicFmApplication
         }
         #endregion
 
-        #region BackgroundColorBrush DependencyProperty
-        public static readonly DependencyProperty BackgroundColorBrushProperty =
-            DependencyProperty.Register("BackgroundColorBrush", typeof(Brush), typeof(MainWindow), new PropertyMetadata(default(Brush)));
-
-        public Brush BackgroundColorBrush
-        {
-            get { return (Brush)GetValue(BackgroundColorBrushProperty); }
-            set { SetValue(BackgroundColorBrushProperty, value); }
-        } 
-        #endregion
-
         public MainWindow()
         {
-            //var rdm = new Random();
-            //BackgroundColor = new SolidColorBrush(Color.FromArgb(150, (byte)rdm.Next(0, 255), (byte)rdm.Next(0, 255), (byte)rdm.Next(0, 255)));
-
             InitializeComponent();
 
             if (DwmHelper.IsDwmSupported)
@@ -104,6 +84,13 @@ namespace MusicFmApplication
                 DwmHelper = new DwmHelper(this);
                 DwmHelper.AeroGlassEffectChanged += DwmHelperAeroGlassEffectChanged;
             }
+
+            SizeChanged += (s, e) =>
+            {
+                if (DwmHelper != null && DwmHelper.IsAeroGlassEffectEnabled)
+                    DwmHelper.EnableBlurBehindWindow();
+            };
+
         }
 
         protected DwmHelper DwmHelper;
@@ -146,9 +133,26 @@ namespace MusicFmApplication
             if (titleBarBg != null) titleBarBg.Opacity = .02;
         }
 
-        private void MainGridOnPreviewMouseDown(object sender, MouseButtonEventArgs e) {
-            this.DragMove();
+        protected override void OnStateChanged(EventArgs e)
+        {
+            if (WindowState.Equals(WindowState.Minimized))
+            {
+                //var storyboard = FindResource("WindowFadeoutStoryboard") as Storyboard;
+                //if (storyboard != null) {
+                //    WindowState = WindowState.Normal;
+                //    storyboard.Begin();
+                //}
+                var miniWnd = new MiniWindow(ViewModel)
+                {
+                    Left = Left + 80,
+                    Top = Top + 100
+                };
+                miniWnd.Show();
+            }
+            base.OnStateChanged(e);
+            Visibility = Visibility.Collapsed;
         }
+        
 
     }
 }

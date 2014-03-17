@@ -1,0 +1,174 @@
+﻿<Window x:Class="MusicFmApplication.MiniWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+        xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
+        xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
+        Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
+        Height="150" Width="150"  Icon="{DynamicResource LogoIco32}" x:Name="Root"
+        AllowsTransparency="True" WindowStyle="None" Background="{x:Null}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
+                
+                <!--Converter Resource Dictionary-->
+                <ResourceDictionary>
+                    <cvt:WeatherImageSourceConverter x:Key="Num2Image" />
+                    <cvt:NullToBoolConverter x:Key="Null2Bool"/>
+                    <cvt:InverseNullToVisibilityConveter x:Key="IvsNull2Vsby"/>
+                    <cvt:NullToVisibility x:Key="Null2Vsby"/>
+                    <BooleanToVisibilityConverter x:Key="Bool2Visbility"/>
+                    <cvt:InverseBoolToVisibilityConverter x:Key="IvsBooltVsby"/>
+                    <cvt:TimeSpanToStringConverter x:Key="Time2Str"/>
+                    <cvt:NumberToVisibilityConverter x:Key="Num2Visbility"/>
+                    <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
+                    <cvt:MultiplyNumberConverter x:Key="MultiplyNum"/>
+                    <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
+                    <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
+                    <cvt:EqualiencyConverter x:Key="EquCvt"/>
+                    <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
+                    <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
+                    <cvt:NumberToProgressState x:Key="Num2Pgs"/>
+                    <cvt:InverseBoolConverter x:Key="IvsBool"/>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo ProgressState="{Binding ElementName=Root, Path=ViewModel.DownloadProgress, Converter={StaticResource Num2Pgs}}"
+                         ProgressValue="{Binding ElementName=Root, Path=ViewModel.DownloadProgress, Converter={StaticResource Pct2Dcml}}">
+            <TaskbarItemInfo.ThumbButtonInfos>
+                <ThumbButtonInfo ImageSource="{StaticResource Pause32}" DismissWhenClicked="True"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PausePlayerCommand}"
+                                 IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"
+                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Play32}" DismissWhenClicked="True"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.StartPlayerCommand}"
+                                 IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"
+                                 Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Heart32}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
+                                 IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Delete32}" 
+                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
+                                 CommandParameter="1"
+                                 IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"/>
+                <ThumbButtonInfo ImageSource="{StaticResource Next32}"  x:Name="TmbBtnNext"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.NextSongCommand}"
+                                 IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
+            </TaskbarItemInfo.ThumbButtonInfos>
+        </TaskbarItemInfo>
+    </Window.TaskbarItemInfo>
+    <Grid MouseDown="MainGridOnMouseDown">
+        <!--Album Picture-->
+        <Grid>
+            <Grid.RenderTransform>
+                <RotateTransform/>
+            </Grid.RenderTransform>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="RenderTransformOrigin" Value=".5, .5"/>
+                    <Setter Property="Opacity" Value=".7"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                    <Setter Property="IsHitTestVisible" Value="{Binding ElementName=PlayBtns, Path=IsMouseOver, Converter={StaticResource IvsBool}}"/>
+                    <Style.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard x:Name="PictureRotateStroybard">
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(Grid.RenderTransform).(RotateTransform.Angle)" To="360" Duration="0:0:15" RepeatBehavior="Forever"/>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To ="1" Duration="0:0:1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                       <EventTrigger RoutedEvent="MouseEnter">
+                            <PauseStoryboard BeginStoryboardName="PictureRotateStroybard"/>
+                        </EventTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ElementName=Root, Path=IsMouseOver}" Value="False"/>
+                                <Condition Binding="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <MultiDataTrigger.EnterActions>
+                                <ResumeStoryboard BeginStoryboardName="PictureRotateStroybard"/>
+                            </MultiDataTrigger.EnterActions>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Image x:Name="AlbumImage" Width="128" Height="128" Source="{StaticResource Vinyl128}"/>
+            <Ellipse Width="128" Height="128" Stroke="#99CCCCCC" StrokeThickness="2" >
+                <Ellipse.Fill>
+                    <ImageBrush ImageSource="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}"/>
+                </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse Width="90" Height="90" Stroke="#99CCCCCC" StrokeThickness="1"/>
+            <Ellipse Width="40" Height="40" Opacity=".8" Stroke="#99CCCCCC" StrokeThickness="1" Fill="#BBF5F5F5"/>
+            <Ellipse Width="6" Height="6" Fill="#000000" />
+            
+        </Grid>
+        
+        <!--Play/Pause Btns-->
+        <Grid x:Name="PlayBtns"
+              DataContext="{Binding ElementName=Root, Path=ViewModel}">
+            <Grid.Style>
+               <Style TargetType="Grid">
+                   <Setter Property="Opacity" Value="0"/>
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}" Value="True"/>
+                                <Condition Binding="{Binding ElementName=Root, Path=IsMouseOver}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <MultiDataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To ="1" Duration="0:0:.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </MultiDataTrigger.EnterActions>
+                            <MultiDataTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To ="0" Duration="0:0:.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </MultiDataTrigger.ExitActions>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.Resources>
+                <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="Width" Value="18"/>
+                </Style>
+                <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
+                    <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                    <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                    <Setter Property="Opacity" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid},  Path=Opacity}"/>
+                </Style>
+            </Grid.Resources>
+            <Ellipse Width="40" Height="40" >
+                <Ellipse.Fill>
+                    <SolidColorBrush Color="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPictureColor}"/>
+                </Ellipse.Fill>
+            </Ellipse>
+            <cc:ImageButton Command="{Binding MediaManager.StartPlayerCommand}"
+                            Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"
+                            Width="14">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Play32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+            <cc:ImageButton Command="{Binding MediaManager.PausePlayerCommand}"
+                             Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Pause32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+        </Grid>
+    </Grid>
+</Window>

@@ -14,9 +14,11 @@
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False" TitleForeground="{DynamicResource AccentColorBrush}"
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
-                   ResizeMode="CanMinimize" AllowsTransparency="True" 
-                   Background="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=BackgroundColorBrush}"
+                   ResizeMode="CanMinimize" AllowsTransparency="True"
                    Height="480"  Width="320">
+    <metro:MetroWindow.Background>
+        <SolidColorBrush Color="{Binding ElementName=Root, Path=BackgroundColor}"/>
+    </metro:MetroWindow.Background>
 
     <metro:MetroWindow.Resources>
         <ResourceDictionary>
@@ -57,6 +59,11 @@
                     </Storyboard>
                     <Storyboard x:Key="AlbumPictureFadeInStoryboard">
                         <DoubleAnimation Storyboard.TargetName="AlbumPicture" Storyboard.TargetProperty="Opacity" From="0"  To ="1" Duration="0:0:.5"/>
+                    </Storyboard>
+                    <Storyboard x:Key="WindowFadeoutStoryboard">
+                        <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity" To ="0" Duration="0:0:.9"/>
+                        <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Height" To="0" Duration="0:0:.9"/>
+                        <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Width" To="0" Duration="0:0:.9"/>
                     </Storyboard>
                 </ResourceDictionary>
                 <!--Converter Resource Dictionary-->
@@ -421,7 +428,7 @@
 
     <Grid DataContext="{Binding ElementName=Root, Path=ViewModel}">
         <!--Main Content Panel-->
-        <Grid MouseDown="MainGridOnPreviewMouseDown">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="4*"/>
@@ -582,6 +589,11 @@
                     <Style TargetType="TextBlock">
                         <Setter Property="Foreground" Value="{StaticResource AccentColorBrush2}"/>
                         <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <!--<Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect ShadowDepth="5" BlurRadius="15" />
+                            </Setter.Value>
+                        </Setter>-->
                     </Style>
                 </StackPanel.Resources>
                 <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,3" />
@@ -661,9 +673,9 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2"/>
                 </Grid.RowDefinitions>
-                <Rectangle Grid.Row="0" Fill="Silver" Opacity=".5" Width="{Binding ElementName=Root, Path=Width}"/>
+                <Rectangle Grid.Row="0" Fill="#20CCCCCC"  Width="{Binding ElementName=Root, Path=Width}"/>
 
-                <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush3}" Opacity=".7" >
+                <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush3}" Opacity=".6" >
                     <Rectangle.Width>
                         <MultiBinding Converter="{StaticResource MultiplyNum}">
                             <MultiBinding.Bindings>
@@ -695,32 +707,13 @@
                     <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.Resources>
-                    <Style TargetType="cc:ImageButton">
-                        <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
                         <Setter Property="Height" Value="18"/>
                         <Setter Property="Width" Value="18"/>
                     </Style>
-                    <Style TargetType="cc:ColorlizeImage">
-                        <Setter Property="Color" Value="{StaticResource AccentColorBrush}"/>
+                    <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
                         <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
                         <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Color">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="{StaticResource AccentColor2}" />
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Color">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="{StaticResource AccentColor3}" />
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </Style.Triggers>
                     </Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="FontSize" Value="12"/>

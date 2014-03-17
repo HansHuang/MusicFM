@@ -25,4 +25,5 @@
     <ImageSource x:Key="About24">Images/about24.png</ImageSource>
     <ImageSource x:Key="About64">Images/about64.png</ImageSource>
     <ImageSource x:Key="Vinyl256">Images/Vinyl256.png</ImageSource>
+    <ImageSource x:Key="Vinyl128">Images/Vinyl128.png</ImageSource>
 </ResourceDictionary>

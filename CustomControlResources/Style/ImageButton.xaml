@@ -43,5 +43,7 @@
 
     <Style TargetType="{x:Type controls:ImageButton}" >
         <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>
 </ResourceDictionary>
