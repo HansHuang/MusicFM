@@ -5,14 +5,13 @@
         xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
         xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
         Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
-        Height="150" Width="150"  Icon="{DynamicResource LogoIco32}" x:Name="Root"
+        Height="190" Width="190"  Icon="{DynamicResource LogoIco32}" x:Name="Root"
         AllowsTransparency="True" WindowStyle="None" Background="{x:Null}">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
-                
                 <!--Converter Resource Dictionary-->
                 <ResourceDictionary>
                     <cvt:WeatherImageSourceConverter x:Key="Num2Image" />
@@ -61,7 +60,126 @@
             </TaskbarItemInfo.ThumbButtonInfos>
         </TaskbarItemInfo>
     </Window.TaskbarItemInfo>
-    <Grid MouseDown="MainGridOnMouseDown">
+    <Grid MouseLeftButtonDown="MainGridOnLeftMouseDown">
+        <!--Operation Btns-->
+        <Canvas DataContext="{Binding ElementName=Root}"
+                Visibility="{Binding ElementName=Root, Path=IsMouseOver, Converter={StaticResource Bool2Visbility}}">
+            <Canvas.Style>
+                <Style TargetType="Canvas">
+                    <Setter Property="Opacity" Value=".01"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=Root, Path=IsMouseOver}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From=".01" To="1" Duration="0:0:.5"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                            <DataTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To=".01" Duration="0:0:.5"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.ExitActions>
+                        </DataTrigger>
+                        <!--<Trigger Property="Opacity" Value="0">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </Trigger>-->
+                    </Style.Triggers>
+                </Style>
+            </Canvas.Style>
+            <Canvas.Resources>
+                <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
+                    <!--Let btn to focus easier-->
+                    <Setter Property="Background" Value="#01000000"/>
+                    <Setter Property="Opacity" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Canvas}, Path=Opacity}"/>
+                </Style>
+                <Style TargetType="cc:ColorlizeImage">
+                    <Setter Property="Height" Value="20"/>
+                    <Setter Property="Width" Value="20"/>
+                    <Setter Property="Color" Value="{StaticResource AccentColorBrush}"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Color" Value="DarkGray"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Color" Value="{StaticResource AccentColorBrush2}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Canvas.Resources>
+            <!--<Ellipse Height="160" Width="160" Stroke="#66CCCCCC" StrokeThickness="1" Canvas.Left="15" Canvas.Top="15"/>-->
+            <Ellipse Height="190" Width="190" Fill="#55222222"/>
+            
+            <!--Like Song Btn-->
+            <cc:ImageButton Canvas.Right="28" Canvas.Top="30"
+                            Command="{Binding ViewModel.LikeSongCommand}">
+                <cc:ColorlizeImage Image="{StaticResource Heart32}" >
+                    <cc:ColorlizeImage.Style>
+                        <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ViewModel.CurrentSong.Like}" Value="1">
+                                    <Setter Property="Color" Value="#88EE0000"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </cc:ColorlizeImage.Style>
+                </cc:ColorlizeImage>
+            </cc:ImageButton>
+            <!--Next Song Btn-->
+            <cc:ImageButton Canvas.Right="2" Canvas.Top="85"
+                            Command="{Binding ViewModel.NextSongCommand}" 
+                            IsEnabled="{Binding ViewModel.SongList.Count, Converter={StaticResource Num2Bool}}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Next32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+            <!--Delete Song Btn-->
+            <cc:ImageButton Canvas.Right="25" Canvas.Bottom="30"
+                            Command="{Binding ViewModel.LikeSongCommand}"
+                            CommandParameter="1">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+
+            <!--Set Top Btn-->
+            <cc:ImageButton Canvas.Left="28" Canvas.Top="30"
+                            Command="{Binding SetTopMostCmd}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Nail24}" Width="10"/>
+                </cc:ImageButton.Image>
+                <cc:ImageButton.Style>
+                    <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=Root, Path=Topmost}" Value="True">
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="45" CenterX="5" CenterY="10"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </cc:ImageButton.Style>
+            </cc:ImageButton>
+            <!--Back to home Btn-->
+            <cc:ImageButton Canvas.Left="2" Canvas.Top="85"
+                            Command="{Binding BackMainWindowCmd}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Back24}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+            <!--Minimize to taskbar notify icon Btn-->
+            <cc:ImageButton Canvas.Left="25" Canvas.Bottom="30"
+                            Command="{Binding MinimizeToIconCmd}">
+                <cc:ImageButton.Image>
+                    <cc:ColorlizeImage Image="{StaticResource Anchor24}"/>
+                </cc:ImageButton.Image>
+            </cc:ImageButton>
+        </Canvas>
         <!--Album Picture-->
         <Grid>
             <Grid.RenderTransform>
@@ -98,18 +216,23 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <Image x:Name="AlbumImage" Width="128" Height="128" Source="{StaticResource Vinyl128}"/>
-            <Ellipse Width="128" Height="128" Stroke="#99CCCCCC" StrokeThickness="2" >
+            <Grid.Resources>
+                <Style TargetType="Ellipse">
+                    <Setter Property="Stroke" Value="#99CCCCCC"/>
+                    <Setter Property="StrokeThickness" Value="1"/>
+                    <Setter Property="Visibility" Value="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture, Converter={StaticResource Null2Vsby}}"/>
+                </Style>
+            </Grid.Resources>
+            <Image x:Name="AlbumImage" Width="128" Height="128" Source="{StaticResource Vinyl128}" Opacity=".8"/>
+            <Ellipse Width="128" Height="128" StrokeThickness="2">
                 <Ellipse.Fill>
-                    <ImageBrush ImageSource="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}"/>
+                    <ImageBrush ImageSource="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}" Opacity=".8"/>
                 </Ellipse.Fill>
             </Ellipse>
-            <Ellipse Width="90" Height="90" Stroke="#99CCCCCC" StrokeThickness="1"/>
-            <Ellipse Width="40" Height="40" Opacity=".8" Stroke="#99CCCCCC" StrokeThickness="1" Fill="#BBF5F5F5"/>
-            <Ellipse Width="6" Height="6" Fill="#000000" />
-            
+            <Ellipse Width="90" Height="90" />
+            <Ellipse Width="40" Height="40" Fill="#AAF5F5F5"/>
+            <Ellipse Width="6" Height="6" Fill="#FF111111" />
         </Grid>
-        
         <!--Play/Pause Btns-->
         <Grid x:Name="PlayBtns"
               DataContext="{Binding ElementName=Root, Path=ViewModel}">
@@ -153,7 +276,7 @@
             </Grid.Resources>
             <Ellipse Width="40" Height="40" >
                 <Ellipse.Fill>
-                    <SolidColorBrush Color="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPictureColor}"/>
+                    <SolidColorBrush Color="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPictureColor}" />
                 </Ellipse.Fill>
             </Ellipse>
             <cc:ImageButton Command="{Binding MediaManager.StartPlayerCommand}"

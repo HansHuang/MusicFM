@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -221,6 +223,8 @@ namespace MusicFmApplication
 
         #region Fields
         public MediaElement Player { get; private set; }
+
+        public Stream SongImageStream { get; private set; }
 
         protected readonly MainViewModel ViewModel;
 

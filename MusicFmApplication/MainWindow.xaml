@@ -65,6 +65,9 @@
                         <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Height" To="0" Duration="0:0:.9"/>
                         <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Width" To="0" Duration="0:0:.9"/>
                     </Storyboard>
+                    <Storyboard x:Key="WindowFadeInStoryboard">
+                        <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity" From="0" To ="1" Duration="0:0:2"/>
+                    </Storyboard>
                 </ResourceDictionary>
                 <!--Converter Resource Dictionary-->
                 <ResourceDictionary>
@@ -625,13 +628,11 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                    <Style x:Key="SongCtrlBtnImg" TargetType="cc:ColorlizeImage">
+                    <Style TargetType="cc:ColorlizeImage">
                         <Setter Property="Height" Value="28"/>
                         <Setter Property="Width" Value="28"/>
+                        <Setter Property="Color" Value="Black"/>
                         <Style.Triggers>
-                            <Trigger Property="IsEnabled" Value="True">
-                                <Setter Property="Color" Value="Black"/>
-                            </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Color" Value="DarkGray"/>
                             </Trigger>
@@ -639,12 +640,12 @@
                     </Style>
                 </Grid.Resources>
                 <Button Grid.Column="0" Command="{Binding LikeSongCommand}">
-                    <cc:ColorlizeImage Image="{StaticResource Heart96}" >
+                    <cc:ColorlizeImage Image="{StaticResource Heart32}" >
                         <cc:ColorlizeImage.Style>
-                            <Style BasedOn="{StaticResource SongCtrlBtnImg}" TargetType="cc:ColorlizeImage">
+                            <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentSong.Like}" Value="1">
-                                        <Setter Property="Color" Value="Red"/>
+                                        <Setter Property="Color" Value="#88EE0000"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -654,12 +655,12 @@
                 <Button Grid.Column="1"
                         Command="{Binding LikeSongCommand}"
                         CommandParameter="1">
-                    <cc:ColorlizeImage Image="{StaticResource Delete96}" Style="{StaticResource SongCtrlBtnImg}"/>
+                    <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
                 </Button>
                 <Button Grid.Column="2" 
                         Command="{Binding NextSongCommand}"
                         IsEnabled="{Binding SongList.Count, Converter={StaticResource Num2Bool}}">
-                    <cc:ColorlizeImage Image="{StaticResource Next96}" Style="{StaticResource SongCtrlBtnImg}"/>
+                    <cc:ColorlizeImage Image="{StaticResource Next32}"/>
                 </Button>
             </Grid>
             <!--5 Playing Progress Time Line-->

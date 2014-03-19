@@ -78,20 +78,6 @@
     <Compile Include="WEB\HttpWebDealer.cs" />
     <Compile Include="WEB\SongLyricHelper.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="WEB\Resources\ChinaProvinceAndCity.js" />
-    <Content Include="WEB\Resources\ChinaWeatherCityCode.js" />
-    <Content Include="WEB\Resources\ChinaWeatherCityCode.txt" />
-    <Content Include="WEB\Resources\ips.txt" />
-    <Content Include="WEB\Resources\JsonWeather.jpg" />
-    <Content Include="WEB\Resources\ProvinceAndCity.xml" />
-    <Content Include="WEB\Resources\ProvinceAndCityJson.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="WEB\Resources\ChinaWeather.zip" />
-    <None Include="WEB\Resources\JsonWeather.psd" />
-    <None Include="WEB\Resources\Test.rar" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

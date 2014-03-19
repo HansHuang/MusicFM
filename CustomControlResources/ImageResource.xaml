@@ -4,10 +4,7 @@
     <ImageSource x:Key="LogoIco32">Images/logo32.png</ImageSource>
     <ImageSource x:Key="LogoIco64">Images/logo64.png</ImageSource>
     <ImageSource x:Key="Heart32">Images/heart32.png</ImageSource>
-    <ImageSource x:Key="Heart96">Images/heart96.png</ImageSource>
-    <ImageSource x:Key="Delete96">Images/delete96.png</ImageSource>
     <ImageSource x:Key="Delete32">Images/delete32.png</ImageSource>
-    <ImageSource x:Key="Next96">Images/next96.png</ImageSource>
     <ImageSource x:Key="Next32">Images/next32.png</ImageSource>
     <ImageSource x:Key="Play32">Images/play32.png</ImageSource>
     <ImageSource x:Key="Pause32">Images/pause32.png</ImageSource>
@@ -21,9 +18,12 @@
     <ImageSource x:Key="Login64">Images/Login64.png</ImageSource>
     <ImageSource x:Key="Folder32">Images/folder32.png</ImageSource>
     <ImageSource x:Key="Setting32">Images/setting32.png</ImageSource>
-    <ImageSource x:Key="Setting64">Images/setting64.png</ImageSource>
     <ImageSource x:Key="About24">Images/about24.png</ImageSource>
     <ImageSource x:Key="About64">Images/about64.png</ImageSource>
     <ImageSource x:Key="Vinyl256">Images/Vinyl256.png</ImageSource>
     <ImageSource x:Key="Vinyl128">Images/Vinyl128.png</ImageSource>
+    <ImageSource x:Key="Nail24">Images/nail24.png</ImageSource>
+    <ImageSource x:Key="Back24">Images/back24.png</ImageSource>
+    <ImageSource x:Key="Anchor24">Images/anchor24.png</ImageSource>
+    <ImageSource x:Key="Open24">Images/183.24.png</ImageSource>
 </ResourceDictionary>

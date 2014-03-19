@@ -104,6 +104,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Animation\ScrollAnimationBehavior.cs" />
+    <Compile Include="RelayCommand.cs" />
     <Compile Include="WeatherDetail.xaml.cs">
       <DependentUpon>WeatherDetail.xaml</DependentUpon>
     </Compile>
@@ -250,51 +251,6 @@
     <Resource Include="Images\WeatherImages\30small\night\n30.png" />
     <Resource Include="Images\WeatherImages\30small\night\n31.png" />
     <Resource Include="Images\WeatherImages\30small\night\n53.png" />
-    <Resource Include="Images\WeatherImages\warn\0000.gif" />
-    <Resource Include="Images\WeatherImages\warn\0101.gif" />
-    <Resource Include="Images\WeatherImages\warn\0102.gif" />
-    <Resource Include="Images\WeatherImages\warn\0103.gif" />
-    <Resource Include="Images\WeatherImages\warn\0104.gif" />
-    <Resource Include="Images\WeatherImages\warn\0201.gif" />
-    <Resource Include="Images\WeatherImages\warn\0202.gif" />
-    <Resource Include="Images\WeatherImages\warn\0203.gif" />
-    <Resource Include="Images\WeatherImages\warn\0204.gif" />
-    <Resource Include="Images\WeatherImages\warn\0301.gif" />
-    <Resource Include="Images\WeatherImages\warn\0302.gif" />
-    <Resource Include="Images\WeatherImages\warn\0303.gif" />
-    <Resource Include="Images\WeatherImages\warn\0304.gif" />
-    <Resource Include="Images\WeatherImages\warn\0401.gif" />
-    <Resource Include="Images\WeatherImages\warn\0402.gif" />
-    <Resource Include="Images\WeatherImages\warn\0403.gif" />
-    <Resource Include="Images\WeatherImages\warn\0404.gif" />
-    <Resource Include="Images\WeatherImages\warn\0501.gif" />
-    <Resource Include="Images\WeatherImages\warn\0502.gif" />
-    <Resource Include="Images\WeatherImages\warn\0503.gif" />
-    <Resource Include="Images\WeatherImages\warn\0504.gif" />
-    <Resource Include="Images\WeatherImages\warn\0602.gif" />
-    <Resource Include="Images\WeatherImages\warn\0603.gif" />
-    <Resource Include="Images\WeatherImages\warn\0604.gif" />
-    <Resource Include="Images\WeatherImages\warn\0702.gif" />
-    <Resource Include="Images\WeatherImages\warn\0703.gif" />
-    <Resource Include="Images\WeatherImages\warn\0704.gif" />
-    <Resource Include="Images\WeatherImages\warn\0803.gif" />
-    <Resource Include="Images\WeatherImages\warn\0804.gif" />
-    <Resource Include="Images\WeatherImages\warn\0902.gif" />
-    <Resource Include="Images\WeatherImages\warn\0903.gif" />
-    <Resource Include="Images\WeatherImages\warn\0904.gif" />
-    <Resource Include="Images\WeatherImages\warn\1003.gif" />
-    <Resource Include="Images\WeatherImages\warn\1004.gif" />
-    <Resource Include="Images\WeatherImages\warn\1101.gif" />
-    <Resource Include="Images\WeatherImages\warn\1102.gif" />
-    <Resource Include="Images\WeatherImages\warn\1103.gif" />
-    <Resource Include="Images\WeatherImages\warn\1202.gif" />
-    <Resource Include="Images\WeatherImages\warn\1203.gif" />
-    <Resource Include="Images\WeatherImages\warn\1204.gif" />
-    <Resource Include="Images\WeatherImages\warn\1302.gif" />
-    <Resource Include="Images\WeatherImages\warn\1303.gif" />
-    <Resource Include="Images\WeatherImages\warn\1402.gif" />
-    <Resource Include="Images\WeatherImages\warn\1403.gif" />
-    <Resource Include="Images\WeatherImages\warn\1404.gif" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="ColorlizeImage.xaml">
@@ -355,15 +311,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\heart96.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\delete96.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\next96.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\pause32.png" />
     <Resource Include="Images\play32.png" />
     <Resource Include="Images\volume32.png" />
@@ -403,7 +350,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\setting32.png" />
-    <Resource Include="Images\setting64.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\about24.png" />
@@ -414,6 +360,24 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Vinyl128.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\nail24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\back24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\anchor24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\183.24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\288.24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\103.24.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -115,11 +115,38 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open Main Window.
+        /// </summary>
+        internal static string OpenMainWd {
+            get {
+                return ResourceManager.GetString("OpenMainWd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Mini Window.
+        /// </summary>
+        internal static string OpenMiniWd {
+            get {
+                return ResourceManager.GetString("OpenMiniWd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
         internal static string Password {
             get {
                 return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quit Application.
+        /// </summary>
+        internal static string QuitApp {
+            get {
+                return ResourceManager.GetString("QuitApp", resourceCulture);
             }
         }
         

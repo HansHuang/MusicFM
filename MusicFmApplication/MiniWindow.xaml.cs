@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using CustomControlResources;
 
 namespace MusicFmApplication
 {
@@ -20,6 +9,8 @@ namespace MusicFmApplication
     /// </summary>
     public partial class MiniWindow : Window
     {
+        public bool IsMinimizeToIcon { get; private set; }
+
         #region ViewModel
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(MainViewModel), typeof(MiniWindow), new PropertyMetadata(default(MainViewModel)));
@@ -32,15 +23,65 @@ namespace MusicFmApplication
 
         #endregion
 
+        #region RelayCommand SetTopMostCmd
+
+        private RelayCommand _setTopMostCmd;
+
+        public ICommand SetTopMostCmd
+        {
+            get { return _setTopMostCmd ?? (_setTopMostCmd = new RelayCommand(s => SetTopMostExecute())); }
+        }
+
+        private void SetTopMostExecute()
+        {
+            Topmost = !Topmost;
+            ShowInTaskbar = !Topmost;
+        }
+
+        #endregion
+
+        #region RelayCommand BackMainWindowCmd
+
+        private RelayCommand _backMainWindowCmd;
+
+        public ICommand BackMainWindowCmd
+        {
+            get { return _backMainWindowCmd ?? (_backMainWindowCmd = new RelayCommand(param => BackMainWindow())); }
+        }
+
+        private void BackMainWindow()
+        {
+            Topmost = false;
+            Close();
+        }
+
+        #endregion
+
+        #region RelayCommand MinimizeToIconCmd
+
+        private RelayCommand _minimizeToIconCmd;
+
+        public ICommand MinimizeToIconCmd
+        {
+            get { return _minimizeToIconCmd ?? (_minimizeToIconCmd = new RelayCommand(param => MinimizeToIcon())); }
+        }
+
+        private void MinimizeToIcon()
+        {
+            IsMinimizeToIcon = true;
+            Close();
+        }
+
+        #endregion
+
         public MiniWindow(MainViewModel viewModel)
         {
             InitializeComponent();
-           ViewModel = viewModel;
+            ViewModel = viewModel;
         }
 
-        private void MainGridOnMouseDown(object sender, MouseButtonEventArgs e)
+        private void MainGridOnLeftMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.ChangedButton!=MouseButton.Left) return;
             DragMove();
         }
     }

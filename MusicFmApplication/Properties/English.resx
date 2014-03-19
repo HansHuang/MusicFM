@@ -135,8 +135,17 @@
   <data name="MyCentralRoom" xml:space="preserve">
     <value>My Central Room</value>
   </data>
+  <data name="OpenMainWd" xml:space="preserve">
+    <value>Open Main Window</value>
+  </data>
+  <data name="OpenMiniWd" xml:space="preserve">
+    <value>Open Mini Window</value>
+  </data>
   <data name="Password" xml:space="preserve">
     <value>Password</value>
+  </data>
+  <data name="QuitApp" xml:space="preserve">
+    <value>Quit Application</value>
   </data>
   <data name="Setting" xml:space="preserve">
     <value>Setting</value>
