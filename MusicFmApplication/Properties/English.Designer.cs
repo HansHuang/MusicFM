@@ -88,6 +88,33 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Download this Song.
+        /// </summary>
+        internal static string DownloadSong {
+            get {
+                return ResourceManager.GetString("DownloadSong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Never want to hear this.
+        /// </summary>
+        internal static string HateSong {
+            get {
+                return ResourceManager.GetString("HateSong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Like this song.
+        /// </summary>
+        internal static string LikeSong {
+            get {
+                return ResourceManager.GetString("LikeSong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Login.
         /// </summary>
         internal static string Login {
@@ -115,6 +142,24 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Next Song.
+        /// </summary>
+        internal static string NextSong {
+            get {
+                return ResourceManager.GetString("NextSong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open download folder.
+        /// </summary>
+        internal static string OpenDownloadFolder {
+            get {
+                return ResourceManager.GetString("OpenDownloadFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open Main Window.
         /// </summary>
         internal static string OpenMainWd {
@@ -138,6 +183,24 @@ namespace MusicFmApplication.Properties {
         internal static string Password {
             get {
                 return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pause.
+        /// </summary>
+        internal static string Pause {
+            get {
+                return ResourceManager.GetString("Pause", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Play.
+        /// </summary>
+        internal static string Play {
+            get {
+                return ResourceManager.GetString("Play", resourceCulture);
             }
         }
         

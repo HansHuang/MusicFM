@@ -6,7 +6,7 @@
         xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
         Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
         Height="190" Width="190"  Icon="{DynamicResource LogoIco32}" x:Name="Root"
-        AllowsTransparency="True" WindowStyle="None" Background="{x:Null}">
+        AllowsTransparency="True" WindowStyle="None" ResizeMode="CanMinimize" Background="{x:Null}">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -185,10 +185,17 @@
             <Grid.RenderTransform>
                 <RotateTransform/>
             </Grid.RenderTransform>
+            <Grid.OpacityMask>
+                <VisualBrush>
+                    <VisualBrush.Visual>
+                        <!--Improtent!!! This control the sharp display of album picture AND Opacity-->
+                        <Ellipse Width="50" Height="50" StrokeThickness="21" Stroke="#EEFFFFFF"/>
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </Grid.OpacityMask>
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="RenderTransformOrigin" Value=".5, .5"/>
-                    <Setter Property="Opacity" Value=".7"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
                     <Setter Property="HorizontalAlignment" Value="Center"/>
                     <Setter Property="IsHitTestVisible" Value="{Binding ElementName=PlayBtns, Path=IsMouseOver, Converter={StaticResource IvsBool}}"/>
@@ -204,6 +211,11 @@
                        <EventTrigger RoutedEvent="MouseEnter">
                             <PauseStoryboard BeginStoryboardName="PictureRotateStroybard"/>
                         </EventTrigger>
+                        <DataTrigger Binding="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying}" Value="False">
+                            <DataTrigger.EnterActions>
+                                <PauseStoryboard BeginStoryboardName="PictureRotateStroybard"/>
+                            </DataTrigger.EnterActions>
+                        </DataTrigger>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ElementName=Root, Path=IsMouseOver}" Value="False"/>
@@ -218,20 +230,19 @@
             </Grid.Style>
             <Grid.Resources>
                 <Style TargetType="Ellipse">
-                    <Setter Property="Stroke" Value="#99CCCCCC"/>
+                    <Setter Property="Stroke" Value="#90CCCCCC"/>
                     <Setter Property="StrokeThickness" Value="1"/>
                     <Setter Property="Visibility" Value="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture, Converter={StaticResource Null2Vsby}}"/>
                 </Style>
             </Grid.Resources>
-            <Image x:Name="AlbumImage" Width="128" Height="128" Source="{StaticResource Vinyl128}" Opacity=".8"/>
+            <Image Width="128" Height="128" Source="{StaticResource Vinyl128}" />
             <Ellipse Width="128" Height="128" StrokeThickness="2">
                 <Ellipse.Fill>
-                    <ImageBrush ImageSource="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}" Opacity=".8"/>
+                    <ImageBrush ImageSource="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}" Opacity=".9" />
                 </Ellipse.Fill>
             </Ellipse>
             <Ellipse Width="90" Height="90" />
-            <Ellipse Width="40" Height="40" Fill="#AAF5F5F5"/>
-            <Ellipse Width="6" Height="6" Fill="#FF111111" />
+            <Ellipse Width="50" Height="50" Fill="#AAF5F5F5"/>
         </Grid>
         <!--Play/Pause Btns-->
         <Grid x:Name="PlayBtns"
@@ -274,7 +285,7 @@
                     <Setter Property="Opacity" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid},  Path=Opacity}"/>
                 </Style>
             </Grid.Resources>
-            <Ellipse Width="40" Height="40" >
+            <Ellipse Width="50" Height="50" >
                 <Ellipse.Fill>
                     <SolidColorBrush Color="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPictureColor}" />
                 </Ellipse.Fill>

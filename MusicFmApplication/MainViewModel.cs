@@ -371,7 +371,7 @@ namespace MusicFmApplication
         }
 
         public DelegateCommand<string> LikeSongCommand { get; private set; }
-        public void LikeSongExecute(string isHate)
+        private void LikeSongExecute(string isHate)
         {
             OperationType actionType;
             var ishate = !string.IsNullOrWhiteSpace(isHate);
@@ -428,7 +428,7 @@ namespace MusicFmApplication
         }
 
         public DelegateCommand OpenDownloadFolderCommand { get; private set; }
-        public void OpenDownloadFolderExecute()
+        private void OpenDownloadFolderExecute()
         {
             Task.Run(() =>
                 {
@@ -440,7 +440,7 @@ namespace MusicFmApplication
         }
 
         public DelegateCommand OpenSettingWindowCommand { get; private set; }
-        public void OpenSettingWindowExeture() 
+        private void OpenSettingWindowExeture() 
         {
             if (IsSettingWindowOpened) return;
             var wd = new SettingWindow(this);

@@ -166,19 +166,50 @@ namespace MusicFmApplication
             };
         }
 
-        private Forms.ContextMenuStrip GetNotifyIconMenuStrip(Action showWindow, Action closeWindow) 
+        private Forms.ContextMenuStrip GetNotifyIconMenuStrip(Action showWindow, Action closeWindow)
         {
+            Func<string, Image> getImage = (s) =>
+            {
+                var uri = new Uri(s, UriKind.RelativeOrAbsolute);
+                var stream = Application.GetResourceStream(uri);
+                return Image.FromStream(stream == null ? new MemoryStream() : stream.Stream);
+            };
             var ctxMenu = new Forms.ContextMenuStrip();
 
-            var openUri = new Uri("/CustomControlResources;component/Images/183.24.png", UriKind.RelativeOrAbsolute);
-            var openStream = Application.GetResourceStream(openUri);
-            var openIcon = Image.FromStream(openStream == null ? new MemoryStream() : openStream.Stream);
+            var playIcon = getImage("/CustomControlResources;component/Images/play32.png");
+            var playMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("Play"), Image = playIcon };
+            playMi.Click += (s, e) => ViewModel.MediaManager.StartPlayerCommand.Execute();
+
+            var pauseIcon = getImage("/CustomControlResources;component/Images/pause32.png");
+            var pauseMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("Pause"), Image = pauseIcon };
+            pauseMi.Click += (s, e) => ViewModel.MediaManager.PausePlayerCommand.Execute();
+
+            var likeIcon = getImage("/CustomControlResources;component/Images/heart32.png");
+            var likedIcon = getImage("/CustomControlResources;component/Images/RedHeart24.png");
+            var likeMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("LikeSong"), Image = likeIcon };
+            likeMi.Click += (s, e) => ViewModel.LikeSongCommand.Execute("");
+
+            var deleteIcon = getImage("/CustomControlResources;component/Images/delete32.png");
+            var deleteMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("HateSong"), Image = deleteIcon };
+            deleteMi.Click += (s, e) => ViewModel.LikeSongCommand.Execute("1");
+
+            var nextIcon = getImage("/CustomControlResources;component/Images/next32.png");
+            var nextMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("NextSong"), Image = nextIcon };
+            nextMi.Click += (s, e) => ViewModel.NextSongCommand.Execute(false);
+
+            var downloadIcon = getImage("/CustomControlResources;component/Images/download32.png");
+            var downloadMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("DownloadSong"), Image = downloadIcon };
+            downloadMi.Click += (s, e) => ViewModel.DownloadSongCommand.Execute();
+
+            var folderIcon = getImage("/CustomControlResources;component/Images/folder32.png");
+            var folderMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("OpenDownloadFolder"), Image = folderIcon };
+            folderMi.Click += (s, e) => ViewModel.OpenDownloadFolderCommand.Execute();
+
+            var openIcon = getImage("/CustomControlResources;component/Images/183.24.png");
             var openMainMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("OpenMainWd"), Image = openIcon };
             openMainMi.Click += (s, e) => showWindow();
 
-            var miniUri = new Uri("/CustomControlResources;component/Images/103.24.png", UriKind.RelativeOrAbsolute);
-            var miniStream = Application.GetResourceStream(miniUri);
-            var miniIcon = Image.FromStream(miniStream == null ? new MemoryStream() : miniStream.Stream);
+            var miniIcon = getImage("/CustomControlResources;component/Images/103.24.png");
             var showMiniItem = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("OpenMiniWd"), Image = miniIcon };
             showMiniItem.Click += (s, e) =>
             {
@@ -186,59 +217,42 @@ namespace MusicFmApplication
                 MainWindowStateChanged(null, null);
             };
 
-            var quitUri = new Uri("/CustomControlResources;component/Images/288.24.png", UriKind.RelativeOrAbsolute);
-            var quitStream = Application.GetResourceStream(quitUri);
-            var quitIcon = Image.FromStream(quitStream == null ? new MemoryStream() : quitStream.Stream);
+            var quitIcon = getImage("/CustomControlResources;component/Images/288.24.png");
             var closeWndMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("QuitApp"), Image = quitIcon };
             closeWndMi.Click += (s, e) => closeWindow();
 
-            ctxMenu.Items.Add(openMainMi);
+            ctxMenu.Items.Add(playMi);
+            ctxMenu.Items.Add(pauseMi);
             ctxMenu.Items.Add(new Forms.ToolStripSeparator());
+            ctxMenu.Items.Add(likeMi);
+            ctxMenu.Items.Add(deleteMi);
+            ctxMenu.Items.Add(nextMi);
+            ctxMenu.Items.Add(new Forms.ToolStripSeparator());
+            ctxMenu.Items.Add(downloadMi);
+            ctxMenu.Items.Add(folderMi);
+            ctxMenu.Items.Add(new Forms.ToolStripSeparator());
+            ctxMenu.Items.Add(openMainMi);
             ctxMenu.Items.Add(showMiniItem);
             ctxMenu.Items.Add(new Forms.ToolStripSeparator());
             ctxMenu.Items.Add(closeWndMi);
-            return ctxMenu;
-        }
 
-        private void MainWindowStateChanged(object sender, EventArgs e)
-        {
-            if (!WindowState.Equals(WindowState.Minimized) || !_isNeedShowMiniWindow) return;
-            //var storyboard = FindResource("WindowFadeoutStoryboard") as Storyboard;
-            //if (storyboard != null) {
-            //    WindowState = WindowState.Normal;
-            //    storyboard.Begin();
-            //}
-            ShowInTaskbar = false;
-            if (_miniWindow == null)
+            ctxMenu.Opening += (s, e) =>
             {
-                _miniWindow = new MiniWindow(ViewModel);
-                _miniWindow.Closing += (s, a) => 
-                {
-                    if (_isQuitApp) return;
-                    a.Cancel = true;
-                    _miniWindow.Hide();
-                    if (_miniWindow.IsMinimizeToIcon)
-                    {
-                        Close();
-                        return;
-                    }
-                    Left = _miniWindow.Left - 80;
-                    if (Left < 0) Left = 0;
-                    Top = _miniWindow.Top - 100;
-                    if (Top < 0) Top = 0;
-                    ShowInTaskbar = true;
-                    WindowState = WindowState.Normal;
-                    //var storyboard = wd.FindResource("WindowFadeInStoryboard") as Storyboard;
-                    //if (storyboard != null) storyboard.Begin();
-                };
-            }
-            if (sender != null)
-            {
-                _miniWindow.Left = Left + 80;
-                _miniWindow.Top = Top + 100;
-            }
-            
-            _miniWindow.Show();
+                playMi.Visible = !ViewModel.MediaManager.IsPlaying;
+                pauseMi.Visible = ViewModel.MediaManager.IsPlaying;
+
+                if (ViewModel.CurrentSong != null && ViewModel.CurrentSong.Like == 1)
+                    likeMi.Image = likedIcon;
+                else
+                    likeMi.Image = likeIcon;
+
+                folderMi.Visible = ViewModel.DownloadProgress == 100;
+                downloadMi.Visible = ViewModel.DownloadProgress == 0;
+
+                openMainMi.Enabled = WindowState == WindowState.Minimized;
+                showMiniItem.Enabled = _miniWindow == null || _miniWindow.WindowState == WindowState.Minimized;
+            };
+            return ctxMenu;
         }
 
         protected DwmHelper DwmHelper;
@@ -281,6 +295,47 @@ namespace MusicFmApplication
             if (titleBarBg != null) titleBarBg.Opacity = .02;
         }
         
+        private void MainWindowStateChanged(object sender, EventArgs e)
+        {
+            if (!WindowState.Equals(WindowState.Minimized) || !_isNeedShowMiniWindow) return;
+            //var storyboard = FindResource("WindowFadeoutStoryboard") as Storyboard;
+            //if (storyboard != null) {
+            //    WindowState = WindowState.Normal;
+            //    storyboard.Begin();
+            //}
+            ShowInTaskbar = false;
+            if (_miniWindow == null)
+            {
+                _miniWindow = new MiniWindow(ViewModel);
+                _miniWindow.Closing += (s, a) => 
+                {
+                    if (_isQuitApp) return;
+                    a.Cancel = true;
+                    _miniWindow.Hide();
+                    if (_miniWindow.IsMinimizeToIcon)
+                    {
+                        Close();
+                        return;
+                    }
+                    Left = _miniWindow.Left - 80;
+                    if (Left < 0) Left = 0;
+                    Top = _miniWindow.Top - 100;
+                    if (Top < 0) Top = 0;
+                    ShowInTaskbar = true;
+                    WindowState = WindowState.Normal;
+                    //var storyboard = wd.FindResource("WindowFadeInStoryboard") as Storyboard;
+                    //if (storyboard != null) storyboard.Begin();
+                };
+            }
+            if (sender != null)
+            {
+                _miniWindow.Left = Left + 80;
+                _miniWindow.Top = Top + 100;
+            }
+            _miniWindow.Topmost = true;
+            _miniWindow.ShowInTaskbar = false;
+            _miniWindow.Show();
+        }
 
     }
 }

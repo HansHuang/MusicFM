@@ -126,6 +126,15 @@
   <data name="DoubanFm" xml:space="preserve">
     <value>Douban Fm</value>
   </data>
+  <data name="DownloadSong" xml:space="preserve">
+    <value>Download this Song</value>
+  </data>
+  <data name="HateSong" xml:space="preserve">
+    <value>Never want to hear this</value>
+  </data>
+  <data name="LikeSong" xml:space="preserve">
+    <value>Like this song</value>
+  </data>
   <data name="Login" xml:space="preserve">
     <value>Login</value>
   </data>
@@ -135,6 +144,12 @@
   <data name="MyCentralRoom" xml:space="preserve">
     <value>My Central Room</value>
   </data>
+  <data name="NextSong" xml:space="preserve">
+    <value>Next Song</value>
+  </data>
+  <data name="OpenDownloadFolder" xml:space="preserve">
+    <value>Open download folder</value>
+  </data>
   <data name="OpenMainWd" xml:space="preserve">
     <value>Open Main Window</value>
   </data>
@@ -143,6 +158,13 @@
   </data>
   <data name="Password" xml:space="preserve">
     <value>Password</value>
+  </data>
+  <data name="Pause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="Play" xml:space="preserve">
+    <value>Play</value>
+    <comment>Start Play</comment>
   </data>
   <data name="QuitApp" xml:space="preserve">
     <value>Quit Application</value>
