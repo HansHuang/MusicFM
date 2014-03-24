@@ -74,6 +74,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AccountManager.cs" />
+    <Compile Include="DesktopLyric.xaml.cs">
+      <DependentUpon>DesktopLyric.xaml</DependentUpon>
+    </Compile>
     <Compile Include="LocalTextHelper.cs" />
     <Compile Include="MediaManager.cs" />
     <Compile Include="MiniWindow.xaml.cs">
@@ -83,6 +86,10 @@
       <DependentUpon>SettingWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="WeatherManager.cs" />
+    <Page Include="DesktopLyric.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

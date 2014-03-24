@@ -4,7 +4,7 @@
          xmlns:lex="http://schemas.root-project.org/xaml/presentation"
         xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
         xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
-        Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
+        Title="{lex:LocText MusicFmApplication:English:MusicFm}"
         Height="190" Width="190"  Icon="{DynamicResource LogoIco32}" x:Name="Root"
         AllowsTransparency="True" WindowStyle="None" ResizeMode="CanMinimize" Background="{x:Null}">
     <Window.Resources>
@@ -115,7 +115,8 @@
             
             <!--Like Song Btn-->
             <cc:ImageButton Canvas.Right="28" Canvas.Top="30"
-                            Command="{Binding ViewModel.LikeSongCommand}">
+                            Command="{Binding ViewModel.LikeSongCommand}"
+                        ToolTip="{lex:LocText MusicFmApplication:English:LikeSong}">
                 <cc:ColorlizeImage Image="{StaticResource Heart32}" >
                     <cc:ColorlizeImage.Style>
                         <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
@@ -131,7 +132,8 @@
             <!--Next Song Btn-->
             <cc:ImageButton Canvas.Right="2" Canvas.Top="85"
                             Command="{Binding ViewModel.NextSongCommand}" 
-                            IsEnabled="{Binding ViewModel.SongList.Count, Converter={StaticResource Num2Bool}}">
+                            IsEnabled="{Binding ViewModel.SongList.Count, Converter={StaticResource Num2Bool}}"
+                            ToolTip="{lex:LocText MusicFmApplication:English:NextSong}">
                 <cc:ImageButton.Image>
                     <cc:ColorlizeImage Image="{StaticResource Next32}"/>
                 </cc:ImageButton.Image>
@@ -139,7 +141,8 @@
             <!--Delete Song Btn-->
             <cc:ImageButton Canvas.Right="25" Canvas.Bottom="30"
                             Command="{Binding ViewModel.LikeSongCommand}"
-                            CommandParameter="1">
+                            CommandParameter="1"
+                            ToolTip="{lex:LocText MusicFmApplication:English:HateSong}">
                 <cc:ImageButton.Image>
                     <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
                 </cc:ImageButton.Image>
@@ -147,7 +150,8 @@
 
             <!--Set Top Btn-->
             <cc:ImageButton Canvas.Left="28" Canvas.Top="30"
-                            Command="{Binding SetTopMostCmd}">
+                            Command="{Binding SetTopMostCmd}"
+                            ToolTip="{lex:LocText MusicFmApplication:English:TopMost}">
                 <cc:ImageButton.Image>
                     <cc:ColorlizeImage Image="{StaticResource Nail24}" Width="10"/>
                 </cc:ImageButton.Image>
@@ -167,14 +171,16 @@
             </cc:ImageButton>
             <!--Back to home Btn-->
             <cc:ImageButton Canvas.Left="2" Canvas.Top="85"
-                            Command="{Binding BackMainWindowCmd}">
+                            Command="{Binding BackMainWindowCmd}"
+                            ToolTip="{lex:LocText MusicFmApplication:English:BackToMainUI}">
                 <cc:ImageButton.Image>
                     <cc:ColorlizeImage Image="{StaticResource Back24}"/>
                 </cc:ImageButton.Image>
             </cc:ImageButton>
             <!--Minimize to taskbar notify icon Btn-->
             <cc:ImageButton Canvas.Left="25" Canvas.Bottom="30"
-                            Command="{Binding MinimizeToIconCmd}">
+                            Command="{Binding MinimizeToIconCmd}"
+                            ToolTip="{lex:LocText MusicFmApplication:English:Minimize2NotifyIcon}">
                 <cc:ImageButton.Image>
                     <cc:ColorlizeImage Image="{StaticResource Anchor24}"/>
                 </cc:ImageButton.Image>
@@ -189,7 +195,7 @@
                 <VisualBrush>
                     <VisualBrush.Visual>
                         <!--Improtent!!! This control the sharp display of album picture AND Opacity-->
-                        <Ellipse Width="50" Height="50" StrokeThickness="21" Stroke="#EEFFFFFF"/>
+                        <Ellipse Width="50" Height="50" StrokeThickness="21" Stroke="#EFFFFFFF"/>
                     </VisualBrush.Visual>
                 </VisualBrush>
             </Grid.OpacityMask>
@@ -238,11 +244,11 @@
             <Image Width="128" Height="128" Source="{StaticResource Vinyl128}" />
             <Ellipse Width="128" Height="128" StrokeThickness="2">
                 <Ellipse.Fill>
-                    <ImageBrush ImageSource="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}" Opacity=".9" />
+                    <ImageBrush ImageSource="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}" Opacity=".88" />
                 </Ellipse.Fill>
             </Ellipse>
             <Ellipse Width="90" Height="90" />
-            <Ellipse Width="50" Height="50" Fill="#AAF5F5F5"/>
+            <Ellipse Width="50" Height="50" Fill="#AFF5F5F5"/>
         </Grid>
         <!--Play/Pause Btns-->
         <Grid x:Name="PlayBtns"

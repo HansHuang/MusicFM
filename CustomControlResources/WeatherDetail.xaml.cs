@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Media;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 
@@ -37,6 +39,27 @@ namespace CustomControlResources
             set { SetValue(WeatherDataProperty, value); }
         }
         #endregion
+        
+    }
 
+
+    public class Pm25ColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (!(value is string)) return new SolidColorBrush(Colors.White);
+            var number = int.Parse((string)value);
+            if (number <= 50) return new SolidColorBrush(Colors.Green);
+            if (number <= 100) return new SolidColorBrush(Colors.YellowGreen);
+            if (number <= 150) return new SolidColorBrush(Colors.Yellow);
+            if (number <= 200) return new SolidColorBrush(Colors.OrangeRed);
+            if (number <= 300) return new SolidColorBrush(Colors.Red);
+            return new SolidColorBrush(Colors.DarkRed);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return "";
+        }
     }
 }

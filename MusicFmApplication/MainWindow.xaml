@@ -309,7 +309,8 @@
                                             </ComboBoxItem.IsSelected>
                                         </ComboBoxItem>
                                         <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:TencentQq}" 
-                                                  DataContext="{x:Static mdl:AccountType.TencentQq}">
+                                                      DataContext="{x:Static mdl:AccountType.TencentQq}"
+                                                       IsEnabled="False">
                                             <ComboBoxItem.IsSelected>
                                                 <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay">
                                                     <Binding ElementName="Root" Path="ViewModel.Account.AccountInfo.AccountType"/>
@@ -326,8 +327,9 @@
                                                 </MultiBinding>
                                             </ComboBoxItem.IsSelected>
                                         </ComboBoxItem>
-                                        <ComboBoxItem Content="MSN" 
-                                                  DataContext="{x:Static mdl:AccountType.Msn}">
+                                        <ComboBoxItem Content="MSN"
+                                                      IsEnabled="False"
+                                                      DataContext="{x:Static mdl:AccountType.Msn}">
                                             <ComboBoxItem.IsSelected>
                                                 <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay">
                                                     <Binding ElementName="Root" Path="ViewModel.Account.AccountInfo.AccountType"/>
@@ -639,7 +641,8 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Resources>
-                <Button Grid.Column="0" Command="{Binding LikeSongCommand}">
+                <Button Grid.Column="0" Command="{Binding LikeSongCommand}"
+                        ToolTip="{lex:LocText MusicFmApplication:English:LikeSong}">
                     <cc:ColorlizeImage Image="{StaticResource Heart32}" >
                         <cc:ColorlizeImage.Style>
                             <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
@@ -654,12 +657,14 @@
                 </Button>
                 <Button Grid.Column="1"
                         Command="{Binding LikeSongCommand}"
-                        CommandParameter="1">
+                        CommandParameter="1"
+                        ToolTip="{lex:LocText MusicFmApplication:English:HateSong}">
                     <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
                 </Button>
                 <Button Grid.Column="2" 
                         Command="{Binding NextSongCommand}"
-                        IsEnabled="{Binding SongList.Count, Converter={StaticResource Num2Bool}}">
+                        IsEnabled="{Binding SongList.Count, Converter={StaticResource Num2Bool}}"
+                        ToolTip="{lex:LocText MusicFmApplication:English:NextSong}">
                     <cc:ColorlizeImage Image="{StaticResource Next32}"/>
                 </Button>
             </Grid>

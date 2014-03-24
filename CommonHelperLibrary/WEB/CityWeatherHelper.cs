@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -29,14 +30,14 @@ namespace CommonHelperLibrary.WEB
             if (weatherObject == null) return new Weather();
             var info = weatherObject["weatherinfo"];
             var date = DateTime.Now;
-            //var jsonIndex = HttpWebDealer.GetHtml("http://data.weather.com.cn/zsLenovo/" + cityCode + ".html", Encoding.UTF8);
+
             var weather = new Weather
                 {
                     CityName = info["city"],
                     CityEnName = info["city_en"],
                     CityID = info["cityid"],
-                    //PublishDate = info["date_y"],
-                    PublishDate=date.ToLongDateString(),
+                    PublishDate = info["date_y"],
+                    PublishChinaData = info["date"],
                     PublishTime = info["fchh"],
                     PublishWeek = info["week"],
                     WeatherImage = info["img_single"],
@@ -147,6 +148,11 @@ namespace CommonHelperLibrary.WEB
                     });
                 }
             }
+            if (weatherObject.ContainsKey("k")) 
+            {
+                string[] indexArr = weatherObject["k"]["k3"].Split(new[] { '?', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                weather.CurrentAirIndex = indexArr[indexArr.Length - 1];
+            }
             return weather;
         } 
         #endregion
@@ -157,7 +163,7 @@ namespace CommonHelperLibrary.WEB
         /// </summary>
         /// <param name="cityCode">manually set value or get info from public IP automaticly</param>
         /// <returns></returns>
-        public  static dynamic GetWeatherInfo(string cityCode = "")
+        public static dynamic GetWeatherInfo(string cityCode = "")
         {
             var jsonStr = GetWeatherJson(cityCode);
             if (string.IsNullOrEmpty(jsonStr)) return null;
@@ -179,27 +185,37 @@ namespace CommonHelperLibrary.WEB
             if (!(new Regex(@"^\d{9}$").IsMatch(cityCode))) return null;
 
             //2. Get json data from web
-            var urlInfo = "http://m.weather.com.cn/data/" + cityCode + ".html";
+            var urlInfo = "http://data.weather.com.cn/forecast/" + cityCode + ".html";
             var urlIndex = "http://data.weather.com.cn/zsLenovo/" + cityCode + ".html";
-            string weatherInfo = "", weatherIndex = "";
-            Task.Run(() => 
+            var urlAir = "http://mobile.weather.com.cn/data/air/" + cityCode + ".html";
+            string weatherInfo = "", weatherIndex = "", airIndex = "";
+            Task.Run(() =>
             {
                 weatherInfo = HttpWebDealer.GetHtml(urlInfo, null, Encoding.UTF8).Trim();
             });
             Task.Run(() =>
-                {
-                    weatherIndex = HttpWebDealer.GetHtml(urlIndex, null, Encoding.UTF8).Trim();
-                });
-            while (string.IsNullOrEmpty(weatherInfo) || string.IsNullOrEmpty(weatherIndex))
             {
-                Thread.Sleep(50);
+                weatherIndex = HttpWebDealer.GetHtml(urlIndex, null, Encoding.UTF8).Trim();
+            });
+            Task.Run(() =>
+            {
+                airIndex = HttpWebDealer.GetHtml(urlAir, null, Encoding.UTF8).Trim();
+            });
+            while (string.IsNullOrEmpty(weatherInfo) || string.IsNullOrEmpty(weatherIndex) || string.IsNullOrEmpty(airIndex))
+            {
+                Thread.Sleep(100);
             }
             //3. Group the two jsons
-            if (!weatherInfo.StartsWith("{") && !weatherInfo.EndsWith("}")) return null;
-            if (!weatherIndex.StartsWith("{") && !weatherIndex.EndsWith("}")) return weatherInfo;
-            var weatherJson = weatherInfo.Substring(0, weatherInfo.Length - 1) + "," +
+            var weatherJson = weatherInfo;
+            if (!weatherJson.StartsWith("{") || !weatherJson.EndsWith("}")) return null;
+            if (weatherIndex.StartsWith("{") && weatherIndex.EndsWith("}")) {
+                weatherJson = weatherJson.Substring(0, weatherJson.Length - 1) + "," +
                               weatherIndex.Substring(1, weatherIndex.Length - 1);
-
+            }
+            if (airIndex.StartsWith("{") && airIndex.EndsWith("}")) {
+                weatherJson = weatherJson.Substring(0, weatherJson.Length - 1) + "," +
+                              airIndex.Substring(1, airIndex.Length - 1);
+            }
             return weatherJson;
         }
         #endregion
@@ -228,8 +244,10 @@ namespace CommonHelperLibrary.WEB
         public string CityEnName { get; set; }
         public string CityID { get; set; }
         public string PublishDate { get; set; }
+        public string PublishChinaData { get; set; }
         public string PublishTime { get; set; }
         public string PublishWeek { get; set; }
+        public string CurrentAirIndex { get; set; }
         public string WeatherImage { get; set; }
         public string WeatherImageTitle { get; set; }
         public string DaytimeWindDirection { get; set; }

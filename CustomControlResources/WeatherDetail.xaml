@@ -18,11 +18,11 @@
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="0,0,0,5"/>
             </Style>
-
             <cvt:WeatherImageSourceConverter x:Key="Num2Image" />
+            <cc:Pm25ColorConverter x:Key="Pm25Color"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Margin="0,20,0,0" Width="230">
+    <Grid Margin="0,10,0,0" Width="230">
         <Grid.Resources>
             <Style TargetType="TextBlock" BasedOn="{StaticResource WeatherTxt}"/>
             <Style TargetType="{x:Type TabControl}">
@@ -57,31 +57,31 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabItem">
-                            <Label x:Name="root" FontSize="10" HorizontalContentAlignment="Right" FontWeight="ExtraBlack">
+                            <Grid x:Name="root" Width="4" Height="4" SnapsToDevicePixels="True" Margin="3,2" Background="{DynamicResource AccentColor}">
                                 <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" />
-                            </Label>
+                            </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsSelected" Value="true">
-                                    <Setter TargetName="root" Property="Foreground">
+                                    <Setter TargetName="root" Property="Background">
                                         <Setter.Value>
                                             <SolidColorBrush Color="{DynamicResource AccentColor}" />
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
-
                                 <Trigger Property="IsSelected" Value="false">
-                                    <Setter  TargetName="root" Property="Foreground">
+                                    <Setter  TargetName="root" Property="Background">
                                         <Setter.Value>
                                             <SolidColorBrush Color="{DynamicResource GrayNormal}" />
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
                                 <Trigger SourceName="root" Property="IsMouseOver" Value="True">
-                                    <Setter  TargetName="root" Property="Foreground">
+                                    <Setter TargetName="root" Property="Background">
                                         <Setter.Value>
                                             <SolidColorBrush Color="{DynamicResource GrayHover}" />
                                         </Setter.Value>
                                     </Setter>
+                                    <Setter Property="Cursor" Value="Hand"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -90,19 +90,28 @@
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="120"/>
-            <RowDefinition Height="120"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!--1. Text of data and city-->
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <TextBlock Text="{Binding WeatherData.PublishDate}" Margin="20,0,0,0"/>
-            <!--<TextBlock Text="{Binding WeatherData.PublishDate}" Margin="20,0,0,0"/>-->
-            <TextBlock Text="{Binding WeatherData.CityName}" Margin="20,0,0,0"/>
-        </StackPanel>
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding WeatherData.PublishDate}" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding WeatherData.CityName}"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding WeatherData.PublishChinaData}"  Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding WeatherData.CityEnName}"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center"/>
+        </Grid>
         <!--2. Today's weather detail-->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,15,0,0">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,5,0,0" >
             <Image Width="100" Height="100" VerticalAlignment="Top">
                 <Image.Source>
                     <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="B">
@@ -111,22 +120,24 @@
                     </MultiBinding>
                 </Image.Source>
             </Image>
-            <StackPanel Orientation="Vertical" Width="90" Margin="10,0,0,0">
-                <TextBlock Text="{Binding WeatherData.WeatherDetail}" Margin="0,15,0,5"/>
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10,0,0,0">
+                <TextBlock Text="{Binding WeatherData.WeatherDetail}"/>
                 <TextBlock Text="{Binding WeatherData.Temperature}" />
                 <TextBlock Text="{Binding WeatherData.Wind}" />
+                <TextBlock Text="{Binding WeatherData.CurrentAirIndex, StringFormat=PM 2.5: {0}}" 
+                           Foreground="{Binding WeatherData.CurrentAirIndex, Converter={StaticResource Pm25Color}}"/>
             </StackPanel>
         </StackPanel>
         <!--3. Future days' weather detail-->
-        <TabControl Grid.Row="2" SelectedIndex="0">
-            <TabItem Header="▪">
+        <TabControl Grid.Row="2" SelectedIndex="0" >
+            <TabItem>
                 <StackPanel Orientation="Horizontal">
                     <cc:DayWeatherControl DayWeather="{Binding WeatherData}"/>
                     <cc:DayWeatherControl DayWeather="{Binding WeatherData.TomorrowWeather}"/>
                     <cc:DayWeatherControl DayWeather="{Binding WeatherData.NextTwoDayWeather}"/>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="▪">
+            <TabItem>
                 <StackPanel Orientation="Horizontal">
                     <cc:DayWeatherControl DayWeather="{Binding WeatherData.NextThreeDayWeather}"/>
                     <cc:DayWeatherControl DayWeather="{Binding WeatherData.NextFourDayWeather}"/>
@@ -136,18 +147,13 @@
         </TabControl>
         <!--4. The life index-->
         <TabControl Grid.Row="3" SelectedIndex="0" ItemsSource="{Binding WeatherData.LifeIndexes}">
-            <TabControl.ItemTemplate >
-                <DataTemplate>
-                    <TextBlock Text="▪"/>
-                </DataTemplate>
-            </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <StackPanel Margin="15,0,15,0">
+                    <StackPanel Margin="15,5,15,0">
                         <TextBlock FontWeight="Bold" Foreground="Silver">
-                                    <Run Text="{Binding Name}"/>
-                                    <Run Text=": "/>
-                                    <Run Text="{Binding Hint}"/>
+                            <Run Text="{Binding Name}"/>
+                            <Run Text=": "/>
+                            <Run Text="{Binding Hint}"/>
                         </TextBlock>
                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,10,0,0" Foreground="Silver"/>
                     </StackPanel>

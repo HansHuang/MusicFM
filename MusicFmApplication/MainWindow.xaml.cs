@@ -22,7 +22,7 @@ namespace MusicFmApplication
     {
         private const string PartTitleBarBackground = "PART_WindowTitleBackground";
 
-        private const double WindowOpacity = .625;
+        private const double WindowOpacity = .8;
 
         private MiniWindow _miniWindow;
 
@@ -250,7 +250,7 @@ namespace MusicFmApplication
                 downloadMi.Visible = ViewModel.DownloadProgress == 0;
 
                 openMainMi.Enabled = WindowState == WindowState.Minimized;
-                showMiniItem.Enabled = _miniWindow == null || _miniWindow.WindowState == WindowState.Minimized;
+                //showMiniItem.Enabled = _miniWindow == null || _miniWindow.WindowState == WindowState.Minimized;
             };
             return ctxMenu;
         }

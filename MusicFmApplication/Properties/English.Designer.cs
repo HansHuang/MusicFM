@@ -70,6 +70,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Back to Main Panel.
+        /// </summary>
+        internal static string BackToMainUI {
+            get {
+                return ResourceManager.GetString("BackToMainUI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Douban Account.
         /// </summary>
         internal static string DoubanAct {
@@ -120,6 +129,15 @@ namespace MusicFmApplication.Properties {
         internal static string Login {
             get {
                 return ResourceManager.GetString("Login", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimize to taskbar tray icon.
+        /// </summary>
+        internal static string Minimize2NotifyIcon {
+            get {
+                return ResourceManager.GetString("Minimize2NotifyIcon", resourceCulture);
             }
         }
         
@@ -237,6 +255,15 @@ namespace MusicFmApplication.Properties {
         internal static string TencentQq {
             get {
                 return ResourceManager.GetString("TencentQq", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Top Most.
+        /// </summary>
+        internal static string TopMost {
+            get {
+                return ResourceManager.GetString("TopMost", resourceCulture);
             }
         }
         

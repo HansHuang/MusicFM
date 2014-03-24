@@ -120,6 +120,9 @@
   <data name="About" xml:space="preserve">
     <value>About</value>
   </data>
+  <data name="BackToMainUI" xml:space="preserve">
+    <value>Back to Main Panel</value>
+  </data>
   <data name="DoubanAct" xml:space="preserve">
     <value>Douban Account</value>
   </data>
@@ -137,6 +140,9 @@
   </data>
   <data name="Login" xml:space="preserve">
     <value>Login</value>
+  </data>
+  <data name="Minimize2NotifyIcon" xml:space="preserve">
+    <value>Minimize to taskbar tray icon</value>
   </data>
   <data name="MusicFm" xml:space="preserve">
     <value>Music FM</value>
@@ -177,6 +183,9 @@
   </data>
   <data name="TencentQq" xml:space="preserve">
     <value>Tencent QQ</value>
+  </data>
+  <data name="TopMost" xml:space="preserve">
+    <value>Top Most</value>
   </data>
   <data name="UnamePwdCantEmpty" xml:space="preserve">
     <value>User name and Passwrod cannot be empty</value>
