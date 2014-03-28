@@ -1,7 +1,7 @@
 ﻿<Window x:Class="MusicFmApplication.MiniWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+        xmlns:lex="http://schemas.root-project.org/xaml/presentation"
         xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
         xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
         Title="{lex:LocText MusicFmApplication:English:MusicFm}"
@@ -31,6 +31,14 @@
                     <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
                     <cvt:NumberToProgressState x:Key="Num2Pgs"/>
                     <cvt:InverseBoolConverter x:Key="IvsBool"/>
+                </ResourceDictionary>
+                <ResourceDictionary>
+                    <Style TargetType="ToolTip">
+                        <Setter Property="Background" Value="#90000000"/>
+                        <Setter Property="BorderBrush" Value="#CC000000"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="Foreground" Value="GhostWhite"/>
+                    </Style>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -91,15 +99,13 @@
                 </Style>
             </Canvas.Style>
             <Canvas.Resources>
-                <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
+                <Style TargetType="cc:ColorlizeImage">
                     <!--Let btn to focus easier-->
                     <Setter Property="Background" Value="#01000000"/>
-                    <Setter Property="Opacity" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Canvas}, Path=Opacity}"/>
-                </Style>
-                <Style TargetType="cc:ColorlizeImage">
                     <Setter Property="Height" Value="20"/>
                     <Setter Property="Width" Value="20"/>
                     <Setter Property="Color" Value="{StaticResource AccentColorBrush}"/>
+                    <Setter Property="Opacity" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Canvas}, Path=Opacity}"/>
                     <Style.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Color" Value="DarkGray"/>
@@ -111,12 +117,12 @@
                 </Style>
             </Canvas.Resources>
             <!--<Ellipse Height="160" Width="160" Stroke="#66CCCCCC" StrokeThickness="1" Canvas.Left="15" Canvas.Top="15"/>-->
-            <Ellipse Height="190" Width="190" Fill="#55222222"/>
+            <Ellipse Height="190" Width="190" Fill="#66222222"/>
             
             <!--Like Song Btn-->
             <cc:ImageButton Canvas.Right="28" Canvas.Top="30"
                             Command="{Binding ViewModel.LikeSongCommand}"
-                        ToolTip="{lex:LocText MusicFmApplication:English:LikeSong}">
+                            ToolTip="{lex:LocText MusicFmApplication:English:LikeSong}">
                 <cc:ColorlizeImage Image="{StaticResource Heart32}" >
                     <cc:ColorlizeImage.Style>
                         <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
@@ -206,6 +212,15 @@
                     <Setter Property="HorizontalAlignment" Value="Center"/>
                     <Setter Property="IsHitTestVisible" Value="{Binding ElementName=PlayBtns, Path=IsMouseOver, Converter={StaticResource IvsBool}}"/>
                     <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=Root, Path=Visibility}" Value="{x:Static Visibility.Visible}">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To ="1" Duration="0:0:1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                        </DataTrigger>
                         <EventTrigger RoutedEvent="Loaded">
                             <BeginStoryboard x:Name="PictureRotateStroybard">
                                 <Storyboard>
@@ -214,7 +229,7 @@
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
-                       <EventTrigger RoutedEvent="MouseEnter">
+                        <EventTrigger RoutedEvent="MouseEnter">
                             <PauseStoryboard BeginStoryboardName="PictureRotateStroybard"/>
                         </EventTrigger>
                         <DataTrigger Binding="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying}" Value="False">
@@ -242,10 +257,19 @@
                 </Style>
             </Grid.Resources>
             <Image Width="128" Height="128" Source="{StaticResource Vinyl128}" />
-            <Ellipse Width="128" Height="128" StrokeThickness="2">
+            <Ellipse Width="128" Height="128" StrokeThickness="2" DataContext="{Binding ElementName=Root}">
                 <Ellipse.Fill>
-                    <ImageBrush ImageSource="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}" Opacity=".88" />
+                    <ImageBrush ImageSource="{Binding ViewModel.MediaManager.SongPicture}" Opacity=".88" />
                 </Ellipse.Fill>
+                <Ellipse.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="{Binding ViewModel.CurrentSong.Artist}"/>
+                            <Run Text=" - "/>
+                            <Run Text="{Binding ViewModel.CurrentSong.Title}"/>
+                        </TextBlock>
+                    </ToolTip>
+                </Ellipse.ToolTip>
             </Ellipse>
             <Ellipse Width="90" Height="90" />
             <Ellipse Width="50" Height="50" Fill="#AFF5F5F5"/>

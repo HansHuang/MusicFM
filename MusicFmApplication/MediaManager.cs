@@ -18,7 +18,39 @@ namespace MusicFmApplication
 {
     public class MediaManager : NotificationObject
     {
+        #region Fields
+        public MediaPlayer Player { get; private set; }
+
+        //public Stream SongImageStream { get; private set; }
+
+        protected readonly MainViewModel ViewModel;
+
+        protected List<TimeSpan> LrcKeys = new List<TimeSpan>();
+
+        protected DispatcherTimer Timer;
+
+        protected BitmapImage SongTempImage;
+        protected bool IsInitSongPicture;
+
+        #endregion
+
         #region Notify Properties
+
+        #region IsBuffering (INotifyPropertyChanged Property)
+
+        private bool _isBuffering;
+
+        public bool IsBuffering
+        {
+            get { return _isBuffering; }
+            set
+            {
+                if (_isBuffering.Equals(value)) return;
+                _isBuffering = value;
+                RaisePropertyChanged("IsBuffering");
+            }
+        }
+        #endregion
         
         #region DownloadProgress (INotifyPropertyChanged Property)
 
@@ -134,6 +166,8 @@ namespace MusicFmApplication
                 if (_lyric != null && _lyric.Equals(value)) return;
                 _lyric = value;
                 RaisePropertyChanged("Lyric");
+                if (_lyric != null && _lyric.Content != null && _lyric.Content.Count > 1)
+                    CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, _lyric.Content.First().Key);
             }
         }
 
@@ -203,6 +237,7 @@ namespace MusicFmApplication
         private void StartPlayerExecute()
         {
             if (Player == null || ViewModel.CurrentSong == null) return;
+            Player.Open(new Uri(ViewModel.CurrentSong.Url));
             Player.Play();
             IsPlaying = true;
         }
@@ -221,22 +256,6 @@ namespace MusicFmApplication
 
         #endregion
 
-        #region Fields
-        public MediaElement Player { get; private set; }
-
-        public Stream SongImageStream { get; private set; }
-
-        protected readonly MainViewModel ViewModel;
-
-        protected List<TimeSpan> LrcKeys = new List<TimeSpan>();
-
-        protected DispatcherTimer Timer;
-
-        protected BitmapImage SongTempImage;
-        protected bool IsInitSongPicture;
-
-        #endregion
-
         public MediaManager(MainViewModel viewModel)
         {
             PausePlayerCommand = new DelegateCommand(PausePlayerExecute);
@@ -244,7 +263,8 @@ namespace MusicFmApplication
             MuteCommand = new DelegateCommand(MuteExecute);
 
             ViewModel = viewModel;
-            Player = ViewModel.MainWindow.Player;
+            //Player = ViewModel.MainWindow.Player;
+            Player = new MediaPlayer();
             Player.MediaOpened += PlayerMediaOpened;
         }
 
@@ -268,11 +288,7 @@ namespace MusicFmApplication
             {
                 var lrc = SongLyricHelper.GetSongLyric(ViewModel.CurrentSong.Title, ViewModel.CurrentSong.Artist);
                 if (lrc == null || lrc.Content.Count < 2) return;
-                ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
-                {
-                    Lyric = lrc;
-                    CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, lrc.Content.First().Key);
-                });
+                ViewModel.MainWindow.Dispatcher.InvokeAsync(() => { Lyric = lrc; });
             });
         }
 
@@ -297,14 +313,13 @@ namespace MusicFmApplication
         }
 
         #region Processors
-        private void PlayerMediaOpened(object sender, RoutedEventArgs e)
+        private void PlayerMediaOpened(object sender, EventArgs e)
         {
             IsPlaying = true;
             if (Lyric == null) return;
             LrcKeys = Lyric.Content.Keys.ToList();
-            ViewModel.MainWindow.LrcContaner.ScrollToTop();
 
-            var player = (MediaElement)sender;
+            var player = (MediaPlayer)sender;
             if (player.NaturalDuration.HasTimeSpan)
                 SongLength = player.NaturalDuration.TimeSpan;
             else
@@ -322,7 +337,7 @@ namespace MusicFmApplication
             if (!IsPlaying) return;
             Position = Player.Position;
             DownloadProgress = Player.DownloadProgress;
-            ViewModel.IsBuffering = Player.IsBuffering;
+            IsBuffering = Player.IsBuffering;
             PlayProgress = Position.TotalMilliseconds / SongLength.TotalMilliseconds;
             //Song is almost finish, jump to next one
             if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 100)
@@ -349,15 +364,7 @@ namespace MusicFmApplication
 
             var nextTime = LrcKeys[nextIndex];
             if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + Lyric.Offset)
-            {
                 CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex, nextTime);
-                //not scroll at first 5 lines
-                if (nextIndex < 5) return;
-                ViewModel.MainWindow.LrcContaner.LineDown();
-                //Scroll two lines every 3 times
-                if (nextIndex % 3 == 1)
-                    ViewModel.MainWindow.LrcContaner.LineDown();
-            }
         }
 
         private void SongPictureControl() 

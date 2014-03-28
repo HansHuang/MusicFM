@@ -153,6 +153,9 @@
   <data name="NextSong" xml:space="preserve">
     <value>Next Song</value>
   </data>
+  <data name="OpenDeskLrc" xml:space="preserve">
+    <value>Open desktop lyric</value>
+  </data>
   <data name="OpenDownloadFolder" xml:space="preserve">
     <value>Open download folder</value>
   </data>

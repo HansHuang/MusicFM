@@ -15,8 +15,16 @@ namespace MusicFmApplication
     /// </summary>
     public partial class App : Application
     {
+        static readonly Mutex mutex = new Mutex(true, "{6616D937-9F14-493C-B0F9-E342579D8E9E}");
+        
         public App()
         {
+            //Onle one instance can running at same time
+            if (mutex.WaitOne(TimeSpan.Zero, true))
+                mutex.ReleaseMutex();
+            else
+                Shutdown(0);
+
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
                 {
                     //TODO

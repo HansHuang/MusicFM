@@ -20,8 +20,10 @@ namespace MusicFmApplication
     /// <summary>
     /// Interaction logic for SettingWindow.xaml
     /// </summary>
-    public partial class SettingWindow : MetroWindow
+    public partial class SettingWindow : MetroWindow 
     {
+        public static bool IsOpened = false;
+
         public MainViewModel ViewModel { get; set; }
 
         #region BackgroundColor(DependencyProperty)
@@ -43,8 +45,8 @@ namespace MusicFmApplication
 
             InitializeComponent();
 
-            Loaded += (s, e) => { viewModel.IsSettingWindowOpened = true; };
-            Closed += (s, e) => { viewModel.IsSettingWindowOpened = false; };
+            IsOpened = true;
+            Closed += (s, e) => { IsOpened = false; };
 
             if (DwmHelper.IsDwmSupported)
             {

@@ -139,7 +139,7 @@ namespace Service
                 new Channel(8, "民谣"),
                 new Channel(9, "轻音乐"),
                 new Channel(10, "电影原声"),
-                new Channel(13, "爵士,"),
+                new Channel(13, "爵士"),
                 new Channel(14, "电子"),
                 new Channel(15, "说唱"),
                 new Channel(16, "R&B"),

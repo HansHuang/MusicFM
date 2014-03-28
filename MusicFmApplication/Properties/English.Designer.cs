@@ -169,6 +169,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open desktop lyric.
+        /// </summary>
+        internal static string OpenDeskLrc {
+            get {
+                return ResourceManager.GetString("OpenDeskLrc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open download folder.
         /// </summary>
         internal static string OpenDownloadFolder {

@@ -42,8 +42,6 @@ namespace MusicFmApplication
 
         private const string SongListCacheName = "SongList";
 
-        public bool IsSettingWindowOpened { get; set; }
-
         #endregion
 
         #region Notify Properties
@@ -194,21 +192,7 @@ namespace MusicFmApplication
         }
         #endregion
 
-        #region IsBuffering (INotifyPropertyChanged Property)
-
-        private bool _isBuffering;
-
-        public bool IsBuffering
-        {
-            get { return _isBuffering; }
-            set
-            {
-                if (_isBuffering.Equals(value)) return;
-                _isBuffering = value;
-                RaisePropertyChanged("IsBuffering");
-            }
-        }
-        #endregion
+        
 
         #region IsDisylayLyric (INotifyPropertyChanged Property)
 
@@ -322,7 +306,7 @@ namespace MusicFmApplication
         public DelegateCommand<bool?> NextSongCommand { get; private set; }
         private void NextSongExecute(bool? isEnded = false)
         {
-            IsBuffering = true;
+            MediaManager.IsBuffering = true;
             IsDownlading = false;
             DownloadProgress = 0;
             MediaManager.SongPicture = null;
@@ -345,23 +329,20 @@ namespace MusicFmApplication
                     if (songs != null) songs.ForEach(s => SongList.Add(s));
                     if (SongList.Count < 1) return;
                     //Set current song & playing
-                    Debug.WriteLine("Begin to set current song: " + DateTime.Now);
                     CurrentSong = SongList[0];
-                    //Get song lyric
-                    MediaManager.GetLyric();
                     //Play current new song with new url
-                    if (!MediaManager.IsPlaying)
-                        MediaManager.StartPlayerCommand.Execute();
+                    MediaManager.StartPlayerCommand.Execute();
                     MediaManager.GetSongPicture();
+                    MediaManager.GetLyric();
                     SongList.RemoveAt(0);
-                    Debug.WriteLine(DateTime.Now + ", Played");
+                    Debug.WriteLine(DateTime.Now + ", Played: " + CurrentSong.Url);
                 };
             //Can only play after get song list
             if (SongList.Count < 1) GetSongList(action);
             //Directlly play next & get song list in another thread when list count less then elements
             else if (SongList.Count < 3)
             {
-                //Task to et song list
+                //Task to get song list
                 GetSongList((songs) => songs.ForEach(s => SongList.Add(s)));
                 //Play
                 action(null);
@@ -383,14 +364,14 @@ namespace MusicFmApplication
             else
                 actionType = CurrentSong.Like == 0 ? OperationType.Like : OperationType.DisLike;
 
-            IsBuffering = true;
+            MediaManager.IsBuffering = true;
             Action<List<Song>> action = (songs) =>
             {
                 SongList.Clear();
                 if (!ishate && songs.Count > 0)
                     CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
                 songs.ForEach(s => SongList.Add(s));
-                IsBuffering = false;
+                MediaManager.IsBuffering = false;
             };
             GetSongList(action, actionType);
         }
@@ -417,7 +398,14 @@ namespace MusicFmApplication
             IsDownlading = true;
             DownloadProgress = 0;
             var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
+
+            //TODO: Add this to setting pannel
             var folder = SettingHelper.GetSetting("DownloadFolder", AppName);
+            if (string.IsNullOrWhiteSpace(folder))
+            {
+                folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
+                SettingHelper.SetSetting("DownloadFolder", folder, AppName);
+            }
             HttpWebDealer.DownloadLargestFile(name, MediaManager.Lyric.Mp3Urls, folder, DownloadMonitor);
         }
 
@@ -440,10 +428,18 @@ namespace MusicFmApplication
         }
 
         public DelegateCommand OpenSettingWindowCommand { get; private set; }
-        private void OpenSettingWindowExeture() 
+        private void OpenSettingWindowExecure() 
         {
-            if (IsSettingWindowOpened) return;
-            var wd = new SettingWindow(this);
+            if (SettingWindow.IsOpened) return;
+            var wd = new SettingWindow(this) {Owner = MainWindow};
+            wd.Show();
+        }
+
+        public DelegateCommand OpenDesktopLyricCommand { get; private set; }
+        private void OpenDesktopLyricExecute() 
+        {
+            if (DesktopLyric.IsOpened) return;
+            var wd = new DesktopLyric(this) { Owner = MainWindow };
             wd.Show();
         }
 
@@ -465,14 +461,12 @@ namespace MusicFmApplication
             SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
             DownloadSongCommand = new DelegateCommand(DownloadSongExetute);
             OpenDownloadFolderCommand = new DelegateCommand(OpenDownloadFolderExecute);
-            OpenSettingWindowCommand=new DelegateCommand(OpenSettingWindowExeture);
+            OpenSettingWindowCommand=new DelegateCommand(OpenSettingWindowExecure);
+            OpenDesktopLyricCommand = new DelegateCommand(OpenDesktopLyricExecute);
 
             //TODO: Change this with MEF
             SongService = new DoubanFm();
-            var dt = DateTime.Now;
             StartPlayer();
-            Debug.WriteLine("Start player spent: " + (DateTime.Now - dt).TotalMilliseconds);
-            Debug.WriteLine(DateTime.Now+", Constrution completed");
         }
 
         public static MainViewModel GetInstance(MainWindow window = null)
@@ -492,18 +486,8 @@ namespace MusicFmApplication
                 songList.ForEach(s => SongList.Add(s));
                 NextSongCommand.Execute(false);
             }
-            else
-            {
-                if (CurrentChannel != null)
-                    SetChannelCommand.Execute(CurrentChannel.Id);
-            }
-
-            //TODO: Change this to setting pannel
-            if (string.IsNullOrWhiteSpace(SettingHelper.GetSetting("DownloadFolder", AppName)))
-            {
-                var folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
-                SettingHelper.SetSetting("DownloadFolder", folder, AppName);
-            }
+            else if (CurrentChannel != null)
+                SetChannelCommand.Execute(CurrentChannel.Id);
         }
 
         private void GetChannels()
@@ -515,10 +499,7 @@ namespace MusicFmApplication
             Task.Run(() =>
                 {
                     var allChannels = new ObservableCollection<Channel>(SongService.GetChannels(false));
-                    MainWindow.Dispatcher.InvokeAsync(() =>
-                        {
-                            Channels = allChannels;
-                        });
+                    MainWindow.Dispatcher.InvokeAsync(() => { Channels = allChannels; });
                 });
         }
 
@@ -529,7 +510,7 @@ namespace MusicFmApplication
         /// <param name="actionType">OperationType (Played is default)</param>
         private void GetSongList(Action<List<Song>> callBack = null, OperationType actionType = OperationType.Played)
         {
-            IsBuffering = true;
+            MediaManager.IsBuffering = true;
             Task.Run(() =>
             {
                 //Get existed songs id list
@@ -549,7 +530,7 @@ namespace MusicFmApplication
                 });
                 var list = songs.Count > 2 ? songs.Skip(songs.Count - 2).ToList() : songs.ToList();
                 SettingHelper.SetSetting(SongListCacheName, list.SerializeToString(), AppName);
-                IsBuffering = false;
+                MediaManager.IsBuffering = false;
             });
         }
 

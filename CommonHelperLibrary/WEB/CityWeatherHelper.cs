@@ -130,12 +130,6 @@ namespace CommonHelperLibrary.WEB
 
             //Add Life index
             weather.LifeIndexes.Add(new LifeIndex {Name = "穿衣指数", Hint = info["index"], Description = info["index_d"]});
-            weather.LifeIndexes.Add(new LifeIndex
-                {
-                    Name = "48H 穿衣指数",
-                    Hint = info["index48"],
-                    Description = info["index48_d"]
-                });
             if (weatherObject.ContainsKey("zs"))
             {
                 foreach (var index in weatherObject["zs"])

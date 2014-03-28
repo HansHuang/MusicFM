@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using CustomControlResources;
 
@@ -49,8 +50,9 @@ namespace MusicFmApplication
             get { return _backMainWindowCmd ?? (_backMainWindowCmd = new RelayCommand(param => BackMainWindow())); }
         }
 
-        private void BackMainWindow()
+        private void BackMainWindow() 
         {
+            IsMinimizeToIcon = false;
             Topmost = false;
             Close();
         }
@@ -78,11 +80,20 @@ namespace MusicFmApplication
         {
             InitializeComponent();
             ViewModel = viewModel;
+            StateChanged += WindowStateChanged;
+        }
+
+        private void WindowStateChanged(object sender, EventArgs e) 
+        {
+            //Prevent maximizing window
+            if (WindowState == WindowState.Maximized) WindowState = WindowState.Normal;
         }
 
         private void MainGridOnLeftMouseDown(object sender, MouseButtonEventArgs e)
         {
             DragMove();
         }
+
+
     }
 }

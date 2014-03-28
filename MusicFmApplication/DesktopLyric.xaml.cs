@@ -19,9 +19,18 @@ namespace MusicFmApplication
     /// </summary>
     public partial class DesktopLyric : Window
     {
-        public DesktopLyric()
+        public static bool IsOpened = false;
+
+        public MainViewModel ViewModel { get; set; }
+
+        public DesktopLyric(MainViewModel viewModel)
         {
+            ViewModel = viewModel;
+
             InitializeComponent();
+
+            IsOpened = true;
+            Closed += (s, e) => { IsOpened = false; };
         }
     }
 }

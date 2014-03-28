@@ -25,12 +25,11 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml"/>
-                <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro.Resources;component/Icons.xaml" />-->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/WeatherImagesResource.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
@@ -447,11 +446,11 @@
                 <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
                                          ProgressColor="{DynamicResource AccentColorBrush}"
                                          Width="{Binding ElementName=Root, Path=Width}"
-                                         Visibility="{Binding IsBuffering, Converter={StaticResource Bool2Visbility}}"/>
+                                         Visibility="{Binding MediaManager.IsBuffering, Converter={StaticResource Bool2Visbility}}"/>
             </DockPanel>
             <!--2 Song Photo & Lyric-->
             <Grid Grid.Row="1" VerticalAlignment="Center">
-                <MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding CurrentSong.Url}"/>
+                <!--<MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding CurrentSong.Url}"/>-->
                 <Image VerticalAlignment="Center" HorizontalAlignment="Center" Width="220" Height="220"
                        Visibility="{Binding MediaManager.SongPicture, Converter={StaticResource IvsNull2Vsby}}"
                        Source="{StaticResource Vinyl256}" Opacity=".9">
