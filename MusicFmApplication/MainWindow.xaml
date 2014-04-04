@@ -10,9 +10,9 @@
                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    xmlns:presentOpti="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                    xmlns:local="clr-namespace:MusicFmApplication"
-                   xmlns:animation="clr-namespace:CustomControlResources.Animation;assembly=CustomControlResources"
                    x:Name="Root"
-                   Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False" TitleForeground="{DynamicResource AccentColorBrush}"
+                   Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"
+                   TitleForeground="{DynamicResource AccentColorBrush}"
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
                    ResizeMode="CanMinimize" AllowsTransparency="True"
                    Height="480"  Width="320">
@@ -80,7 +80,6 @@
                     <cvt:NumberToVisibilityConverter x:Key="Num2Visbility"/>
                     <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
                     <cvt:MultiplyNumberConverter x:Key="MultiplyNum"/>
-                    <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
                     <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
                     <cvt:EqualiencyConverter x:Key="EquCvt"/>
                     <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
@@ -96,22 +95,22 @@
                          ProgressValue="{Binding ElementName=Root, Path=ViewModel.DownloadProgress, Converter={StaticResource Pct2Dcml}}">
             <TaskbarItemInfo.ThumbButtonInfos>
                 <ThumbButtonInfo ImageSource="{StaticResource Pause32}" DismissWhenClicked="True"
-                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PausePlayerCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PauseResumePlayerCmd}"
                                  IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"
                                  Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Play32}" DismissWhenClicked="True"
-                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.StartPlayerCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PauseResumePlayerCmd}"
                                  IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"
                                  Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Heart32}"
-                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCmd}"
                                  IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Delete32}" 
-                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCmd}"
                                  CommandParameter="1"
                                  IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Next32}"  x:Name="TmbBtnNext"
-                                 Command="{Binding ElementName=Root, Path=ViewModel.NextSongCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.NextSongCmd}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
             </TaskbarItemInfo.ThumbButtonInfos>
         </TaskbarItemInfo>
@@ -119,7 +118,7 @@
 
     <metro:MetroWindow.WindowCommands>
         <metro:WindowCommands DataContext="{Binding ElementName=Root}">
-            <Button Command="{Binding ViewModel.ShowWeatherDetailCommmand}">
+            <Button Command="{Binding ViewModel.ShowWeatherDetailCmd}">
                 <Button.Content>
                     <Image ToolTip="{Binding ElementName=WeatherDetail, Path=WeatherData.WeatherImageTitle}" Width="24" Height="24">
                         <Image.Source>
@@ -131,7 +130,7 @@
                     </Image>
                 </Button.Content>
             </Button>
-            <Button Command="{Binding ViewModel.TogglePlayerDetailCommand}">
+            <Button Command="{Binding ViewModel.TogglePlayerDetailCmd}">
                 <Button.Content>
                     <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentSelectedColorBrush}" 
                                        Width="16" Height="16"/>
@@ -154,7 +153,7 @@
                 <StackPanel Orientation="Vertical">
                     <DockPanel Margin="0,0,10,-10">
                         <cc:ImageButton DockPanel.Dock="Right" Margin="10,0,0,0"
-                                        Command="{Binding ViewModel.OpenSettingWindowCommand}">
+                                        Command="{Binding ViewModel.OpenSettingWindowCmd}">
                             <cc:ImageButton.Image>
                                 <Image Source="{StaticResource About24}" Height="18" Width="18"/>
                             </cc:ImageButton.Image>
@@ -186,7 +185,7 @@
                             </cc:ImageButton.Triggers>
                         </cc:ImageButton>
                         <cc:ImageButton DockPanel.Dock="Right" ToolTip="{lex:LocText MusicFmApplication:English:Setting}"
-                                        Command="{Binding ViewModel.OpenSettingWindowCommand}">
+                                        Command="{Binding ViewModel.OpenSettingWindowCmd}">
                             <cc:ImageButton.Image>
                                 <Image Source="{StaticResource Setting32}" Height="20" Width="20" Opacity=".6"/>
                             </cc:ImageButton.Image>
@@ -247,7 +246,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Grid.Style>
-                                    <cc:ImageButton Command="{Binding ViewModel.Account.ShowLoginBoxCommand}">
+                                    <cc:ImageButton Command="{Binding ViewModel.Account.ShowLoginBoxCmd}">
                                         <cc:ImageButton.Style>
                                             <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
                                                 <Style.Triggers>
@@ -348,7 +347,7 @@
                                     <cc:ImageButton HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"
                                                 ToolTip="{lex:LocText MusicFmApplication:English:Login}"
-                                                Command="{Binding ViewModel.Account.LoginCommand}"
+                                                Command="{Binding ViewModel.Account.LoginCmd}"
                                                 CommandParameter="{Binding ElementName=CboxAccountType, Path=SelectedItem.DataContext}">
                                         <cc:ImageButton.Image>
                                             <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
@@ -385,7 +384,7 @@
                                             <DataTemplate>
                                                 <Grid Style="{StaticResource ChannelCell}">
                                                     <cc:ImageButton Template="{StaticResource ImageButtonTemplate}"
-                                                                Command="{Binding ElementName=Root, Path=ViewModel.SetChannelCommand}"
+                                                                Command="{Binding ElementName=Root, Path=ViewModel.SetChannelCmd}"
                                                                 CommandParameter="{Binding Id}"
                                                                 ToolTip="{Binding Name}">
                                                         <cc:ImageButton.Image>
@@ -450,7 +449,6 @@
             </DockPanel>
             <!--2 Song Photo & Lyric-->
             <Grid Grid.Row="1" VerticalAlignment="Center">
-                <!--<MediaElement x:Name="Player" LoadedBehavior="Manual" Source="{Binding CurrentSong.Url}"/>-->
                 <Image VerticalAlignment="Center" HorizontalAlignment="Center" Width="220" Height="220"
                        Visibility="{Binding MediaManager.SongPicture, Converter={StaticResource IvsNull2Vsby}}"
                        Source="{StaticResource Vinyl256}" Opacity=".9">
@@ -474,7 +472,7 @@
                 </Image>
                 <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
                     <!--Song Album Picture-->
-                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
+                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCmd}">
                         <cc:ImageButton.Image>
                             <StackPanel Orientation="Vertical">
                                 <Image x:Name="AlbumPicture" Stretch="Fill" HorizontalAlignment="Center" Source="{Binding MediaManager.SongPicture}">
@@ -527,7 +525,7 @@
                         </cc:ImageButton.Image>
                     </cc:ImageButton>
                     <!--Song Lyric Containter-->
-                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCommand}">
+                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCmd}">
                         <cc:ImageButton.Style>
                             <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
                                 <Style.Triggers>
@@ -571,12 +569,22 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Center"  TextWrapping="Wrap" Margin="10,3" Text="{Binding Value}" >
-                                                <TextBlock.Foreground>
-                                                    <MultiBinding Converter="{StaticResource LrcHighLight}">
-                                                        <Binding Path="Key"/>
-                                                        <Binding ElementName="Root" Path="ViewModel.MediaManager.CurrnetLrcLine.Value"/>
-                                                    </MultiBinding>
-                                                </TextBlock.Foreground>
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="Silver"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Value="True">
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource EquCvt}">
+                                                                        <Binding Path="Key"/>
+                                                                        <Binding ElementName="Root" Path="ViewModel.MediaManager.CurrnetLrcLine.Value"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <Setter Property="Foreground" Value="YellowGreen"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
                                             </TextBlock>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -640,7 +648,7 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Resources>
-                <Button Grid.Column="0" Command="{Binding LikeSongCommand}"
+                <Button Grid.Column="0" Command="{Binding LikeSongCmd}"
                         ToolTip="{lex:LocText MusicFmApplication:English:LikeSong}">
                     <cc:ColorlizeImage Image="{StaticResource Heart32}" >
                         <cc:ColorlizeImage.Style>
@@ -655,13 +663,13 @@
                     </cc:ColorlizeImage>
                 </Button>
                 <Button Grid.Column="1"
-                        Command="{Binding LikeSongCommand}"
+                        Command="{Binding LikeSongCmd}"
                         CommandParameter="1"
                         ToolTip="{lex:LocText MusicFmApplication:English:HateSong}">
                     <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
                 </Button>
                 <Button Grid.Column="2" 
-                        Command="{Binding NextSongCommand}"
+                        Command="{Binding NextSongCmd}"
                         IsEnabled="{Binding SongList.Count, Converter={StaticResource Num2Bool}}"
                         ToolTip="{lex:LocText MusicFmApplication:English:NextSong}">
                     <cc:ColorlizeImage Image="{StaticResource Next32}"/>
@@ -733,18 +741,21 @@
                 </Grid.Resources>
                 <cc:ImageButton Grid.Column="0"
                                 IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
-                                Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"
-                                Command="{Binding MediaManager.StartPlayerCommand}"
+                                Command="{Binding MediaManager.PauseResumePlayerCmd}"
                                 Width="14">
                     <cc:ImageButton.Image>
-                        <cc:ColorlizeImage Image="{StaticResource Play32}"/>
-                    </cc:ImageButton.Image>
-                </cc:ImageButton>
-                <cc:ImageButton Grid.Column="0"
-                                Command="{Binding MediaManager.PausePlayerCommand}"
-                                Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}">
-                    <cc:ImageButton.Image>
-                        <cc:ColorlizeImage Image="{StaticResource Pause32}"/>
+                        <cc:ColorlizeImage>
+                            <cc:ColorlizeImage.Style>
+                                <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
+                                    <Setter Property="Image" Value="{StaticResource Play32}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="True">
+                                            <Setter Property="Image" Value="{StaticResource Pause32}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </cc:ColorlizeImage.Style>
+                        </cc:ColorlizeImage>
                     </cc:ImageButton.Image>
                 </cc:ImageButton>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -754,14 +765,14 @@
                 </StackPanel>
                 <cc:ImageButton Grid.Column="2" HorizontalAlignment="Right"
                                 Visibility="{Binding MediaManager.Volume, Converter={StaticResource Num2Visbility}}"
-                                Command="{Binding MediaManager.MuteCommand}">
+                                Command="{Binding MediaManager.MutePlayerCmd}">
                     <cc:ImageButton.Image>
                         <cc:ColorlizeImage Image="{StaticResource Volume32}"/>
                     </cc:ImageButton.Image>
                 </cc:ImageButton>
                 <cc:ImageButton Grid.Column="2" HorizontalAlignment="Right"
                                 Visibility="{Binding MediaManager.Volume, Converter={StaticResource IvsNum2Vsbty}}"
-                                Command="{Binding MediaManager.MuteCommand}">
+                                Command="{Binding MediaManager.MutePlayerCmd}">
                     <cc:ImageButton.Image>
                         <cc:ColorlizeImage Image="{StaticResource Mute32}"/>
                     </cc:ImageButton.Image>
@@ -783,7 +794,7 @@
                         </Style>
                     </StackPanel.Style>
                     <cc:ImageButton IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
-                                    Command="{Binding DownloadSongCommand}"
+                                    Command="{Binding DownloadSongCmd}"
                                     Visibility="{Binding IsDownlading, Converter={StaticResource IvsBooltVsby}}">
                         <cc:ImageButton.Image>
                             <cc:ColorlizeImage Image="{StaticResource Download32}"/>
@@ -796,7 +807,7 @@
                 </StackPanel>
                 <!--Open Download Folder Btn-->
                 <cc:ImageButton Grid.Column="4" x:Name="BtnOpenFolad"
-                                Command="{Binding OpenDownloadFolderCommand}">
+                                Command="{Binding OpenDownloadFolderCmd}">
                     <cc:ImageButton.Visibility>
                         <MultiBinding Converter="{StaticResource Equ2Vsbty}" ConverterParameter="100">
                             <Binding Path="DownloadProgress"/>

@@ -20,8 +20,9 @@ namespace CommonHelperLibrary
         /// </summary>
         /// <param name="graph">object</param>
         /// <returns>byte[]</returns>
-        public static byte[] Serialize(this object graph)
+        public static byte[] Serialize(this object graph) 
         {
+            if (graph == null) return new byte[0];
             byte[] buf;
             var stream = new MemoryStream();
             try
@@ -213,7 +214,9 @@ namespace CommonHelperLibrary
         /// <returns>Target type object</returns>
         public static T Deserialize<T>(this byte[] binary)
         {
-            return (T)Deserialize(binary);
+            var obj=Deserialize(binary);
+            if (obj is T) return (T) obj;
+            return default(T);
         }
 
         /// <summary>

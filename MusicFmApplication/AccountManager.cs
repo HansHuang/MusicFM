@@ -5,17 +5,31 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using CommonHelperLibrary;
-using CommonHelperLibrary.WEB;
-using Microsoft.Practices.Prism.Commands;
-using Microsoft.Practices.Prism.ViewModel;
+using CustomControlResources;
 using Service.Model;
 
 namespace MusicFmApplication
 {
-    public class AccountManager : NotificationObject
+    public class AccountManager : INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged RaisePropertyChanged
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
+
+        #region NotifyProperties
         #region IsShowLoginBox (INotifyPropertyChanged Property)
 
         private bool _isShowLoginBox;
@@ -99,10 +113,19 @@ namespace MusicFmApplication
             }
         }
 
+        #endregion 
         #endregion
 
         #region DelegateCommands
-        public DelegateCommand ShowLoginBoxCommand { get; private set; }
+
+        #region RelayCommand ShowLoginBoxCmd
+
+        private RelayCommand _showLoginBoxCmd;
+
+        public ICommand ShowLoginBoxCmd
+        {
+            get { return _showLoginBoxCmd ?? (_showLoginBoxCmd = new RelayCommand(param => this.ShowLoginBoxExecute())); }
+        }
 
         public void ShowLoginBoxExecute()
         {
@@ -115,7 +138,17 @@ namespace MusicFmApplication
                 });
         }
 
-        public DelegateCommand<object> LoginCommand { get; private set; }
+        #endregion
+
+        #region RelayCommand LoginCmd
+
+        private RelayCommand _loginCmd;
+
+        public ICommand LoginCmd
+        {
+            get { return _loginCmd ?? (_loginCmd = new RelayCommand(LoginExcute)); }
+        }
+
         public void LoginExcute(object type)
         {
             var accType = type is AccountType ? (AccountType)type : AccountType.DoubanFm;
@@ -143,9 +176,12 @@ namespace MusicFmApplication
                             IsShowLoginBox = false;
                         });
                     //Write account info to local file
-                    SettingHelper.SetSetting(CacheName, account.SerializeToString(), ViewModel.AppName);
+                    SettingHelper.SetSetting(CacheName, account.SerializeToString(), App.Name);
                 });
         }
+
+        #endregion
+
         #endregion
 
         protected MainViewModel ViewModel;
@@ -155,9 +191,6 @@ namespace MusicFmApplication
         {
             ViewModel = viewModel;
             IsShowLoginBox = false;
-
-            ShowLoginBoxCommand = new DelegateCommand(ShowLoginBoxExecute);
-            LoginCommand = new DelegateCommand<object>(LoginExcute);
 
             TryGetAccount();
         }
@@ -169,7 +202,7 @@ namespace MusicFmApplication
         {
             Task.Run(() =>
                 {
-                    var account = SettingHelper.GetSetting(CacheName, ViewModel.AppName).Deserialize<Account>();
+                    var account = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Account>();
                     if (account == null) return;
                     ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
                     {
@@ -177,7 +210,7 @@ namespace MusicFmApplication
                         {
                             UserName = account.Email;
                             Passwrod = account.Password;
-                            LoginCommand.Execute(account.AccountType);
+                            LoginCmd.Execute(account.AccountType);
                         }
                         else
                         {

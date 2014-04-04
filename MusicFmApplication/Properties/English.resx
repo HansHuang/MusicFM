@@ -181,6 +181,9 @@
   <data name="Setting" xml:space="preserve">
     <value>Setting</value>
   </data>
+  <data name="ShutDeskLrc" xml:space="preserve">
+    <value>Shut down desktop lyric</value>
+  </data>
   <data name="SinaWeibo" xml:space="preserve">
     <value>Sina Weibo</value>
   </data>

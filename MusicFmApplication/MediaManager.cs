@@ -1,36 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
-using Microsoft.Practices.Prism.Commands;
-using Microsoft.Practices.Prism.ViewModel;
+using CustomControlResources;
+using Color = System.Windows.Media.Color;
 
 namespace MusicFmApplication
 {
-    public class MediaManager : NotificationObject
+    public class MediaManager : INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged RaisePropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
+
         #region Fields
         public MediaPlayer Player { get; private set; }
 
-        //public Stream SongImageStream { get; private set; }
+        private List<TimeSpan> _lyricKeys;
+        public List<TimeSpan> LrcKeys
+        {
+            get { return _lyricKeys ?? (_lyricKeys = new List<TimeSpan>()); }
+            private set { _lyricKeys = value; }
+        }
 
         protected readonly MainViewModel ViewModel;
-
-        protected List<TimeSpan> LrcKeys = new List<TimeSpan>();
-
         protected DispatcherTimer Timer;
-
-        protected BitmapImage SongTempImage;
-        protected bool IsInitSongPicture;
 
         #endregion
 
@@ -87,6 +101,7 @@ namespace MusicFmApplication
 
         #region Volume (INotifyPropertyChanged Property)
 
+        protected const string VolumeCacheName = "Volume";
         private double _volumeCache;
         private double _volume = 0.75;
         public double Volume
@@ -96,9 +111,9 @@ namespace MusicFmApplication
             {
                 if (_volume.Equals(value)) return;
                 _volume = value;
+                if (Player != null) Player.Volume = value;
+                SettingHelper.SetSetting(VolumeCacheName, value.SerializeToString(), App.Name);
                 RaisePropertyChanged("Volume");
-                if (Player != null)
-                    Player.Volume = value;
             }
         }
 
@@ -166,8 +181,14 @@ namespace MusicFmApplication
                 if (_lyric != null && _lyric.Equals(value)) return;
                 _lyric = value;
                 RaisePropertyChanged("Lyric");
-                if (_lyric != null && _lyric.Content != null && _lyric.Content.Count > 1)
-                    CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, _lyric.Content.First().Key);
+                if (value != null && value.Content != null)
+                {
+                    LrcKeys = value.Content.Keys.ToList();
+                    if (value.Content.Count > 0)
+                        CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, _lyric.Content.First().Key);
+                }
+                else
+                    LrcKeys = new List<TimeSpan>();
             }
         }
 
@@ -191,8 +212,8 @@ namespace MusicFmApplication
         #endregion
 
         #region SongPicture (INotifyPropertyChanged Property)
-        private BitmapImage _songPicture;
-        public BitmapImage SongPicture
+        private BitmapSource _songPicture;
+        public BitmapSource SongPicture
         {
             get { return _songPicture; }
             set
@@ -225,24 +246,61 @@ namespace MusicFmApplication
 
         #region DelegateCommand
 
-        public DelegateCommand PausePlayerCommand { get; private set; }
-        private void PausePlayerExecute()
+        #region RelayCommand PauseResumePlayerCmd
+
+        private RelayCommand _pauseResumePlayerCmd;
+
+        public ICommand PauseResumePlayerCmd
         {
-            if (Player == null || !Player.CanPause) return;
-            Player.Pause();
-            IsPlaying = false;
+            get { return _pauseResumePlayerCmd ?? (_pauseResumePlayerCmd = new RelayCommand(s => PauseResumePlayerExecute())); }
         }
 
-        public DelegateCommand StartPlayerCommand { get; private set; }
+        private void PauseResumePlayerExecute()
+        {
+            if (Player == null || !Player.CanPause) return;
+            if (IsPlaying)
+            {
+                Player.Pause();
+                IsPlaying = false;
+            }
+            else if (ViewModel.CurrentSong != null)
+            {
+                Player.Play();
+                IsPlaying = true;
+            }
+        }
+
+        #endregion
+
+        #region RelayCommand StartPlayerCmd
+
+        private RelayCommand _startPlayerCmd;
+
+        public ICommand StartPlayerCmd
+        {
+            get { return _startPlayerCmd ?? (_startPlayerCmd = new RelayCommand(s => StartPlayerExecute())); }
+        }
+
         private void StartPlayerExecute()
         {
             if (Player == null || ViewModel.CurrentSong == null) return;
+            
             Player.Open(new Uri(ViewModel.CurrentSong.Url));
             Player.Play();
             IsPlaying = true;
+            App.Log.Msg(DateTime.Now + ", Played", ViewModel.CurrentSong.Url);
         }
 
-        public DelegateCommand MuteCommand { get; private set; }
+        #endregion
+
+        #region RelayCommand MutePlayerCmd
+
+        private RelayCommand _mutePlayerCmd;
+
+        public ICommand MutePlayerCmd
+        {
+            get { return _mutePlayerCmd ?? (_mutePlayerCmd = new RelayCommand(s => this.MuteExecute())); }
+        }
         private void MuteExecute()
         {
             if (Volume > 0)
@@ -253,19 +311,23 @@ namespace MusicFmApplication
             else
                 Volume = _volumeCache <= 0.05 ? (_volumeCache = 0.5) : _volumeCache;
         }
+        #endregion
 
         #endregion
 
         public MediaManager(MainViewModel viewModel)
         {
-            PausePlayerCommand = new DelegateCommand(PausePlayerExecute);
-            StartPlayerCommand = new DelegateCommand(StartPlayerExecute);
-            MuteCommand = new DelegateCommand(MuteExecute);
-
             ViewModel = viewModel;
-            //Player = ViewModel.MainWindow.Player;
-            Player = new MediaPlayer();
-            Player.MediaOpened += PlayerMediaOpened;
+
+            viewModel.MainWindow.Dispatcher.Invoke(() =>
+            {
+                Player = new MediaPlayer();
+                Player.MediaOpened += PlayerMediaOpened;
+
+                var vlm = SettingHelper.GetSetting(VolumeCacheName, App.Name).Deserialize<double>();
+                _volume = vlm < 0.1 ? 0.75 : vlm;
+                Player.Volume = _volume;
+            });
         }
 
         /// <summary>
@@ -281,8 +343,6 @@ namespace MusicFmApplication
                 Artist = ViewModel.CurrentSong.Artist
             };
             Lyric.Mp3Urls.Add(ViewModel.CurrentSong.Url);
-            Lyric.Content.Add(new TimeSpan(0), "Trying to get lyric, please wait");
-            CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(0, Lyric.Content.First().Key);
 
             Task.Run(() =>
             {
@@ -298,17 +358,20 @@ namespace MusicFmApplication
         public void GetSongPicture() 
         {
             if (ViewModel.CurrentSong == null) return;
-            IsInitSongPicture = true;
-            DispatcherInvokeAsync(() =>
+            SongPicture = null;
+            var picUrl = ViewModel.CurrentSong.Picture;
+            if (string.IsNullOrWhiteSpace(picUrl)) return;
+            Task.Run(() =>
             {
-                SongTempImage = new BitmapImage();
-                SongTempImage.DownloadFailed += (o, e) => { SongTempImage = null; };
-                //Something unknown wrong when use new BitmapImage(url) contruction method directly
-                SongTempImage.BeginInit();
-                SongTempImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                SongTempImage.UriSource = new Uri(ViewModel.CurrentSong.Picture);
-                SongTempImage.EndInit();
-                IsInitSongPicture = false;
+                var stream = HttpWebDealer.GetResponseByUrl(picUrl).GetResponseStream();
+                if (stream == null) return;
+                var bitmap = new Bitmap(stream);
+                var image = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
+                                                                  BitmapSizeOptions.FromEmptyOptions());
+                if (image.CanFreeze) image.Freeze();
+                DispatcherInvokeAsync(() => { SongPicture = image; });
+                var color = ImageColorHelper.GetTopicColorForImage(image);
+                DispatcherInvokeAsync(() => { SongPictureColor = color; });
             });
         }
 
@@ -320,13 +383,12 @@ namespace MusicFmApplication
             LrcKeys = Lyric.Content.Keys.ToList();
 
             var player = (MediaPlayer)sender;
-            if (player.NaturalDuration.HasTimeSpan)
-                SongLength = player.NaturalDuration.TimeSpan;
-            else
-                SongLength = new TimeSpan(0, 0, ViewModel.CurrentSong.Length);
+            SongLength = player.NaturalDuration.HasTimeSpan
+                             ? player.NaturalDuration.TimeSpan
+                             : new TimeSpan(0, 0, ViewModel.CurrentSong.Length);
             if (Timer == null)
             {
-                Timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+                Timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
                 Timer.Tick += TimeTick;
             }
             Timer.Start();
@@ -337,7 +399,8 @@ namespace MusicFmApplication
             if (!IsPlaying) return;
             Position = Player.Position;
             DownloadProgress = Player.DownloadProgress;
-            IsBuffering = Player.IsBuffering;
+
+            //IsBuffering = IsBuffering || Player.IsBuffering;
             PlayProgress = Position.TotalMilliseconds / SongLength.TotalMilliseconds;
             //Song is almost finish, jump to next one
             if ((SongLength.TotalMilliseconds - Position.TotalMilliseconds) < 100)
@@ -345,13 +408,11 @@ namespace MusicFmApplication
                 Timer.Stop();
                 LrcKeys.Clear();
                 IsPlaying = false;
-                ViewModel.NextSongCommand.Execute(true);
+                ViewModel.NextSongCmd.Execute(true);
                 return;
             }
             //Lrc control
             LyricControl();
-            //Song Album Picture Handle
-            SongPictureControl();
         }
 
         private void LyricControl()
@@ -365,15 +426,6 @@ namespace MusicFmApplication
             var nextTime = LrcKeys[nextIndex];
             if (Position.TotalMilliseconds > nextTime.TotalMilliseconds + Lyric.Offset)
                 CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex, nextTime);
-        }
-
-        private void SongPictureControl() 
-        {
-            if (SongTempImage == null || SongTempImage.IsDownloading || IsInitSongPicture || SongPicture != null)
-                return;
-            if (SongTempImage.CanFreeze) SongTempImage.Freeze();
-            SongPicture = SongTempImage;
-            ImageColorHelper.GetTopicColorForImageAsync(SongPicture, (color) => DispatcherInvokeAsync(() => { SongPictureColor = color; }));
         }
 
         private DispatcherOperation DispatcherInvokeAsync(Action callback)

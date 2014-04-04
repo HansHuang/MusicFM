@@ -14,19 +14,9 @@
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
                 <!--Converter Resource Dictionary-->
                 <ResourceDictionary>
-                    <cvt:WeatherImageSourceConverter x:Key="Num2Image" />
                     <cvt:NullToBoolConverter x:Key="Null2Bool"/>
-                    <cvt:InverseNullToVisibilityConveter x:Key="IvsNull2Vsby"/>
-                    <cvt:NullToVisibility x:Key="Null2Vsby"/>
                     <BooleanToVisibilityConverter x:Key="Bool2Visbility"/>
                     <cvt:InverseBoolToVisibilityConverter x:Key="IvsBooltVsby"/>
-                    <cvt:TimeSpanToStringConverter x:Key="Time2Str"/>
-                    <cvt:NumberToVisibilityConverter x:Key="Num2Visbility"/>
-                    <cvt:InverseNumberToVisibilityConverter x:Key="IvsNum2Vsbty"/>
-                    <cvt:MultiplyNumberConverter x:Key="MultiplyNum"/>
-                    <cvt:LyricHighLightConverter x:Key="LrcHighLight"/>
-                    <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
-                    <cvt:EqualiencyConverter x:Key="EquCvt"/>
                     <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
                     <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
                     <cvt:NumberToProgressState x:Key="Num2Pgs"/>
@@ -48,22 +38,22 @@
                          ProgressValue="{Binding ElementName=Root, Path=ViewModel.DownloadProgress, Converter={StaticResource Pct2Dcml}}">
             <TaskbarItemInfo.ThumbButtonInfos>
                 <ThumbButtonInfo ImageSource="{StaticResource Pause32}" DismissWhenClicked="True"
-                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PausePlayerCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PauseResumePlayerCmd}"
                                  IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"
                                  Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Play32}" DismissWhenClicked="True"
-                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.StartPlayerCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PauseResumePlayerCmd}"
                                  IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"
                                  Visibility="{Binding ElementName=Root, Path=ViewModel.MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Heart32}"
-                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCmd}"
                                  IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Delete32}" 
-                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.LikeSongCmd}"
                                  CommandParameter="1"
                                  IsEnabled="{Binding ElementName=TmbBtnNext, Path=IsEnabled}"/>
                 <ThumbButtonInfo ImageSource="{StaticResource Next32}"  x:Name="TmbBtnNext"
-                                 Command="{Binding ElementName=Root, Path=ViewModel.NextSongCommand}"
+                                 Command="{Binding ElementName=Root, Path=ViewModel.NextSongCmd}"
                                  IsEnabled="{Binding ElementName=Root, Path=ViewModel.CurrentSong, Converter={StaticResource Null2Bool}}"/>
             </TaskbarItemInfo.ThumbButtonInfos>
         </TaskbarItemInfo>
@@ -101,7 +91,7 @@
             <Canvas.Resources>
                 <Style TargetType="cc:ColorlizeImage">
                     <!--Let btn to focus easier-->
-                    <Setter Property="Background" Value="#01000000"/>
+                    <Setter Property="Background" Value="#01222222"/>
                     <Setter Property="Height" Value="20"/>
                     <Setter Property="Width" Value="20"/>
                     <Setter Property="Color" Value="{StaticResource AccentColorBrush}"/>
@@ -121,7 +111,7 @@
             
             <!--Like Song Btn-->
             <cc:ImageButton Canvas.Right="28" Canvas.Top="30"
-                            Command="{Binding ViewModel.LikeSongCommand}"
+                            Command="{Binding ViewModel.LikeSongCmd}"
                             ToolTip="{lex:LocText MusicFmApplication:English:LikeSong}">
                 <cc:ColorlizeImage Image="{StaticResource Heart32}" >
                     <cc:ColorlizeImage.Style>
@@ -137,7 +127,7 @@
             </cc:ImageButton>
             <!--Next Song Btn-->
             <cc:ImageButton Canvas.Right="2" Canvas.Top="85"
-                            Command="{Binding ViewModel.NextSongCommand}" 
+                            Command="{Binding ViewModel.NextSongCmd}" 
                             IsEnabled="{Binding ViewModel.SongList.Count, Converter={StaticResource Num2Bool}}"
                             ToolTip="{lex:LocText MusicFmApplication:English:NextSong}">
                 <cc:ImageButton.Image>
@@ -146,7 +136,7 @@
             </cc:ImageButton>
             <!--Delete Song Btn-->
             <cc:ImageButton Canvas.Right="25" Canvas.Bottom="30"
-                            Command="{Binding ViewModel.LikeSongCommand}"
+                            Command="{Binding ViewModel.LikeSongCmd}"
                             CommandParameter="1"
                             ToolTip="{lex:LocText MusicFmApplication:English:HateSong}">
                 <cc:ImageButton.Image>
@@ -253,7 +243,13 @@
                 <Style TargetType="Ellipse">
                     <Setter Property="Stroke" Value="#90CCCCCC"/>
                     <Setter Property="StrokeThickness" Value="1"/>
-                    <Setter Property="Visibility" Value="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture, Converter={StaticResource Null2Vsby}}"/>
+                    <!--<Setter Property="Visibility" Value="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture, Converter={StaticResource Null2Vsby}}"/>-->
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPicture}" Value="{x:Null}">
+                            <Setter Property="Fill" Value="{x:Null}"/>
+                            <Setter Property="StrokeThickness" Value="0"/>
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
             </Grid.Resources>
             <Image Width="128" Height="128" Source="{StaticResource Vinyl128}" />
@@ -315,22 +311,27 @@
                     <Setter Property="Opacity" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid},  Path=Opacity}"/>
                 </Style>
             </Grid.Resources>
-            <Ellipse Width="50" Height="50" >
+            <Ellipse Width="50" Height="50" Opacity=".9">
                 <Ellipse.Fill>
                     <SolidColorBrush Color="{Binding ElementName=Root, Path=ViewModel.MediaManager.SongPictureColor}" />
                 </Ellipse.Fill>
             </Ellipse>
-            <cc:ImageButton Command="{Binding MediaManager.StartPlayerCommand}"
-                            Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource IvsBooltVsby}}"
+            <cc:ImageButton Command="{Binding MediaManager.PauseResumePlayerCmd}"
+                            IsEnabled="{Binding CurrentSong, Converter={StaticResource Null2Bool}}"
                             Width="14">
                 <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Play32}"/>
-                </cc:ImageButton.Image>
-            </cc:ImageButton>
-            <cc:ImageButton Command="{Binding MediaManager.PausePlayerCommand}"
-                             Visibility="{Binding MediaManager.IsPlaying, Converter={StaticResource Bool2Visbility}}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Pause32}"/>
+                    <cc:ColorlizeImage>
+                        <cc:ColorlizeImage.Style>
+                            <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
+                                <Setter Property="Image" Value="{StaticResource Play32}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="True">
+                                        <Setter Property="Image" Value="{StaticResource Pause32}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </cc:ColorlizeImage.Style>
+                    </cc:ColorlizeImage>
                 </cc:ImageButton.Image>
             </cc:ImageButton>
         </Grid>

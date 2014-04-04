@@ -61,13 +61,7 @@ namespace CommonHelperLibrary
 
         public static void GetTopicColorForImageAsync(BitmapSource image, Action<Color> callback)
         {
-            Task.Run(() =>
-            {
-                //Make sure bitmap can use in new thread
-                var bitmap = new FormatConvertedBitmap(image, PixelFormats.Rgb24, BitmapPalettes.WebPalette, 0);
-                if (bitmap.CanFreeze) bitmap.Freeze();
-                callback(GetTopicColorForImage(bitmap));
-            });
+            Task.Run(() => callback(GetTopicColorForImage(image)));
         }
 
         /// <summary>
@@ -77,7 +71,9 @@ namespace CommonHelperLibrary
         public static Color GetTopicColorForImage(BitmapSource bitmap)
         {
             if (bitmap == null) return Colors.White;
-
+            //Make sure bitmap can use in new thread
+            bitmap = new FormatConvertedBitmap(bitmap, PixelFormats.Rgb24, BitmapPalettes.WebPalette, 0);
+            if (bitmap.CanFreeze) bitmap.Freeze();
             const int bytesPerPixel = 3;
 
             if (bitmap.CanFreeze) bitmap.Freeze();

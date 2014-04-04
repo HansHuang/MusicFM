@@ -6,19 +6,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
+using System.Windows.Input;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 using CustomControlResources;
-using MahApps.Metro.Controls;
-using Microsoft.Practices.Prism.ViewModel;
-using Microsoft.Practices.Prism.Commands;
 using Service;
 using Service.Model;
 
@@ -30,7 +22,7 @@ namespace MusicFmApplication
     /// Class : MainViewModel
     /// Discription : ViewModel of MainWindow
     /// </summary>
-    public class MainViewModel : NotificationObject
+    public class MainViewModel : INotifyPropertyChanged
     {
         #region Fields
 
@@ -38,9 +30,23 @@ namespace MusicFmApplication
 
         public MainWindow MainWindow { get; private set; }
 
-        public string AppName = "MusicFM";
-
         private const string SongListCacheName = "SongList";
+        private const string SongListExpireCacheName = "SongListExpire";
+
+        #endregion
+
+        #region INotifyPropertyChanged RaisePropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
         #endregion
 
@@ -192,8 +198,6 @@ namespace MusicFmApplication
         }
         #endregion
 
-        
-
         #region IsDisylayLyric (INotifyPropertyChanged Property)
 
         private bool _isDisylayLyric;
@@ -208,8 +212,6 @@ namespace MusicFmApplication
             }
         }
         #endregion
-
-        
 
         #region Channels (INotifyPropertyChanged Property)
 
@@ -277,20 +279,34 @@ namespace MusicFmApplication
 
         #endregion
 
-
         #endregion
 
         #region Delegate Commands
 
-        #region ShowWeatherDetail DelegateCommand
-        public DelegateCommand ShowWeatherDetailCommmand { get; private set; }
+        #region RelayCommand ShowWeatherDetailCmd
+
+        private RelayCommand _showWeatherDetailCmd;
+
+        public ICommand ShowWeatherDetailCmd
+        {
+            get{return _showWeatherDetailCmd ?? (_showWeatherDetailCmd = new RelayCommand(s => ShowWeatherDetailExecute()));}
+        }
+
         private void ShowWeatherDetailExecute()
         {
             IsShowWeatherDetail = !IsShowWeatherDetail;
         }
         #endregion
 
-        public DelegateCommand TogglePlayerDetailCommand { get; private set; }
+        #region RelayCommand TogglePlayerDetailCmd
+
+        private RelayCommand _togglePlayerDetailCmd;
+
+        public ICommand TogglePlayerDetailCmd
+        {
+            get{ return _togglePlayerDetailCmd ?? (_togglePlayerDetailCmd = new RelayCommand(s => TogglePlayerDetailExecute()));}
+        }
+
         private void TogglePlayerDetailExecute()
         {
             IsShowPlayerDetail = !IsShowPlayerDetail;
@@ -303,13 +319,21 @@ namespace MusicFmApplication
                 Account.UserName = Account.AccountInfo.UserName;
         }
 
-        public DelegateCommand<bool?> NextSongCommand { get; private set; }
+        #endregion
+
+        #region RelayCommand NextSongCmd
+
+        private RelayCommand _nextSongCmd;
+
+        public ICommand NextSongCmd
+        {
+            get { return _nextSongCmd ?? (_nextSongCmd = new RelayCommand(param => NextSongExecute(param as bool?))); }
+        }
+
         private void NextSongExecute(bool? isEnded = false)
         {
-            MediaManager.IsBuffering = true;
             IsDownlading = false;
             DownloadProgress = 0;
-            MediaManager.SongPicture = null;
             //If song is ended, add it to history(Display inverted order)
             if (isEnded.GetValueOrDefault())
             {
@@ -324,18 +348,17 @@ namespace MusicFmApplication
                 }
             }
 
-            Action<List<Song>> action = (songs) =>
+            Action<List<Song>> action = songs =>
                 {
                     if (songs != null) songs.ForEach(s => SongList.Add(s));
                     if (SongList.Count < 1) return;
                     //Set current song & playing
                     CurrentSong = SongList[0];
                     //Play current new song with new url
-                    MediaManager.StartPlayerCommand.Execute();
+                    MediaManager.StartPlayerCmd.Execute(null);
                     MediaManager.GetSongPicture();
                     MediaManager.GetLyric();
                     SongList.RemoveAt(0);
-                    Debug.WriteLine(DateTime.Now + ", Played: " + CurrentSong.Url);
                 };
             //Can only play after get song list
             if (SongList.Count < 1) GetSongList(action);
@@ -343,7 +366,7 @@ namespace MusicFmApplication
             else if (SongList.Count < 3)
             {
                 //Task to get song list
-                GetSongList((songs) => songs.ForEach(s => SongList.Add(s)));
+                GetSongList(songs => songs.ForEach(s => SongList.Add(s)));
                 //Play
                 action(null);
             }
@@ -351,7 +374,17 @@ namespace MusicFmApplication
             else action(null);
         }
 
-        public DelegateCommand<string> LikeSongCommand { get; private set; }
+        #endregion
+        
+        #region RelayCommand LikeSongCmd
+
+        private RelayCommand _likeSongCmd;
+
+        public ICommand LikeSongCmd
+        {
+            get { return _likeSongCmd ?? (_likeSongCmd = new RelayCommand(param => LikeSongExecute(param as string))); }
+        }
+
         private void LikeSongExecute(string isHate)
         {
             OperationType actionType;
@@ -359,13 +392,13 @@ namespace MusicFmApplication
             if (ishate)
             {
                 actionType = OperationType.Hate;
-                NextSongCommand.Execute(false);
+                NextSongCmd.Execute(false);
             }
             else
                 actionType = CurrentSong.Like == 0 ? OperationType.Like : OperationType.DisLike;
 
             MediaManager.IsBuffering = true;
-            Action<List<Song>> action = (songs) =>
+            Action<List<Song>> action = songs =>
             {
                 SongList.Clear();
                 if (!ishate && songs.Count > 0)
@@ -375,24 +408,51 @@ namespace MusicFmApplication
             };
             GetSongList(action, actionType);
         }
+        #endregion  
 
-        public DelegateCommand ToggleLyricDisplayCommand { get; private set; }
+        #region RelayCommand ToggleLyricDisplayCmd
+
+        private RelayCommand _toggleLyricDisplayCmd;
+
+        public ICommand ToggleLyricDisplayCmd
+        {
+            get{ return _toggleLyricDisplayCmd ?? (_toggleLyricDisplayCmd = new RelayCommand(s => ToggleLyricDisplayExecute()));}
+        }
+
         private void ToggleLyricDisplayExecute()
         {
             IsDisylayLyric = !IsDisylayLyric;
         }
+        #endregion
 
-        public DelegateCommand<int?> SetChannelCommand { get; private set; }
+        #region RelayCommand SetChannelCmd
+
+        private RelayCommand _setChannelCmd;
+
+        public ICommand SetChannelCmd
+        {
+            get { return _setChannelCmd ?? (_setChannelCmd = new RelayCommand(param => SetChannelExecute(param as int?))); }
+        }
+
         private void SetChannelExecute(int? cid)
         {
             var id = cid.GetValueOrDefault();
             CurrentChannel = Channels.FirstOrDefault(s => s.Id == id);
             SongList.Clear();
-            NextSongCommand.Execute(false);
+            NextSongCmd.Execute(false);
             IsShowPlayerDetail = false;
         }
+        #endregion
 
-        public DelegateCommand DownloadSongCommand { get; private set; }
+        #region RelayCommand DownloadSongCmd
+
+        private RelayCommand _downloadSongCmd;
+
+        public ICommand DownloadSongCmd
+        {
+            get { return _downloadSongCmd ?? (_downloadSongCmd = new RelayCommand(param => DownloadSongExetute())); }
+        }
+
         private void DownloadSongExetute()
         {
             IsDownlading = true;
@@ -400,11 +460,11 @@ namespace MusicFmApplication
             var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
 
             //TODO: Add this to setting pannel
-            var folder = SettingHelper.GetSetting("DownloadFolder", AppName);
+            var folder = SettingHelper.GetSetting("DownloadFolder", App.Name);
             if (string.IsNullOrWhiteSpace(folder))
             {
                 folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
-                SettingHelper.SetSetting("DownloadFolder", folder, AppName);
+                SettingHelper.SetSetting("DownloadFolder", folder, App.Name);
             }
             HttpWebDealer.DownloadLargestFile(name, MediaManager.Lyric.Mp3Urls, folder, DownloadMonitor);
         }
@@ -414,34 +474,75 @@ namespace MusicFmApplication
             DownloadProgress = e.ProgressPercentage;
             if (DownloadProgress == 100) IsDownlading = false;
         }
+        #endregion
+        
+        #region RelayCommand OpenDownloadFolderCmd
 
-        public DelegateCommand OpenDownloadFolderCommand { get; private set; }
+        private RelayCommand _openDownloadFolderCmd;
+
+        public ICommand OpenDownloadFolderCmd
+        {
+            get { return _openDownloadFolderCmd ?? (_openDownloadFolderCmd = new RelayCommand(s => OpenDownloadFolderExecute())); }
+        }
+
         private void OpenDownloadFolderExecute()
         {
             Task.Run(() =>
                 {
-                    var folder = SettingHelper.GetSetting("DownloadFolder", AppName);
+                    var folder = SettingHelper.GetSetting("DownloadFolder", App.Name);
                     var name = CurrentSong.Artist + "-" + CurrentSong.Title + ".mp3";
                     var path = folder.EndsWith(@"\") ? folder + name : folder + "\\" + name;
                     Process.Start("Explorer.exe", "/select," + path);
                 });
         }
+        #endregion
 
-        public DelegateCommand OpenSettingWindowCommand { get; private set; }
+        #region RelayCommand OpenSettingWindowCmd
+
+        private RelayCommand _openSettingWindowCmd;
+
+        public ICommand OpenSettingWindowCmd
+        {
+            get { return _openSettingWindowCmd ?? (_openSettingWindowCmd = new RelayCommand(s => OpenSettingWindowExecure())); }
+        }
+
         private void OpenSettingWindowExecure() 
         {
             if (SettingWindow.IsOpened) return;
             var wd = new SettingWindow(this) {Owner = MainWindow};
             wd.Show();
         }
+        #endregion  
 
-        public DelegateCommand OpenDesktopLyricCommand { get; private set; }
-        private void OpenDesktopLyricExecute() 
+        #region RelayCommand ToggleDesktopLyricCmd
+
+        private RelayCommand _toggleDesktopLyricCmd;
+
+        public ICommand ToggleDesktopLyricCmd
         {
-            if (DesktopLyric.IsOpened) return;
-            var wd = new DesktopLyric(this) { Owner = MainWindow };
-            wd.Show();
+            get { return _toggleDesktopLyricCmd ?? (_toggleDesktopLyricCmd = new RelayCommand(s => ToggleDesktopLyricExecute())); }
         }
+
+        private void ToggleDesktopLyricExecute()
+        {
+            if (DesktopLyric.IsOpened)
+            {
+                var ownedWds = MainWindow.OwnedWindows;
+                for (var i = 0; i < ownedWds.Count; i++)
+                {
+                    var wd = ownedWds[i];
+                    if (!(wd is DesktopLyric)) continue;
+                    wd.Close();
+                    return;
+                }
+            }
+            else
+            {
+                var wd = new DesktopLyric(this) { Owner = MainWindow };
+                wd.Show();
+            }
+        }
+        #endregion
 
         #endregion
 
@@ -453,16 +554,6 @@ namespace MusicFmApplication
         private MainViewModel(MainWindow window)
         {
             MainWindow = window;
-            ShowWeatherDetailCommmand = new DelegateCommand(ShowWeatherDetailExecute);
-            NextSongCommand = new DelegateCommand<bool?>(NextSongExecute);
-            LikeSongCommand = new DelegateCommand<string>(LikeSongExecute);
-            ToggleLyricDisplayCommand = new DelegateCommand(ToggleLyricDisplayExecute);
-            TogglePlayerDetailCommand = new DelegateCommand(TogglePlayerDetailExecute);
-            SetChannelCommand = new DelegateCommand<int?>(SetChannelExecute);
-            DownloadSongCommand = new DelegateCommand(DownloadSongExetute);
-            OpenDownloadFolderCommand = new DelegateCommand(OpenDownloadFolderExecute);
-            OpenSettingWindowCommand=new DelegateCommand(OpenSettingWindowExecure);
-            OpenDesktopLyricCommand = new DelegateCommand(OpenDesktopLyricExecute);
 
             //TODO: Change this with MEF
             SongService = new DoubanFm();
@@ -480,14 +571,17 @@ namespace MusicFmApplication
         private void StartPlayer()
         {
             GetChannels();
-            var songList = SettingHelper.GetSetting(SongListCacheName, AppName).Deserialize<List<Song>>();
+            var songListExpired = SettingHelper.GetSetting(SongListExpireCacheName, App.Name).Deserialize<DateTime>();
+            var songList = songListExpired < DateTime.Now
+                               ? new List<Song>()
+                               : SettingHelper.GetSetting(SongListCacheName, App.Name).Deserialize<List<Song>>();
             if (songList != null && songList.Count > 0)
             {
                 songList.ForEach(s => SongList.Add(s));
-                NextSongCommand.Execute(false);
+                NextSongCmd.Execute(false);
             }
             else if (CurrentChannel != null)
-                SetChannelCommand.Execute(CurrentChannel.Id);
+                SetChannelCmd.Execute(CurrentChannel.Id);
         }
 
         private void GetChannels()
@@ -510,9 +604,9 @@ namespace MusicFmApplication
         /// <param name="actionType">OperationType (Played is default)</param>
         private void GetSongList(Action<List<Song>> callBack = null, OperationType actionType = OperationType.Played)
         {
-            MediaManager.IsBuffering = true;
             Task.Run(() =>
             {
+                MediaManager.IsBuffering = true;
                 //Get existed songs id list
                 var exitingIds = SongList.Select(s => s.Sid);
                 //Generate gain song parameter
@@ -524,12 +618,10 @@ namespace MusicFmApplication
                 var songs = SongService.GetSongList((GainSongParameter)para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
 
                 //Notify song list back to the main thread
-                MainWindow.Dispatcher.InvokeAsync(() => 
-                {
-                    if (callBack != null) callBack(songs);
-                });
-                var list = songs.Count > 2 ? songs.Skip(songs.Count - 2).ToList() : songs.ToList();
-                SettingHelper.SetSetting(SongListCacheName, list.SerializeToString(), AppName);
+                MainWindow.Dispatcher.InvokeAsync(() => { if (callBack != null) callBack(songs); });
+                SettingHelper.SetSetting(SongListCacheName, songs.SerializeToString(), App.Name);
+                //The url of song will expired in 2 hours
+                SettingHelper.SetSetting(SongListExpireCacheName, DateTime.Now.AddHours(2).SerializeToString(), App.Name);
                 MediaManager.IsBuffering = false;
             });
         }

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using CommonHelperLibrary;
 
 namespace MusicFmApplication
 {
@@ -15,22 +17,36 @@ namespace MusicFmApplication
     /// </summary>
     public partial class App : Application
     {
-        static readonly Mutex mutex = new Mutex(true, "{6616D937-9F14-493C-B0F9-E342579D8E9E}");
-        
+
+        public const string Name = "MusicFM";
+        public static LoggerHelper Log { get; private set; }
+
+        protected static readonly Mutex Mutex = new Mutex(true, "{6616D937-9F14-493C-B0F9-E342579D8E9E}");
+
         public App()
         {
             //Onle one instance can running at same time
-            if (mutex.WaitOne(TimeSpan.Zero, true))
-                mutex.ReleaseMutex();
+            if (Mutex.WaitOne(TimeSpan.Zero, true))
+                Mutex.ReleaseMutex();
             else
                 Shutdown(0);
 
-            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            Log = LoggerHelper.Instance;
+            Log.IsEnable = !string.IsNullOrWhiteSpace(SettingHelper.GetSetting("Log", Name));
+            Log.LogDirectory = Environment.CurrentDirectory + "\\Log\\";
+            Log.AppName = Name;
+
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
                 {
                     //TODO
                 };
+            DispatcherUnhandledException += (s, e) =>
+            {
+                e.Handled = true;
+                Log.Exception(e.Exception);
+            };
 
-            Exit += (sender, e) =>
+            Exit += (s, e) =>
                 {
                     //TODO
                 };

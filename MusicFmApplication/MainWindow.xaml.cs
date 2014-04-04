@@ -69,6 +69,20 @@ namespace MusicFmApplication
                     if (storyboard == null) return;
                     storyboard.Begin();
                 }
+                else if (arg.PropertyName.Equals("Lyric"))
+                {
+                    wd.LrcContaner.ScrollToTop();
+                }
+                else if (arg.PropertyName.Equals("CurrnetLrcLine"))
+                {
+                    var lineIndex = viewModel.MediaManager.CurrnetLrcLine.Key;
+                    //not scroll at first 5 lines
+                    if (lineIndex < 5) return;
+                    wd.LrcContaner.LineDown();
+                    //Scroll two lines every 3 times
+                    if (lineIndex % 3 == 1)
+                        wd.LrcContaner.LineDown();
+                }
             };
         }
 
@@ -112,7 +126,6 @@ namespace MusicFmApplication
                 Dispatcher.InvokeAsync(() =>
                 {
                     ViewModel = MainViewModel.GetInstance(this);
-                    ViewModel.MediaManager.PropertyChanged += MediaManagerPropertyChanged;
                 });
             });
         }
@@ -141,23 +154,6 @@ namespace MusicFmApplication
             }
         }
 
-        private void MediaManagerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName.Equals("Lyric"))
-            {
-                LrcContaner.ScrollToTop();
-            }
-            else if (e.PropertyName.Equals("CurrnetLrcLine"))
-            {
-                var lineIndex = ViewModel.MediaManager.CurrnetLrcLine.Key;
-                //not scroll at first 5 lines
-                if (lineIndex < 5) return;
-                LrcContaner.LineDown();
-                //Scroll two lines every 3 times
-                if (lineIndex % 3 == 1)
-                    LrcContaner.LineDown();
-            }
-        } 
         #endregion
 
         #region Processor for NotifyIcon
@@ -230,33 +226,31 @@ namespace MusicFmApplication
             var ctxMenu = new Forms.ContextMenuStrip();
 
             var playIcon = getImage("/CustomControlResources;component/Images/play32.png");
-            var playMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("Play"), playIcon) { Visible = false };
-            playMi.Click += (s, e) => ViewModel.MediaManager.StartPlayerCommand.Execute();
-
             var pauseIcon = getImage("/CustomControlResources;component/Images/pause32.png");
-            var pauseMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("Pause"), pauseIcon);
-            pauseMi.Click += (s, e) => ViewModel.MediaManager.PausePlayerCommand.Execute();
+            var playMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("Play"), playIcon);
+            playMi.Click += (s, e) => ViewModel.MediaManager.PauseResumePlayerCmd.Execute(null);
+
 
             var likeIcon = getImage("/CustomControlResources;component/Images/heart32.png");
             var likedIcon = getImage("/CustomControlResources;component/Images/RedHeart24.png");
             var likeMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("LikeSong"), likeIcon);
-            likeMi.Click += (s, e) => ViewModel.LikeSongCommand.Execute("");
+            likeMi.Click += (s, e) => ViewModel.LikeSongCmd.Execute("");
 
             var deleteIcon = getImage("/CustomControlResources;component/Images/delete32.png");
             var deleteMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("HateSong"), deleteIcon);
-            deleteMi.Click += (s, e) => ViewModel.LikeSongCommand.Execute("1");
+            deleteMi.Click += (s, e) => ViewModel.LikeSongCmd.Execute("1");
 
             var nextIcon = getImage("/CustomControlResources;component/Images/next32.png");
             var nextMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("NextSong"), nextIcon);
-            nextMi.Click += (s, e) => ViewModel.NextSongCommand.Execute(false);
+            nextMi.Click += (s, e) => ViewModel.NextSongCmd.Execute(false);
 
             var downloadIcon = getImage("/CustomControlResources;component/Images/download32.png");
             var downloadMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("DownloadSong"), downloadIcon);
-            downloadMi.Click += (s, e) => ViewModel.DownloadSongCommand.Execute();
+            downloadMi.Click += (s, e) => ViewModel.DownloadSongCmd.Execute(null);
 
             var folderIcon = getImage("/CustomControlResources;component/Images/folder32.png");
             var folderMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("OpenDownloadFolder"), folderIcon) { Visible = false };
-            folderMi.Click += (s, e) => ViewModel.OpenDownloadFolderCommand.Execute();
+            folderMi.Click += (s, e) => ViewModel.OpenDownloadFolderCmd.Execute(null);
 
             var openIcon = getImage("/CustomControlResources;component/Images/183.24.png");
             var openMainMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("OpenMainWd"), Image = openIcon };
@@ -272,14 +266,19 @@ namespace MusicFmApplication
 
             var lrcIcon = getImage("/CustomControlResources;component/Images/220.32.png");
             var lrcMi = new Forms.ToolStripMenuItem(LocalTextHelper.GetLocText("OpenDeskLrc"), lrcIcon);
-            lrcMi.Click += (s, e) => ViewModel.OpenDesktopLyricCommand.Execute();
+            lrcMi.Click += (s, e) =>
+            {
+                ViewModel.ToggleDesktopLyricCmd.Execute(null);
+                var open = LocalTextHelper.GetLocText("OpenDeskLrc");
+                var shut = LocalTextHelper.GetLocText("ShutDeskLrc");
+                lrcMi.Text = lrcMi.Text == open ? shut : open;
+            };
 
             var quitIcon = getImage("/CustomControlResources;component/Images/288.24.png");
             var closeWndMi = new Forms.ToolStripMenuItem { Text = LocalTextHelper.GetLocText("QuitApp"), Image = quitIcon };
             closeWndMi.Click += (s, e) => closeWindow();
 
             ctxMenu.Items.Add(playMi);
-            ctxMenu.Items.Add(pauseMi);
             ctxMenu.Items.Add(new Forms.ToolStripSeparator());
             ctxMenu.Items.Add(likeMi);
             ctxMenu.Items.Add(deleteMi);
@@ -294,10 +293,10 @@ namespace MusicFmApplication
             ctxMenu.Items.Add(new Forms.ToolStripSeparator());
             ctxMenu.Items.Add(closeWndMi);
 
-            ctxMenu.Opening += (s, e) =>
+            ctxMenu.Opening += (s, e) => 
             {
-                playMi.Visible = !ViewModel.MediaManager.IsPlaying;
-                pauseMi.Visible = ViewModel.MediaManager.IsPlaying;
+                playMi.Image = ViewModel.MediaManager.IsPlaying ? pauseIcon : playIcon;
+                playMi.Text = LocalTextHelper.GetLocText(ViewModel.MediaManager.IsPlaying ? "Pause" : "Play");
 
                 if (ViewModel.CurrentSong != null && ViewModel.CurrentSong.Like == 1)
                     likeMi.Image = likedIcon;

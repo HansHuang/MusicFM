@@ -3,9 +3,101 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:pstOpt="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="pstOpt" x:Name="Root"
-        Background="{x:Null}" ShowInTaskbar="False" Topmost="True" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" ShowActivated="False" IsHitTestVisible="False">
-    <Grid Width="300" Height="300" Background="Red">
-        
+        xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
+        mc:Ignorable="pstOpt" x:Name="Root" DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Background="{x:Null}" ShowInTaskbar="False" Topmost="True" AllowsTransparency="True" 
+        WindowStyle="None" ResizeMode="NoResize" ShowActivated="False" IsHitTestVisible="False">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <cvt:EqualiencyConverter x:Key="EqcyCvt"/>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid Width="1000" Height="120" DataContext="{Binding ElementName=Root}">
+        <ScrollViewer x:Name="LrcContaner" 
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Hidden">
+            <ItemsControl ItemsSource="{Binding Path=ViewModel.MediaManager.Lyric.Content}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel IsItemsHost="True" Orientation="Vertical" HorizontalAlignment="Center">
+                            <StackPanel.Effect>
+                                <DropShadowEffect Color="#AACCCCCC" ShadowDepth="0" BlurRadius="8"/>
+                            </StackPanel.Effect>
+                        </StackPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock TextAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" FontSize="22" Margin="0,6" Text="{Binding Value}" >
+                            <TextBlock.Effect>
+                                <BlurEffect Radius="0"/>
+                            </TextBlock.Effect>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#99119EDA"/>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource EqcyCvt}">
+                                                    <Binding Path="Key"/>
+                                                    <Binding ElementName="Root" Path="ViewModel.MediaManager.CurrnetLrcLine.Value"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="Foreground" Value="#CC119EDA"/>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource EqcyCvt}">
+                                                    <Binding Path="Key"/>
+                                                    <Binding ElementName="Root" Path="PreviousLine"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard x:Name="Fadeout">
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="(TextBlock.Effect).(BlurEffect.Radius)" From="0" To="20" Duration="0:0:1"/>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:1"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <RemoveStoryboard BeginStoryboardName="Fadeout"/>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource EqcyCvt}">
+                                                    <Binding Path="Key"/>
+                                                    <Binding ElementName="Root" Path="NextLine"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard x:Name="FadeIn">
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="(TextBlock.Effect).(BlurEffect.Radius)" From="20" To="0" Duration="0:0:1"/>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:1"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <RemoveStoryboard BeginStoryboardName="FadeIn"/>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </Window>

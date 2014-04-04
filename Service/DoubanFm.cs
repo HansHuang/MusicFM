@@ -115,7 +115,6 @@ namespace Service
             url.Append("&type=" + type);
             url.Append("&r=" + Randomer.Next(0, 1000000));
 
-            Debug.WriteLine(url);
             return url.ToString();
         }
 
@@ -152,7 +151,7 @@ namespace Service
 
             //Get expansion channels
             var json = HttpWebDealer.GetJsonObject(
-                "http://www.douban.com/j/app/radio/channels?version=100&app_name=radio_desktop_win", null, Encoding.UTF8);
+                "http://www.douban.com/j/app/radio/channels?version=100&app_name=radio_desktop_win", new WebHeaderCollection(), Encoding.UTF8);
             if (json == null || json["channels"] == null) return GetChannelsFromWebpage(list);
 
             foreach (var element in json["channels"])

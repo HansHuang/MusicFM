@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -34,7 +35,7 @@ namespace CommonHelperLibrary.WEB
             var weather = new Weather
                 {
                     CityName = info["city"],
-                    CityEnName = info["city_en"],
+                    CityEnName = info["city_en"].ToUpper(),
                     CityID = info["cityid"],
                     PublishDate = info["date_y"],
                     PublishChinaData = info["date"],
@@ -182,6 +183,7 @@ namespace CommonHelperLibrary.WEB
             var urlInfo = "http://data.weather.com.cn/forecast/" + cityCode + ".html";
             var urlIndex = "http://data.weather.com.cn/zsLenovo/" + cityCode + ".html";
             var urlAir = "http://mobile.weather.com.cn/data/air/" + cityCode + ".html";
+            var urlAirRefer = "http://mobile.weather.com.cn/air/" + cityCode + ".html";
             string weatherInfo = "", weatherIndex = "", airIndex = "";
             Task.Run(() =>
             {
@@ -191,9 +193,10 @@ namespace CommonHelperLibrary.WEB
             {
                 weatherIndex = HttpWebDealer.GetHtml(urlIndex, null, Encoding.UTF8).Trim();
             });
-            Task.Run(() =>
+            Task.Run(() => 
             {
-                airIndex = HttpWebDealer.GetHtml(urlAir, null, Encoding.UTF8).Trim();
+                var header = new WebHeaderCollection {{"Referer", urlAirRefer}};
+                airIndex = HttpWebDealer.GetHtml(urlAir, header, Encoding.UTF8).Trim();
             });
             while (string.IsNullOrEmpty(weatherInfo) || string.IsNullOrEmpty(weatherIndex) || string.IsNullOrEmpty(airIndex))
             {

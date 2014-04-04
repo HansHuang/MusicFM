@@ -69,7 +69,6 @@
     <Compile Include="Converter\EqualiencyConverter.cs" />
     <Compile Include="Converter\EqualiencyToVisibilityConverter.cs" />
     <Compile Include="Converter\InverseEqualiencyConverter.cs" />
-    <Compile Include="Converter\LyricHighLightConverter.cs" />
     <Compile Include="Converter\NumberToBoolConverter.cs" />
     <Compile Include="Converter\NumberToProgressState.cs" />
     <Compile Include="Converter\NumberToVisibilityConverter.cs" />

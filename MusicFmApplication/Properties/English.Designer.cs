@@ -250,6 +250,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Shut down desktop lyric.
+        /// </summary>
+        internal static string ShutDeskLrc {
+            get {
+                return ResourceManager.GetString("ShutDeskLrc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sina Weibo.
         /// </summary>
         internal static string SinaWeibo {

@@ -10,9 +10,6 @@ namespace CustomControlResources.Converter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture) 
         {
-            //Console.WriteLine("Values[0]: " + values[0].GetType() + "--" + values[0]);
-            //Console.WriteLine("Values[1]: " + values[1].GetType() + "--" + values[1]);
-            //Console.WriteLine(values[0].Equals(values[1]));
             return values.Length == 2 && values[0].Equals(values[1]);
         }
 
@@ -21,4 +18,22 @@ namespace CustomControlResources.Converter
             throw new NotImplementedException();
         }
     }
+
+    //public class SubtractionEquationConverter : IMultiValueConverter
+    //{
+    //    public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    //    {
+    //        if (values == null || values.Length != 2 || parameter == null) return false;
+    //        int val;
+    //        int.TryParse(parameter.ToString(), out val);
+    //        if (values[0] is int && values[1] is int)
+    //            return ((int)values[0]) - ((int)values[1]) == (int)parameter;
+    //        return false;
+    //    }
+
+    //    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

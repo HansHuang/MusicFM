@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -183,18 +185,25 @@ namespace CommonHelperLibrary.WEB
         public static HttpWebResponse GetResponseByUrl(string url, WebHeaderCollection headers = null, int requestTimeout = 0)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
-            //if (header != null)
-            //{
-            //    request.UserAgent = header[HttpRequestHeader.UserAgent];
-            //    request.Connection = header[HttpRequestHeader.Connection];
-            //    request.Accept = header[HttpRequestHeader.Accept];
-            //}
-            //var header = new WebHeaderCollection();
-            //header.Add(HttpRequestHeader.Connection, "keep-alive");
             if (headers != null)
             {
-                request.Headers = headers;
                 request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0";
+                //http://stackoverflow.com/questions/239725/cannot-set-some-http-headers-when-using-system-net-webrequest
+                var toRemove = new List<string>();
+                for (var i = 0; i < headers.Count; ++i)
+                {
+                    var header = headers.GetKey(i);
+                    var value = headers.GetValues(i);
+                    if (string.IsNullOrWhiteSpace(header) || value == null || value.Length < 1) continue;
+                    if (header == "Referer")
+                    {
+                        toRemove.Add(header);
+                        request.Referer = value.Aggregate((s, t) => s + "; " + t);
+                    }
+                    //else if()
+                }
+                toRemove.ForEach(headers.Remove);
+                if (headers.Count > 0) request.Headers = headers;
             }
             if (requestTimeout > 0) request.Timeout = requestTimeout;
 
@@ -207,8 +216,9 @@ namespace CommonHelperLibrary.WEB
                     response = (HttpWebResponse)request.GetResponse();
                     return response;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    LoggerHelper.Instance.Exception(e);
                     count++;
                     Thread.Sleep(200);
                 }
@@ -222,14 +232,6 @@ namespace CommonHelperLibrary.WEB
 
         //http://www.cnblogs.com/LoveJenny/archive/2011/12/02/2271543.html
         //http://www.yongfa365.com/Item/GetThumbnailImage-DrawString-DrawImageUnscaled.html
-
-        /*Tips : Get content info after Login website
-         * 
-         * Append a cookie to http request
-         * 
-         * http://www.cnblogs.com/jannock/archive/2008/09/05/1285191.html
-         * 
-         */
 
     }
 }
