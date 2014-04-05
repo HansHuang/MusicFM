@@ -3,7 +3,7 @@
 namespace MahApps.Metro.Models.Win32
 {
 	[Flags]
-	enum SWP : int
+	public enum SWP : int
 	{
 		NOSIZE = 0x1,
 		NOMOVE = 0x2,

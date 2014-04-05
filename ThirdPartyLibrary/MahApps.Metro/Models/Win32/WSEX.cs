@@ -3,7 +3,7 @@
 namespace MahApps.Metro.Models.Win32
 {
 	[Flags]
-	enum WSEX : int
+	public enum WSEX : int
 	{
 		/// <summary>
 		/// Specifies that a window created with this style accepts drag-drop files.

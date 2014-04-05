@@ -288,7 +288,6 @@ namespace MusicFmApplication
             Player.Open(new Uri(ViewModel.CurrentSong.Url));
             Player.Play();
             IsPlaying = true;
-            App.Log.Msg(DateTime.Now + ", Played", ViewModel.CurrentSong.Url);
         }
 
         #endregion
@@ -378,6 +377,7 @@ namespace MusicFmApplication
         #region Processors
         private void PlayerMediaOpened(object sender, EventArgs e)
         {
+            App.Log.Msg(DateTime.Now + ", Played", ViewModel.CurrentSong.Url);
             IsPlaying = true;
             if (Lyric == null) return;
             LrcKeys = Lyric.Content.Keys.ToList();

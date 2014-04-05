@@ -3,7 +3,7 @@
 namespace MahApps.Metro.Models.Win32
 {
 	[Flags]
-	enum WS : uint
+	public enum WS : uint
 	{
 		/// <summary>The window has a thin-line border.</summary>
 		BORDER = 0x800000,

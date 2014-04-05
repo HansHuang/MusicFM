@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace MahApps.Metro.Models.Win32
 {
-	static class NativeMethods
+	public static class NativeMethods
 	{
 		public static WS GetWindowLong(this IntPtr hWnd)
 		{

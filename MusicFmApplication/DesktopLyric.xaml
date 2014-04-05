@@ -13,6 +13,15 @@
                 <ResourceDictionary>
                     <cvt:EqualiencyConverter x:Key="EqcyCvt"/>
                 </ResourceDictionary>
+                <ResourceDictionary>
+                    <Storyboard x:Key="ScroollSmooth">
+                        <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="ScrollOffset" Duration="0:0:01">
+                            <DoubleAnimation.EasingFunction>
+                                <ExponentialEase EasingMode="EaseInOut" />
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -32,14 +41,14 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock TextAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" FontSize="22" Margin="0,6" Text="{Binding Value}" >
+                        <TextBlock TextAlignment="Center" TextWrapping="Wrap" FontSize="22" Margin="0,6" Text="{Binding Value}" >
                             <TextBlock.Effect>
                                 <BlurEffect Radius="0"/>
                             </TextBlock.Effect>
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="#99119EDA"/>
-                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Setter Property="Visibility" Value="Hidden"/>
                                     <Style.Triggers>
                                         <DataTrigger Value="True">
                                             <DataTrigger.Binding>

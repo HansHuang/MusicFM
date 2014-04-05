@@ -9,7 +9,6 @@
                    xmlns:mdl="clr-namespace:Service.Model;assembly=Service"
                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    xmlns:presentOpti="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
-                   xmlns:local="clr-namespace:MusicFmApplication"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"
                    TitleForeground="{DynamicResource AccentColorBrush}"
@@ -54,7 +53,7 @@
                 <!--Animation Stroybard Resource Dictionary-->
                 <ResourceDictionary>
                     <Storyboard x:Key="BackgroundColorStoryboard">
-                        <ColorAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="(local:MainWindow.BackgroundColor)" Duration="0:0:5" EasingFunction="{StaticResource Smooth}"/>
+                        <ColorAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="BackgroundColor" Duration="0:0:5" EasingFunction="{StaticResource Smooth}"/>
                     </Storyboard>
                     <Storyboard x:Key="AlbumPictureFadeInStoryboard">
                         <DoubleAnimation Storyboard.TargetName="AlbumPicture" Storyboard.TargetProperty="Opacity" From="0"  To ="1" Duration="0:0:.5"/>
