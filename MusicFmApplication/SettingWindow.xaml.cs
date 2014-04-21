@@ -24,15 +24,15 @@ namespace MusicFmApplication
     {
         public static bool IsOpened = false;
 
-        public MainViewModel ViewModel { get; set; }
+        protected MainViewModel ViewModel { get; set; }
 
         #region BackgroundColor(DependencyProperty)
         public static readonly DependencyProperty BackgroundColorProperty =
-            DependencyProperty.Register("BackgroundColor", typeof(SolidColorBrush), typeof(SettingWindow), new PropertyMetadata(default(SolidColorBrush)));
+            DependencyProperty.Register("BackgroundColor", typeof(Color), typeof(SettingWindow), new PropertyMetadata(default(Color)));
 
-        public SolidColorBrush BackgroundColor
+        public Color BackgroundColor
         {
-            get { return (SolidColorBrush)GetValue(BackgroundColorProperty); }
+            get { return (Color)GetValue(BackgroundColorProperty); }
             set { SetValue(BackgroundColorProperty, value); }
         }
         #endregion
@@ -41,7 +41,7 @@ namespace MusicFmApplication
         {
             ViewModel = viewModel;
             var rdm = new Random();
-            BackgroundColor = new SolidColorBrush(Color.FromArgb(150, (byte)rdm.Next(0, 255), (byte)rdm.Next(0, 255), (byte)rdm.Next(0, 255)));
+            BackgroundColor = Color.FromArgb(215, (byte)rdm.Next(0, 150), (byte)rdm.Next(0, 150), (byte)rdm.Next(0, 150));
 
             InitializeComponent();
 
@@ -55,6 +55,7 @@ namespace MusicFmApplication
             }
         }
 
+        #region Aero Glass Effect
         protected DwmHelper DwmHelper;
 
         void DwmHelperAeroGlassEffectChanged(object sender, EventArgs e)
@@ -72,6 +73,7 @@ namespace MusicFmApplication
             {
                 DwmHelper.EnableBlurBehindWindow();
             }
-        }
+        } 
+        #endregion
     }
 }

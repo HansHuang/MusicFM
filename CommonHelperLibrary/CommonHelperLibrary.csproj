@@ -58,6 +58,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AESHelper.cs" />
     <Compile Include="Audio\Mp3Header.cs" />
     <Compile Include="Dwm\ColorizationColor.cs" />
     <Compile Include="Dwm\DwmHelper.cs" />

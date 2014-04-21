@@ -36,9 +36,11 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <Private>False</Private>
@@ -51,6 +53,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AESForTing.cs" />
+    <Compile Include="BaiduMusic.cs" />
     <Compile Include="ISongService.cs" />
     <Compile Include="DoubanFm.cs" />
     <Compile Include="Model\Account.cs" />

@@ -284,10 +284,11 @@ namespace MusicFmApplication
         private void StartPlayerExecute()
         {
             if (Player == null || ViewModel.CurrentSong == null) return;
-            
+
             Player.Open(new Uri(ViewModel.CurrentSong.Url));
             Player.Play();
-            IsPlaying = true;
+            GetSongPicture();
+            GetLyric();
         }
 
         #endregion
@@ -298,7 +299,7 @@ namespace MusicFmApplication
 
         public ICommand MutePlayerCmd
         {
-            get { return _mutePlayerCmd ?? (_mutePlayerCmd = new RelayCommand(s => this.MuteExecute())); }
+            get { return _mutePlayerCmd ?? (_mutePlayerCmd = new RelayCommand(s => MuteExecute())); }
         }
         private void MuteExecute()
         {
@@ -329,10 +330,11 @@ namespace MusicFmApplication
             });
         }
 
+        #region Processors
         /// <summary>
         /// Get lyric of current song
         /// </summary>
-        public void GetLyric()
+        private void GetLyric()
         {
             if (ViewModel.CurrentSong == null) return;
             Lyric = new SongLyric
@@ -341,11 +343,10 @@ namespace MusicFmApplication
                 Album = ViewModel.CurrentSong.AlbumTitle,
                 Artist = ViewModel.CurrentSong.Artist
             };
-            Lyric.Mp3Urls.Add(ViewModel.CurrentSong.Url);
 
             Task.Run(() =>
             {
-                var lrc = SongLyricHelper.GetSongLyric(ViewModel.CurrentSong.Title, ViewModel.CurrentSong.Artist);
+                var lrc = ViewModel.SongService.GetLyric(ViewModel.CurrentSong);
                 if (lrc == null || lrc.Content.Count < 2) return;
                 ViewModel.MainWindow.Dispatcher.InvokeAsync(() => { Lyric = lrc; });
             });
@@ -354,7 +355,7 @@ namespace MusicFmApplication
         /// <summary>
         /// Get picture of current song
         /// </summary>
-        public void GetSongPicture() 
+        private void GetSongPicture() 
         {
             if (ViewModel.CurrentSong == null) return;
             SongPicture = null;
@@ -374,13 +375,10 @@ namespace MusicFmApplication
             });
         }
 
-        #region Processors
         private void PlayerMediaOpened(object sender, EventArgs e)
         {
             App.Log.Msg(DateTime.Now + ", Played", ViewModel.CurrentSong.Url);
             IsPlaying = true;
-            if (Lyric == null) return;
-            LrcKeys = Lyric.Content.Keys.ToList();
 
             var player = (MediaPlayer)sender;
             SongLength = player.NaturalDuration.HasTimeSpan
@@ -428,7 +426,7 @@ namespace MusicFmApplication
                 CurrnetLrcLine = new KeyValuePair<int, TimeSpan>(nextIndex, nextTime);
         }
 
-        private DispatcherOperation DispatcherInvokeAsync(Action callback)
+        protected DispatcherOperation DispatcherInvokeAsync(Action callback)
         {
             return ViewModel.MainWindow.Dispatcher.InvokeAsync(callback);
         }

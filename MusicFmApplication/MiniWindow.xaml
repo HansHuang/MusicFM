@@ -23,12 +23,7 @@
                     <cvt:InverseBoolConverter x:Key="IvsBool"/>
                 </ResourceDictionary>
                 <ResourceDictionary>
-                    <Style TargetType="ToolTip">
-                        <Setter Property="Background" Value="#90000000"/>
-                        <Setter Property="BorderBrush" Value="#CC000000"/>
-                        <Setter Property="BorderThickness" Value="1"/>
-                        <Setter Property="Foreground" Value="GhostWhite"/>
-                    </Style>
+                    
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -130,20 +125,15 @@
                             Command="{Binding ViewModel.NextSongCmd}" 
                             IsEnabled="{Binding ViewModel.SongList.Count, Converter={StaticResource Num2Bool}}"
                             ToolTip="{lex:LocText MusicFmApplication:English:NextSong}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Next32}"/>
-                </cc:ImageButton.Image>
+                <cc:ColorlizeImage Image="{StaticResource Next32}"/>
             </cc:ImageButton>
             <!--Delete Song Btn-->
             <cc:ImageButton Canvas.Right="25" Canvas.Bottom="30"
                             Command="{Binding ViewModel.LikeSongCmd}"
                             CommandParameter="1"
                             ToolTip="{lex:LocText MusicFmApplication:English:HateSong}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
-                </cc:ImageButton.Image>
+                <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
             </cc:ImageButton>
-
             <!--Set Top Btn-->
             <cc:ImageButton Canvas.Left="28" Canvas.Top="30"
                             Command="{Binding SetTopMostCmd}"
@@ -169,17 +159,13 @@
             <cc:ImageButton Canvas.Left="2" Canvas.Top="85"
                             Command="{Binding BackMainWindowCmd}"
                             ToolTip="{lex:LocText MusicFmApplication:English:BackToMainUI}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Back24}"/>
-                </cc:ImageButton.Image>
+                <cc:ColorlizeImage Image="{StaticResource Back24}"/>
             </cc:ImageButton>
             <!--Minimize to taskbar notify icon Btn-->
             <cc:ImageButton Canvas.Left="25" Canvas.Bottom="30"
                             Command="{Binding MinimizeToIconCmd}"
                             ToolTip="{lex:LocText MusicFmApplication:English:Minimize2NotifyIcon}">
-                <cc:ImageButton.Image>
-                    <cc:ColorlizeImage Image="{StaticResource Anchor24}"/>
-                </cc:ImageButton.Image>
+                <cc:ColorlizeImage Image="{StaticResource Anchor24}"/>
             </cc:ImageButton>
         </Canvas>
         <!--Album Picture-->

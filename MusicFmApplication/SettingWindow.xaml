@@ -3,12 +3,15 @@
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                    xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+                   xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
                    Icon="{DynamicResource Setting32}" ShowTitleBar="False"
                    ResizeMode="CanMinimize" AllowsTransparency="True"
                    Title="{lex:LocText MusicFmApplication:English:Setting}" 
                    Height="480"  Width="320" x:Name="Root"
-                   DataContext="{Binding Source={RelativeSource Self}}"
-                   Background="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=BackgroundColor}">
+                   DataContext="{Binding Source={RelativeSource Self}}">
+    <metro:MetroWindow.Background>
+        <SolidColorBrush Color="{Binding ElementName=Root, Path=BackgroundColor}"/>
+    </metro:MetroWindow.Background>
     <metro:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -17,7 +20,6 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml"/>
-                <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro.Resources;component/Icons.xaml" />-->
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
@@ -27,6 +29,150 @@
         </ResourceDictionary>
     </metro:MetroWindow.Resources>
     <Grid>
+        <TabControl Margin="0 20 0 0" DataContext="{Binding ElementName=Root}">
+            <TabControl.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="WhiteSmoke"/>
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
+                    <Setter Property="Height" Value="20"/>
+                    <Setter Property="Width" Value="20"/>
+                </Style>
+                <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
+                    <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                    <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                </Style>
+                <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                    <Setter Property="SelectedIndex" Value="0"/>
+                    <Setter Property="MinHeight" Value="20"/>
+                    <Setter Property="Height" Value="20"/>
+                    <Setter Property="Background" Value="#50FFFFFF"/>
+                    <Setter Property="FontSize" Value="12"/>
+                </Style>
+                <Style TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                    <Setter Property="Background" Value="#50FFFFFF"/>
+                </Style>
+                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                    <Setter Property="MinHeight" Value="24"/>
+                    <Setter Property="Height" Value="24"/>
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                    <Setter Property="Background" Value="#50FFFFFF"/>
+                    <Setter Property="Width" Value="200"/>
+                </Style>
+            </TabControl.Resources>
+            <TabItem Header="General Setting"
+                     metro:ControlsHelper.HeaderFontSize="13">
+                <metro:MetroContentControl>
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <StackPanel.Resources>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Orientation" Value="Horizontal"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <StackPanel>
+                            <TextBlock Text="Language" Margin="0 0 10 0"/>
+                            <ComboBox Width="200" >
+                                <ComboBoxItem Content="English"/>
+                                <ComboBoxItem Content="Chinese"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Mouse wheel to adjust the volume" VerticalAlignment="Center"/>
+                            <metro:ToggleSwitch IsChecked="True" HorizontalAlignment="Right" Foreground="WhiteSmoke"/>
+                        </StackPanel>
+                        <TextBlock Text="Song download folder: " Margin="0 0 0 5"/>
+                        <StackPanel>
+                            <TextBox Text="E:\GitHub\MusicFM\MusicFmApplication\bin\Debug\DownloadSongs\" 
+                                     Width="240" />
+                            <cc:ImageButton Margin="10 0 0 0">
+                                <cc:ImageButton.Image>
+                                    <cc:ColorlizeImage Image="{StaticResource Folder32}" />
+                                </cc:ImageButton.Image>
+                            </cc:ImageButton>
+                        </StackPanel>
+                        
+                        <GroupBox Header="UI Setting" Margin="-5 5">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel>
+                                    <TextBlock Text="Background Style" Margin="0 0 5 0"/>
+                                    <ComboBox>
+                                        <ComboBoxItem Content="Solid Color"/>
+                                        <ComboBoxItem Content="Image"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <Rectangle Fill="Teal" Width="270" Height="20" Margin="0 10 0 0"/>
+                            </StackPanel>
+                            
+                        </GroupBox>
 
+                        <GroupBox Header="Hotkey Setting" Margin="-5 5">
+                            <ScrollViewer>
+                                <ScrollViewer.Style>
+                                    <Style TargetType="ScrollViewer" BasedOn="{StaticResource {x:Type ScrollViewer}}">
+                                        <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Path=IsMouseOver}" Value="true">
+                                                <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ScrollViewer.Style>
+                                <Grid>
+                                    <Grid.Resources>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="Margin" Value="0 0 5 0"/>
+                                        </Style>
+                                    </Grid.Resources>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Like Song" Grid.Column="0" Grid.Row="0" />
+                                    <TextBox Grid.Column="1" Grid.Row="0" IsReadOnly="True"
+                                             metro:TextboxHelper.ClearTextButton="True"
+                                             metro:TextboxHelper.ButtonCommand=""/>
+                                    <TextBlock Text="Never Play" Grid.Column="0" Grid.Row="1"/>
+                                    <TextBox Grid.Column="1" Grid.Row="1" IsReadOnly="True"
+                                             metro:TextboxHelper.ClearTextButton="True"
+                                             metro:TextboxHelper.ButtonCommand=""/>
+                                    <TextBlock Text="Next Song" Grid.Column="0" Grid.Row="2"/>
+                                    <TextBox Grid.Column="1" Grid.Row="2" IsReadOnly="True"
+                                             metro:TextboxHelper.ClearTextButton="True"
+                                             metro:TextboxHelper.ButtonCommand=""/>
+                                    <TextBlock Text="Pause Player" Grid.Column="0" Grid.Row="3"/>
+                                    <TextBox Grid.Column="1" Grid.Row="3" IsReadOnly="True"
+                                             metro:TextboxHelper.ClearTextButton="True"
+                                             metro:TextboxHelper.ButtonCommand=""/>
+                                </Grid>
+                            </ScrollViewer>
+                        </GroupBox>
+
+                    </StackPanel>
+                </metro:MetroContentControl>
+            </TabItem>
+            <TabItem Header="Desktop Lyric Setting"
+                     metro:ControlsHelper.HeaderFontSize="13">
+                <metro:MetroContentControl>
+                    <Grid>
+
+                    </Grid>
+                </metro:MetroContentControl>
+            </TabItem>
+        </TabControl>
     </Grid>
 </metro:MetroWindow>

@@ -79,6 +79,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Baidu Music.
+        /// </summary>
+        internal static string BaiduMusic {
+            get {
+                return ResourceManager.GetString("BaiduMusic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Douban Account.
         /// </summary>
         internal static string DoubanAct {

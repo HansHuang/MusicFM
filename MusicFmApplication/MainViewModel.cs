@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Text;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommonHelperLibrary;
@@ -24,17 +26,6 @@ namespace MusicFmApplication
     /// </summary>
     public class MainViewModel : INotifyPropertyChanged
     {
-        #region Fields
-
-        private static MainViewModel _instance;
-
-        public MainWindow MainWindow { get; private set; }
-
-        private const string SongListCacheName = "SongList";
-        private const string SongListExpireCacheName = "SongListExpire";
-
-        #endregion
-
         #region INotifyPropertyChanged RaisePropertyChanged
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -50,6 +41,20 @@ namespace MusicFmApplication
 
         #endregion
 
+        #region Fields
+
+        private static MainViewModel _instance;
+
+        public MainWindow MainWindow { get; private set; }
+
+        private const string SongListCacheName = "SongList";
+        private const string SongListExpireCacheName = "SongListExpire";
+
+        [ImportMany(typeof(ISongService))]
+        public List<ISongService> AvalibleSongServices { get; set; }
+
+        #endregion
+
         #region Notify Properties
 
         #region MediaManager (INotifyPropertyChanged Property)
@@ -58,7 +63,7 @@ namespace MusicFmApplication
 
         public MediaManager MediaManager
         {
-            get { return _mediaManager ?? (_mediaManager = new MediaManager(this)); }
+            get { return _mediaManager; }
             private set
             {
                 if (_mediaManager != null && _mediaManager.Equals(value)) return;
@@ -74,7 +79,7 @@ namespace MusicFmApplication
 
         public AccountManager Account
         {
-            get { return _account ?? (_account = new AccountManager(this)); }
+            get { return _account; }
             private set
             {
                 if (_account != null && _account.Equals(value)) return;
@@ -91,7 +96,7 @@ namespace MusicFmApplication
 
         public WeatherManager WeatherMgr
         {
-            get { return _weatherMgr ?? (_weatherMgr = new WeatherManager(this)); }
+            get { return _weatherMgr; }
             private set
             {
                 if (_weatherMgr != null && _weatherMgr.Equals(value)) return;
@@ -101,22 +106,7 @@ namespace MusicFmApplication
         }
 
         #endregion
-
-        #region IsShowWeatherDetail (NotificationObject Property)
-        private bool _isShowWeatherDetail;
-
-        public bool IsShowWeatherDetail
-        {
-            get { return _isShowWeatherDetail; }
-            set
-            {
-                if (_isShowWeatherDetail.Equals(value)) return;
-                _isShowWeatherDetail = value;
-                RaisePropertyChanged("IsShowWeatherDetail");
-            }
-        }
-        #endregion
-
+        
         #region IsShowPlayerDetail (INotifyPropertyChanged Property)
 
         private bool _isShowPlayerDetail;
@@ -283,44 +273,6 @@ namespace MusicFmApplication
 
         #region Delegate Commands
 
-        #region RelayCommand ShowWeatherDetailCmd
-
-        private RelayCommand _showWeatherDetailCmd;
-
-        public ICommand ShowWeatherDetailCmd
-        {
-            get{return _showWeatherDetailCmd ?? (_showWeatherDetailCmd = new RelayCommand(s => ShowWeatherDetailExecute()));}
-        }
-
-        private void ShowWeatherDetailExecute()
-        {
-            IsShowWeatherDetail = !IsShowWeatherDetail;
-        }
-        #endregion
-
-        #region RelayCommand TogglePlayerDetailCmd
-
-        private RelayCommand _togglePlayerDetailCmd;
-
-        public ICommand TogglePlayerDetailCmd
-        {
-            get{ return _togglePlayerDetailCmd ?? (_togglePlayerDetailCmd = new RelayCommand(s => TogglePlayerDetailExecute()));}
-        }
-
-        private void TogglePlayerDetailExecute()
-        {
-            IsShowPlayerDetail = !IsShowPlayerDetail;
-
-            if (string.IsNullOrEmpty(Account.UserName) || Account.AccountInfo == null)
-                Account.UserName = LocalTextHelper.GetLocText("Login");
-            Account.IsShowLoginBox = false;
-            Account.Feedback = string.Empty;
-            if (Account.AccountInfo != null && Account.UserName != Account.AccountInfo.UserName)
-                Account.UserName = Account.AccountInfo.UserName;
-        }
-
-        #endregion
-
         #region RelayCommand NextSongCmd
 
         private RelayCommand _nextSongCmd;
@@ -342,7 +294,7 @@ namespace MusicFmApplication
                 {
                     var para = new SongActionParameter(Account.AccountInfo)
                         .CurrentSongID(CurrentSong)
-                        .CurrentChennalId(CurrentChannel)
+                        .CurrentChennal(CurrentChannel)
                         .PositionSeconds(CurrentSong.Length);
                     Task.Run(() => SongService.CompletedSong(para));
                 }
@@ -356,8 +308,7 @@ namespace MusicFmApplication
                     CurrentSong = SongList[0];
                     //Play current new song with new url
                     MediaManager.StartPlayerCmd.Execute(null);
-                    MediaManager.GetSongPicture();
-                    MediaManager.GetLyric();
+                    //RaisePropertyChanged("MediaManager");
                     SongList.RemoveAt(0);
                 };
             //Can only play after get song list
@@ -425,6 +376,27 @@ namespace MusicFmApplication
         }
         #endregion
 
+        #region RelayCommand HideLoginBoxCmd
+
+        private RelayCommand _hideLoginBoxCmd;
+
+        public ICommand HideLoginBoxCmd
+        {
+            get { return _hideLoginBoxCmd ?? (_hideLoginBoxCmd = new RelayCommand(s => HideLoginBoxExecute())); }
+        }
+
+        private void HideLoginBoxExecute()
+        {
+            if (string.IsNullOrEmpty(Account.UserName) || Account.AccountInfo == null)
+                Account.UserName = LocalTextHelper.GetLocText("Login");
+            Account.IsShowLoginBox = false;
+            Account.Feedback = string.Empty;
+            if (Account.AccountInfo != null && Account.UserName != Account.AccountInfo.UserName)
+                Account.UserName = Account.AccountInfo.UserName;
+        }
+
+        #endregion
+
         #region RelayCommand SetChannelCmd
 
         private RelayCommand _setChannelCmd;
@@ -466,7 +438,8 @@ namespace MusicFmApplication
                 folder = Environment.CurrentDirectory + "\\DownloadSongs\\";
                 SettingHelper.SetSetting("DownloadFolder", folder, App.Name);
             }
-            HttpWebDealer.DownloadLargestFile(name, MediaManager.Lyric.Mp3Urls, folder, DownloadMonitor);
+            var list = new List<string>(MediaManager.Lyric.Mp3Urls) {CurrentSong.Url};
+            HttpWebDealer.DownloadLargestFile(name, list, folder, DownloadMonitor);
         }
 
         private void DownloadMonitor(object webClient, DownloadProgressChangedEventArgs e)
@@ -544,6 +517,25 @@ namespace MusicFmApplication
         }
         #endregion
 
+        #region RelayCommand ChangeSongServiceCmd
+
+        private RelayCommand _changeSongServiceCmd;
+
+        public ICommand ChangeSongServiceCmd
+        {
+            get { return _changeSongServiceCmd ?? (_changeSongServiceCmd = new RelayCommand(s => ChangeSongService(s as Type))); }
+        }
+
+        private void ChangeSongService(Type type) 
+        {
+            if (type == null || SongService.GetType() == type) return;
+            //SongService = (ISongService)Activator.CreateInstance(type);
+            SongService = AvalibleSongServices.First(s => s.GetType() == type);
+            GetChannels();
+        }
+
+        #endregion
+
         #endregion
 
         #region Construct Method
@@ -555,8 +547,15 @@ namespace MusicFmApplication
         {
             MainWindow = window;
 
-            //TODO: Change this with MEF
-            SongService = new DoubanFm();
+            MediaManager = new MediaManager(this);
+            Account = new AccountManager(this);
+            WeatherMgr = new WeatherManager(this);
+            
+            ComposeSongService();
+            if (AvalibleSongServices == null || AvalibleSongServices.Count < 1) return;
+            //TODO: Change this to Setting center
+            SongService = AvalibleSongServices.First(s => s is DoubanFm);
+
             StartPlayer();
         }
 
@@ -587,14 +586,25 @@ namespace MusicFmApplication
         private void GetChannels()
         {
             var basicChannels = SongService.GetChannels();
-            Channels = new ObservableCollection<Channel>(basicChannels);
-            CurrentChannel = Channels.FirstOrDefault();
+            if (Channels != null) Channels.Clear();
+            Channels = Channels ?? new ObservableCollection<Channel>();
+            basicChannels.ForEach(s => Channels.Add(s));
+            if (CurrentChannel == null) CurrentChannel = Channels.FirstOrDefault();
 
             Task.Run(() =>
+            {
+                var allChannels = SongService.GetChannels(false);
+                var crtChannel = allChannels.FirstOrDefault(s => s.Id == CurrentChannel.Id && s.StrId == CurrentChannel.StrId);
+                MainWindow.Dispatcher.InvokeAsync(() =>
                 {
-                    var allChannels = new ObservableCollection<Channel>(SongService.GetChannels(false));
-                    MainWindow.Dispatcher.InvokeAsync(() => { Channels = allChannels; });
+                    Channels.Clear();
+                    allChannels.ForEach(s => Channels.Add(s));
+                    if (CurrentChannel != null)
+                        CurrentChannel = crtChannel ?? CurrentChannel;
+                    else
+                        CurrentChannel = Channels.FirstOrDefault();
                 });
+            });
         }
 
         /// <summary>
@@ -614,7 +624,7 @@ namespace MusicFmApplication
                     .HistoryString(new List<Song>(HistorySongList) { CurrentSong }, actionType)
                     .PositionSeconds((int)MediaManager.Position.TotalSeconds)
                     .CurrentSongID(CurrentSong)
-                    .CurrentChennalId(CurrentChannel);
+                    .CurrentChennal(CurrentChannel);
                 var songs = SongService.GetSongList((GainSongParameter)para).Where(s => !exitingIds.Contains(s.Sid)).ToList();
 
                 //Notify song list back to the main thread
@@ -626,7 +636,12 @@ namespace MusicFmApplication
             });
         }
 
+        private void ComposeSongService()
+        {
+            var catalog = new AssemblyCatalog((typeof(ISongService).Assembly));
+            var container = new CompositionContainer(catalog);
+            container.ComposeParts(this);
+        }
         #endregion
-
     }
 }

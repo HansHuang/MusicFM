@@ -26,4 +26,5 @@
     <ImageSource x:Key="Back24">Images/back24.png</ImageSource>
     <ImageSource x:Key="Anchor24">Images/anchor24.png</ImageSource>
     <ImageSource x:Key="Open24">Images/183.24.png</ImageSource>
+    <ImageSource x:Key="Close20">Images/Close.png</ImageSource>
 </ResourceDictionary>

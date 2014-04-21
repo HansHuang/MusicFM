@@ -5,7 +5,13 @@
         <ResourceDictionary Source="Style/ImageButton.xaml"/>
         <!--<ResourceDictionary Source="Style/ScrollViewer.xaml"/>-->
         <ResourceDictionary Source="Style/ColorlizeImage.xaml"/>
+        <ResourceDictionary>
+            <Style TargetType="ToolTip">
+                <Setter Property="Background" Value="#90000000"/>
+                <Setter Property="BorderBrush" Value="#CCCCCCCC"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Foreground" Value="GhostWhite"/>
+            </Style>
+        </ResourceDictionary>
     </ResourceDictionary.MergedDictionaries>
-    
-
 </ResourceDictionary>

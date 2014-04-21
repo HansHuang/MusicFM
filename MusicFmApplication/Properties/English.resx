@@ -123,6 +123,9 @@
   <data name="BackToMainUI" xml:space="preserve">
     <value>Back to Main Panel</value>
   </data>
+  <data name="BaiduMusic" xml:space="preserve">
+    <value>Baidu Music</value>
+  </data>
   <data name="DoubanAct" xml:space="preserve">
     <value>Douban Account</value>
   </data>

@@ -9,6 +9,9 @@
                    xmlns:mdl="clr-namespace:Service.Model;assembly=Service"
                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    xmlns:presentOpti="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                   xmlns:sm="clr-namespace:Service;assembly=Service"
+                   xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+                   xmlns:local="clr-namespace:MusicFmApplication"
                    x:Name="Root"
                    Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"
                    TitleForeground="{DynamicResource AccentColorBrush}"
@@ -47,6 +50,26 @@
                         <Setter Property="Margin" Value="3" />
                         <Setter Property="Width" Value="95"/>
                         <Setter Property="Height" Value="25"/>
+                    </Style>
+                    <Style TargetType="cc:ImageToggleButton" BasedOn="{StaticResource {x:Type cc:ImageToggleButton}}" x:Key="WdsCmdBtn">
+                        <Setter Property="Opacity" Value=".5"/>
+                        <Setter Property="Margin" Value="10 0"/>
+                        <Style.Triggers>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" To=".5" Duration="0:0:.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Style.Triggers>
                     </Style>
                     <PowerEase x:Key="Smooth" Power="3" presentOpti:Freeze="True"/>
                 </ResourceDictionary>
@@ -117,40 +140,42 @@
 
     <metro:MetroWindow.WindowCommands>
         <metro:WindowCommands DataContext="{Binding ElementName=Root}">
-            <Button Command="{Binding ViewModel.ShowWeatherDetailCmd}">
-                <Button.Content>
-                    <Image ToolTip="{Binding ElementName=WeatherDetail, Path=WeatherData.WeatherImageTitle}" Width="24" Height="24">
-                        <Image.Source>
-                            <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="S">
-                                <Binding ElementName="WeatherDetail" Path="WeatherData.WeatherImage"/>
-                                <Binding Path="Resources"/>
-                            </MultiBinding>
-                        </Image.Source>
-                    </Image>
-                </Button.Content>
-            </Button>
-            <Button Command="{Binding ViewModel.TogglePlayerDetailCmd}">
-                <Button.Content>
-                    <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentSelectedColorBrush}" 
-                                       Width="16" Height="16"/>
-                </Button.Content>
-            </Button>
+            <cc:ImageToggleButton IsChecked="{Binding ElementName=WeatherFlyout, Path=IsOpen}" Style="{StaticResource WdsCmdBtn}">
+                <Image ToolTip="{Binding ElementName=WeatherDetail, Path=WeatherData.WeatherImageTitle}" Width="24" Height="24">
+                    <Image.Source>
+                        <MultiBinding Converter="{StaticResource Num2Image}" ConverterParameter="S">
+                            <Binding ElementName="WeatherDetail" Path="WeatherData.WeatherImage"/>
+                            <Binding Path="Resources"/>
+                        </MultiBinding>
+                    </Image.Source>
+                </Image>
+            </cc:ImageToggleButton>
+            <cc:ImageToggleButton IsChecked="{Binding ElementName=PlayerDetailFlyout, Path=IsOpen}" Style="{StaticResource WdsCmdBtn}">
+                <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentSelectedColorBrush}" 
+                                   Width="16" Height="16"/>
+            </cc:ImageToggleButton>
         </metro:WindowCommands>
     </metro:MetroWindow.WindowCommands>
+    
+    <!--<Window.CommandBindings>
+        <CommandBinding Command="Play">
+        </CommandBinding>
+    </Window.CommandBindings>-->
 
     <metro:MetroWindow.Flyouts>
         <metro:FlyoutsControl>
             <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000"
                           Header="{lex:LocText MusicFmApplication:English:WeatherDetail}"
-                          IsOpen="{Binding ViewModel.IsShowWeatherDetail }">
+                          x:Name="WeatherFlyout">
                 <cc:WeatherDetail x:Name="WeatherDetail" WeatherData="{Binding ElementName=Root, Path=ViewModel.WeatherMgr.WeatherData}"/>
             </metro:Flyout>
             <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000" Position="Right"
                           Header="{lex:LocText MusicFmApplication:English:MyCentralRoom}"
                           metro:ControlsHelper.HeaderFontSize="22"
+                          x:Name="PlayerDetailFlyout"
                           IsOpen="{Binding ViewModel.IsShowPlayerDetail }">
                 <StackPanel Orientation="Vertical">
-                    <DockPanel Margin="0,0,10,-10">
+                    <DockPanel Margin="0,0,10,0">
                         <cc:ImageButton DockPanel.Dock="Right" Margin="10,0,0,0"
                                         Command="{Binding ViewModel.OpenSettingWindowCmd}">
                             <cc:ImageButton.Image>
@@ -183,7 +208,8 @@
                                 </EventTrigger>
                             </cc:ImageButton.Triggers>
                         </cc:ImageButton>
-                        <cc:ImageButton DockPanel.Dock="Right" ToolTip="{lex:LocText MusicFmApplication:English:Setting}"
+                        <cc:ImageButton DockPanel.Dock="Right" 
+                                        ToolTip="{lex:LocText MusicFmApplication:English:Setting}"
                                         Command="{Binding ViewModel.OpenSettingWindowCmd}">
                             <cc:ImageButton.Image>
                                 <Image Source="{StaticResource Setting32}" Height="20" Width="20" Opacity=".6"/>
@@ -211,9 +237,15 @@
                         </cc:ImageButton>
                         <Grid DockPanel.Dock="Right"/>
                     </DockPanel>
-                    <TabControl Width="230">
+                    <TabControl Width="230" x:Name="ServiceList">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding ViewModel.ChangeSongServiceCmd}"
+                                                       CommandParameter="{Binding ElementName=ServiceList, Path=SelectedItem.Tag}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <TabItem Header="{lex:LocText MusicFmApplication:English:DoubanFm}"
-                             metro:ControlsHelper.HeaderFontSize="18">
+                                 metro:ControlsHelper.HeaderFontSize="14" Tag="{x:Type sm:DoubanFm}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -222,7 +254,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <!--Login Btn-->
-                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                <Grid Grid.Row="0">
                                     <Grid.Style>
                                         <Style TargetType="Grid">
                                             <Style.Triggers>
@@ -352,74 +384,38 @@
                                             <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
                                         </cc:ImageButton.Image>
                                     </cc:ImageButton>
+                                    <cc:ImageButton HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                    Grid.Row="0" Grid.Column="1"
+                                                    Width="17" Height="17"
+                                                    Command="{Binding ViewModel.HideLoginBoxCmd}">
+                                        <cc:ColorlizeImage Image="{StaticResource Close20}" Width="17" Height="17"/>
+                                    </cc:ImageButton>
                                 </Grid>
                                 <!--Error Msg-->
                                 <StackPanel Grid.Row="2"
-                                        Visibility="{Binding ViewModel.Account.IsShowLoginBox, Converter={StaticResource Bool2Visbility}}">
+                                            Visibility="{Binding ViewModel.Account.IsShowLoginBox, Converter={StaticResource Bool2Visbility}}">
                                     <TextBlock Foreground="DarkRed" 
-                                           ToolTip="{Binding ViewModel.Account.Feedback}"
-                                           Text="{Binding ViewModel.Account.Feedback}"/>
+                                               ToolTip="{Binding ViewModel.Account.Feedback}"
+                                               Text="{Binding ViewModel.Account.Feedback}"/>
                                 </StackPanel>
                                 <!--Channel List-->
-                                <ScrollViewer Grid.Row="3" Height="315" x:Name="ChannelsViewer">
-                                    <ScrollViewer.Style>
-                                        <Style TargetType="ScrollViewer" BasedOn="{StaticResource {x:Type ScrollViewer}}">
-                                            <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ElementName=ChannelsViewer, Path=IsMouseOver}"
-                                                            Value="true">
-                                                    <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ScrollViewer.Style>
-                                    <ItemsControl ItemsSource="{Binding ViewModel.Channels}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" HorizontalAlignment="Left"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Style="{StaticResource ChannelCell}">
-                                                    <cc:ImageButton Template="{StaticResource ImageButtonTemplate}"
-                                                                Command="{Binding ElementName=Root, Path=ViewModel.SetChannelCmd}"
-                                                                CommandParameter="{Binding Id}"
-                                                                ToolTip="{Binding Name}">
-                                                        <cc:ImageButton.Image>
-                                                            <cc:GifImage Width="11" Height="11" Margin="0,0,3,0" Source="{StaticResource CrtChelStr}">
-                                                                <cc:GifImage.Visibility>
-                                                                    <MultiBinding Converter="{StaticResource Equ2Vsbty}">
-                                                                        <Binding Path=".Id"/>
-                                                                        <Binding ElementName="Root" Path="ViewModel.CurrentChannel.Id" />
-                                                                    </MultiBinding>
-                                                                </cc:GifImage.Visibility>
-                                                            </cc:GifImage>
-                                                        </cc:ImageButton.Image>
-                                                        <TextBlock Text="{Binding Name}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Value="{x:Static cc:BooleanClass.True}">
-                                                                            <DataTrigger.Binding>
-                                                                                <MultiBinding Converter="{StaticResource EquCvt}">
-                                                                                    <Binding Path=".Id"/>
-                                                                                    <Binding ElementName="Root" Path="ViewModel.CurrentChannel.Id"/>
-                                                                                </MultiBinding>
-                                                                            </DataTrigger.Binding>
-                                                                            <Setter Property="Foreground" Value="SpringGreen"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                    <Setter Property="Foreground" Value="WhiteSmoke"/>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    </cc:ImageButton>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
+                                <Grid Grid.Row="3" Height="315">
+                                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"/>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="{lex:LocText MusicFmApplication:English:BaiduMusic}"
+                                 metro:ControlsHelper.HeaderFontSize="14" Tag="{x:Type sm:BaiduMusic}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="3" Height="315">
+                                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"/>
+                                </Grid>
                             </Grid>
                         </TabItem>
                     </TabControl>

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -22,6 +23,7 @@ namespace Service
     /// Class : DoubanFm
     /// Discription : Implement of ISongService
     /// </summary>
+    [Export(typeof(ISongService))]
     public class DoubanFm : ISongService
     {
         //Random for get song list
@@ -40,38 +42,46 @@ namespace Service
             WebHeaderCollection header = null;
             if (!string.IsNullOrWhiteSpace(param.AccountCookie))
                 header = new WebHeaderCollection {{"Cookie", param.AccountCookie}};
-            var json = HttpWebDealer.GetJsonObject(url, header, Encoding.UTF8);
-            if (json == null || json["song"] == null)
+            var json = HttpWebDealer.GetJsonObject(url, header, Encoding.UTF8) as Dictionary<string, object>;
+            if (json == null || !json.ContainsKey("song"))
             {
                 //TODO: Can't connect to internet
                 return new List<Song>();
             }
             var songs = json["song"] as IEnumerable;
+            if (songs == null) return new List<Song>();
             //This list will always appear at first time, almost 100% probability
             var count = 1;
             var filterList = new List<string> { "107686", "280187", "1000411", "1027380", "1381349" };
             var list = new List<Song>();
             foreach (dynamic song in songs)
             {
-                //filter advertisement
-                var length = Convert.ToInt32(song["length"]);
-                if (length <= 30) continue;
-                if (filterList.Contains(song["sid"])) count++;
-                list.Add(new Song
+                try
                 {
-                    Title = song["title"],
-                    Artist = song["artist"],
-                    AlbumTitle = song["albumtitle"],
-                    AlbumId = song["album"],
-                    Company = song["company"],
-                    PublishTime = song["public_time"],
-                    Length = length,
-                    Kbps = Convert.ToInt32(song["kbps"]),
-                    Picture = song["picture"].Replace("mpic", "lpic"),
-                    Url = song["url"],
-                    Sid = Convert.ToInt32(song["sid"]),
-                    Like = Convert.ToInt32(song["like"])
-                });
+                    //filter advertisement
+                    var length = Convert.ToInt32(song["length"]);
+                    if (length <= 30) continue;
+                    if (filterList.Contains(song["sid"])) count++;
+                    list.Add(new Song
+                    {
+                        Title = song["title"],
+                        Artist = song["artist"],
+                        AlbumTitle = song["albumtitle"],
+                        AlbumId = song["album"],
+                        Company = song["company"],
+                        PublishTime = song["public_time"],
+                        Length = length,
+                        Kbps = Convert.ToInt32(song["kbps"]),
+                        Picture = song["picture"].Replace("mpic", "lpic"),
+                        Url = song["url"],
+                        Sid = Convert.ToInt32(song["sid"]),
+                        Like = Convert.ToInt32(song["like"])
+                    });
+                }
+                catch (Exception e)
+                {
+                    LoggerHelper.Instance.Exception(e);
+                }
             }
             if (count >= 3 || list.Count < 1) return GetSongList(param);
             return list;
@@ -95,7 +105,7 @@ namespace Service
                 if (!string.IsNullOrEmpty(para.Token)) url.Append("&token=" + para.Token);
                 if (!string.IsNullOrEmpty(para.History)) url.Append("&h=" + para.History);
             }
-            url.Append("&channel=" + para.ChannelId);
+            url.Append("&channel=" + para.Channel.Id);
             url.Append("&sid=" + (string.IsNullOrWhiteSpace(para.SongId) ? "0" : para.SongId));
 
             //Next song
@@ -178,7 +188,7 @@ namespace Service
             {
                 url.Append("http://douban.fm/j/mine/playlist?pb=64&from=mainsite&type=e");
                 if (!string.IsNullOrWhiteSpace(parameter.Position)) url.Append("&pt=" + parameter.Position);
-                url.Append("&channel=" + parameter.ChannelId);
+                url.Append("&channel=" + parameter.Channel.Id);
                 url.Append("&sid=" + (string.IsNullOrWhiteSpace(parameter.SongId) ? "0" : parameter.SongId));
                 url.Append("&r=" + Randomer.Next(0, 1000000));
             }
@@ -189,7 +199,7 @@ namespace Service
                 url.Append("&expire=" + parameter.Expire);
                 url.Append("&token=" + parameter.Token);
                 url.Append("&sid=" + parameter.SongId);
-                url.Append("&channel=" + parameter.ChannelId);
+                url.Append("&channel=" + parameter.Channel.Id);
             }
             WebHeaderCollection header = null;
             if (isFromWebsite) header = new WebHeaderCollection {{"Cookie", parameter.AccountCookie}};
@@ -222,6 +232,18 @@ namespace Service
                 list.Add(new Channel(cid, name, desc, conver));
             }
             return list;
+        }
+
+        /// <summary>
+        /// Get Song Lyric
+        /// </summary>
+        /// <param name="song"></param>
+        /// <returns></returns>
+        public SongLyric GetLyric(Song song)
+        {
+            if (song == null) return null;
+            var lrc = SongLyricHelper.GetSongLyric(song.Title, song.Artist);
+            return lrc;
         }
 
         /// <summary>
@@ -334,5 +356,8 @@ namespace Service
             return account;
         }
 
+
+
+        
     }
 }

@@ -11,7 +11,7 @@ namespace CommonHelperLibrary.WEB
     /// <summary>
     /// Author : Hans Huang
     /// Date : 2013-10-25
-    /// Class : DoubanFm
+    /// Class : SongLyricHelper
     /// Discription : Common helper for get song lyric
     /// </summary>
     public static class SongLyricHelper
@@ -33,8 +33,8 @@ namespace CommonHelperLibrary.WEB
                 artist = artists[0];
                 if (artists.Length > 1) artist2 = artists[1];
             }
-            if (title.Contains("("))
-                title = title.Split(new[] {'(', ')'}, StringSplitOptions.RemoveEmptyEntries)[0];
+            //if (title.Contains("(") || title.Contains("（"))
+                title = title.Split(new[] { '(', ')', '（','）' }, StringSplitOptions.RemoveEmptyEntries)[0];
             var uTitle = System.Web.HttpUtility.UrlEncode(title.Trim());
             var uArtist = System.Web.HttpUtility.UrlEncode(artist);
             //Get lrc search result
@@ -80,18 +80,30 @@ namespace CommonHelperLibrary.WEB
         {
             List<string> mp3Urls;
             var str = GetSongLrc(title, artist, out mp3Urls);
-            if (string.IsNullOrEmpty(str)) return null;
-            str = str.Replace(" [", "\r\n");
-            var lines = str.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lrc = BulidSongLyric(str);
+            if (lrc != null) lrc.Mp3Urls = mp3Urls;
+            return lrc;
+        }
+
+        /// <summary>
+        /// Bulid SongLyric Class from lrc string
+        /// </summary>
+        /// <param name="lrcStr"></param>
+        /// <returns></returns>
+        public static SongLyric BulidSongLyric(string lrcStr)
+        {
+            if (string.IsNullOrEmpty(lrcStr)) return null;
+            lrcStr = lrcStr.Replace(" [", "\r\n");
+            var lines = lrcStr.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             if (lines.Length < 1) return null;
 
             var lrc = new SongLyric();
             var reg0 = new Regex(@"\[([a-z]+)\:(.+)]");
             var reg1 = new Regex(@"([\[\d{2}\:\d{2}\.\d{1,3}\]]+)(.*)");
-            var filters = new List<string>() { "☆", "51lrc", "@", "LRC by", "Lyrics by", "歌词", "Lyriced By", "编辑：", "QQ", "PS：", "★", "http","www.","by:","制作",".com"};
+            var filters = new List<string> { "☆", "51lrc", "@", "LRC by", "Lyrics by", "歌词", "Lyriced By", "编辑：", "QQ", "PS：", "★", "http", "www.", "by:", "制作", ".com", "lrc:" };
             foreach (var line in lines)
             {
-                if (string.IsNullOrEmpty(line.Trim())) continue;
+                if (string.IsNullOrWhiteSpace(line.Trim())) continue;
                 var usefull = true;
                 filters.ForEach(s => { usefull = usefull && !line.Contains(s); });
                 if (!usefull) continue;
@@ -114,7 +126,7 @@ namespace CommonHelperLibrary.WEB
                     var txt = m1.Groups[2].Value.Trim();
                     foreach (var time in list)
                     {
-                        var ts = time.Split(new[] {':', '.'}, StringSplitOptions.RemoveEmptyEntries);
+                        var ts = time.Split(new[] { ':', '.' }, StringSplitOptions.RemoveEmptyEntries);
                         TimeSpan key;
                         if (ts.Length == 2)
                             key = new TimeSpan(0, 0, Convert.ToInt32(ts[0]), Convert.ToInt32(ts[1]));
@@ -122,7 +134,7 @@ namespace CommonHelperLibrary.WEB
                             key = new TimeSpan(0, 0, Convert.ToInt32(ts[0]), Convert.ToInt32(ts[1]), Convert.ToInt32(ts[2]));
                         else
                             key = new TimeSpan();
-                        if(!lrc.Content.ContainsKey(key))
+                        if (!lrc.Content.ContainsKey(key))
                             lrc.Content.Add(key, txt);
                     }
                 }
@@ -130,7 +142,6 @@ namespace CommonHelperLibrary.WEB
             var odered = lrc.Content.OrderBy(s => s.Key).ToList();
             lrc.Content.Clear();
             odered.ForEach(s => lrc.Content.Add(s.Key, s.Value));
-            lrc.Mp3Urls = mp3Urls;
             //mp3Urls.ForEach(Console.WriteLine);
             return lrc;
         }

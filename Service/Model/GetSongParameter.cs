@@ -15,7 +15,7 @@ namespace Service.Model
         public string AccountCookie { get; set; }
 
         public string SongId { get; set; }
-        public int ChannelId { get; set; }
+        public Channel Channel { get; set; }
         //Song played position(second, one decimal place)
         public string Position { get; set; }
 
@@ -69,9 +69,9 @@ namespace Service.Model
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
-        public SongActionParameter CurrentChennalId(Channel channel) 
+        public SongActionParameter CurrentChennal(Channel channel) 
         {
-            if (channel != null) ChannelId = channel.Id;
+            Channel = channel ?? new Channel();
             return this;
         }
     }

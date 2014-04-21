@@ -200,6 +200,11 @@ namespace CommonHelperLibrary.WEB
                         toRemove.Add(header);
                         request.Referer = value.Aggregate((s, t) => s + "; " + t);
                     }
+                    else if (string.Equals(header, "user-agent",StringComparison.OrdinalIgnoreCase))
+                    {
+                        toRemove.Add(header);
+                        request.UserAgent = value.FirstOrDefault();
+                    }
                     //else if()
                 }
                 toRemove.ForEach(headers.Remove);
@@ -216,8 +221,9 @@ namespace CommonHelperLibrary.WEB
                     response = (HttpWebResponse)request.GetResponse();
                     return response;
                 }
-                catch (Exception e)
+                catch (Exception e) 
                 {
+                    LoggerHelper.Instance.Msg("Error", url);
                     LoggerHelper.Instance.Exception(e);
                     count++;
                     Thread.Sleep(200);

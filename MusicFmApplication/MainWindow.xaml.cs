@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -120,13 +119,12 @@ namespace MusicFmApplication
             StateChanged += MainWindowStateChanged;
 
             //Make Sure ui is ready then implement the viewModel
+            ViewModel = null;
             Task.Run(() =>
             {
-                Thread.Sleep(500);
-                Dispatcher.InvokeAsync(() =>
-                {
-                    ViewModel = MainViewModel.GetInstance(this);
-                });
+                Thread.Sleep(800);
+                Dispatcher.BeginInvoke((Action) (() => { ViewModel = MainViewModel.GetInstance(this);
+                }));
             });
         }
 

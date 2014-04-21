@@ -30,6 +30,7 @@ namespace Service.Model
         DoubanFm = 1,
         Weibo = 2,
         TencentQq = 6,
-        Msn = 5
+        Msn = 5,
+        Baidu = 100
     }
 }

@@ -124,7 +124,7 @@ namespace MusicFmApplication
 
         public ICommand ShowLoginBoxCmd
         {
-            get { return _showLoginBoxCmd ?? (_showLoginBoxCmd = new RelayCommand(param => this.ShowLoginBoxExecute())); }
+            get { return _showLoginBoxCmd ?? (_showLoginBoxCmd = new RelayCommand(param => ShowLoginBoxExecute())); }
         }
 
         public void ShowLoginBoxExecute()

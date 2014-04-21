@@ -10,10 +10,10 @@
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="true">
-                <Setter  Property="Cursor" Value="Hand" />
+                <Setter Property="Cursor" Value="Hand" />
             </Trigger>
             <Trigger Property="IsPressed" Value="true">
-                <Setter  Property="Cursor" Value="Hand" />
+                <Setter Property="Cursor" Value="Hand" />
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
@@ -41,8 +41,31 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
+    <ControlTemplate x:Key="ImageToggleButtonTemplate" TargetType="{x:Type controls:ImageToggleButton}">
+        <Grid x:Name="Grid">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ContentPresenter Content="{Binding Path=Image, RelativeSource={RelativeSource TemplatedParent}}" />
+                <ContentPresenter Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </StackPanel>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="Cursor" Value="Hand" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter Property="Cursor" Value="Hand" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
     <Style TargetType="{x:Type controls:ImageButton}" >
         <Setter Property="Template" Value="{StaticResource ImageButtonTemplate}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageToggleButton}">
+        <Setter Property="Template" Value="{StaticResource ImageToggleButtonTemplate}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>

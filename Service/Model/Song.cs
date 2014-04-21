@@ -35,6 +35,7 @@ namespace Service.Model
         public int Length { get; set; }
         public int Kbps { get; set; }
         public string Url { get; set; }
+        public string LrcUrl { get; set; }
 
         #region Picture (INotifyPropertyChanged Property)
 
