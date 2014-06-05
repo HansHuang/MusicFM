@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using CustomControlResources;
+using MusicFmApplication.ViewModel;
 
 namespace MusicFmApplication
 {

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 using Service.Model;
@@ -23,15 +24,21 @@ namespace Service
     {
         private List<Channel> _basicChannels;
         private readonly Dictionary<string, int> _gotSongList = new Dictionary<string, int>();
+        private KeyValuePair<int, int> _artistSongList;
         private readonly WebHeaderCollection _headers;
         private readonly WebClient _webClient;
+        private int _getSongsFailed;
 
         protected string BaseUrl;
-        private int _getSongsFailed;
+        protected LoggerHelper Logger;
+
+        public string Name { get { return "BaiduMusic"; } }
 
         public BaiduMusic()
         {
             BaseUrl = "http://tingapi.ting.baidu.com/v1/restserver/ting?format=json&from=ttpwin8&version=1.0.4";
+            Logger = LoggerHelper.Instance;
+
             _headers = new WebHeaderCollection { { "user-agent", "ttpwin8_1.0.4" } };
             _webClient = new WebClient {Encoding = Encoding.UTF8};
         }
@@ -58,11 +65,13 @@ namespace Service
                 if (songList.Count < 1) return GetSongList(param);
                 _gotSongList[param.Channel.StrId]++;
                 _getSongsFailed = 0;
+
                 songList.ForEach(GetSongInfo);
+                songList = songList.Where(s => !string.IsNullOrWhiteSpace(s.Url)).ToList();
             }
             catch (Exception e)
             {
-                LoggerHelper.Instance.Exception(e);
+                Logger.Exception(e);
                 _getSongsFailed++;
             }
 
@@ -101,9 +110,105 @@ namespace Service
             return true;
         }
 
-        public Account Login(string userName, string password, AccountType type)
+        public Account Login(string userName, string password, AccountType type) 
         {
-            throw new NotImplementedException();
+            return null;
+        }
+
+        public SearchResult Search(string keyword, int count) {
+            var url = BaseUrl + string.Format("&method=baidu.ting.search.common&query={0}&page_size={1}&page_no=1",
+                                              HttpUtility.UrlEncode(keyword), count);
+            var result = new SearchResult {Query = keyword};
+
+            var json = HttpWebDealer.GetJsonObject(url, _headers, Encoding.UTF8);
+            if (json == null) return null;
+            result.Query = json["query"];
+            result.ResultCount = Convert.ToInt32(json["pages"]["total"]);
+            result.CurrentNr = Convert.ToInt32(json["pages"]["rn_num"]);
+            if (count > result.CurrentNr)
+                result.ResultCount = result.CurrentNr;
+            if (json.ContainsKey("artist"))
+            {
+                try
+                {
+                    result.Artist = new Artist
+                    {
+                        Id = Convert.ToInt32(json["artist"]["artist_id"]),
+                        Uid = json["artist"]["ting_uid"],
+                        Name = json["artist"]["name"],
+                        Region = json["artist"]["country"],
+                        AlbumCount = Convert.ToInt32(json["artist"]["albums_total"]),
+                        SongCount = Convert.ToInt32(json["artist"]["songs_total"]),
+                        AvatarUrl = json["artist"]["avatar"]["big"],
+                        AvatarThumb = json["artist"]["avatar"]["small"],
+                    };
+                }
+                catch (Exception e)
+                {
+                    Logger.Exception(e);
+                }
+            }
+            if (json.ContainsKey("song_list"))
+            {
+                try
+                {
+                    result.SongList.AddRange(from dynamic song in (IEnumerable)json["song_list"]
+                                             select new Song
+                                             {
+                                                 Title = song["title"].Replace("<em>", "").Replace("</em>", ""),
+                                                 Artist = song["author"].Replace("<em>", "").Replace("</em>", ""),
+                                                 Sid = Convert.ToInt32(song["song_id"]),
+                                             });
+                    result.SongList.ForEach(GetSongInfo);
+                    result.SongList = result.SongList.Where(s => !string.IsNullOrWhiteSpace(s.Url)).ToList();
+                }
+                catch (Exception e)
+                {
+                    Logger.Exception(e);
+                }
+            }
+            return result;
+        }
+
+        public List<Song> GetSongList(Artist artist) 
+        {
+            var songList = new List<Song>();
+            if (artist == null || artist.Id < 0) return songList;
+            if (_artistSongList.Key != artist.Id) _artistSongList = new KeyValuePair<int, int>(artist.Id, 0);
+            //Order: 1-time; 2-hot
+            var url = BaseUrl + string.Format("&method=baidu.ting.artist.getSongList&artistid={0}&offset={1}&limits=10&order=2",
+                                              artist.Id, _artistSongList.Value);
+            try
+            {
+                var json = HttpWebDealer.GetJsonObject(url, _headers, Encoding.UTF8);
+                if (json == null) return null;
+                if (json["error_code"].ToString() != BaiduJsonErrorCode.OK)
+                {
+                    Logger.Msg("Baidu Json Error Code: " + json["error_code"], url);
+                    return songList;
+                }
+                var songs = (IEnumerable)json["songlist"];
+                songList.AddRange(from dynamic song in songs
+                                  select new Song
+                                  {
+                                      Title = song["title"],
+                                      Artist = song["author"],
+                                      Sid = Convert.ToInt32(song["song_id"]),
+                                  });
+
+                var offset = json["havemore"] == 1 ? _artistSongList.Value + songList.Count : 0;
+                _artistSongList = new KeyValuePair<int, int>(artist.Id, offset);
+                //Get detail info of each song
+                songList.ForEach(GetSongInfo);
+                songList = songList.Where(s => !string.IsNullOrWhiteSpace(s.Url)).ToList();
+            }
+            catch (Exception e)
+            {
+                Logger.Exception(e);
+            }
+
+
+            return songList;
         }
 
         private void GetBasicChannels()
@@ -357,7 +462,7 @@ namespace Service
                 _gotSongList.Add(channel, page);
 
             var url = new StringBuilder(BaseUrl).Append("&method=baidu.ting.radio.getChannelSong");
-            url.Append(string.Format("&channelname={0}", para.Channel.StrId));
+            url.Append(string.Format("&channelname={0}", channel));
             url.Append(string.Format("&n={0}", page));
             url.Append("&rn=10");
             return url.ToString();
@@ -373,11 +478,17 @@ namespace Service
             try
             {
                 var json = HttpWebDealer.GetJsonObject(url.ToString(), _headers, Encoding.UTF8);
+                if (json["error_code"].ToString() != BaiduJsonErrorCode.OK)
+                {
+                    LoggerHelper.Instance.Msg("Baidu Json Error Code: " + json["error_code"], url);
+                    return;
+                }
                 var info = json["songinfo"];
                 var urls = (IEnumerable)json["songurl"]["url"];
                 song.AlbumTitle = info["album_title"];
                 song.AlbumId = info["album_id"];
                 song.LrcUrl = info["lrclink"];
+                song.Thumb = info["pic_small"];
                 song.Picture = info["pic_premium"];
 
                 var rate = 0;
@@ -394,7 +505,6 @@ namespace Service
                 LoggerHelper.Instance.Exception(e);
             }
         }
-
-
+        
     }
 }

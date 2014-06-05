@@ -66,9 +66,11 @@
       <DependentUpon>ColorlizeImage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ControlReflection.cs" />
+    <Compile Include="Converter\EmptyStringToBoolConverter.cs" />
     <Compile Include="Converter\EqualiencyConverter.cs" />
     <Compile Include="Converter\EqualiencyToVisibilityConverter.cs" />
     <Compile Include="Converter\InverseEqualiencyConverter.cs" />
+    <Compile Include="Converter\InverseEqualiencyToVisibilityConverter.cs" />
     <Compile Include="Converter\NumberToBoolConverter.cs" />
     <Compile Include="Converter\NumberToProgressState.cs" />
     <Compile Include="Converter\NumberToVisibilityConverter.cs" />
@@ -387,6 +389,18 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Song48.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CD48.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\44.32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\203.24.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

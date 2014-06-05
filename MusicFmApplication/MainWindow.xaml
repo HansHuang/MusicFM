@@ -11,10 +11,12 @@
                    xmlns:presentOpti="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                    xmlns:sm="clr-namespace:Service;assembly=Service"
                    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-                   xmlns:local="clr-namespace:MusicFmApplication"
+                   xmlns:local="clr-namespace:MusicFmApplication.Controls"
+                   xmlns:helper="clr-namespace:MusicFmApplication.Helper"
                    x:Name="Root"
-                   Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"
-                   TitleForeground="{DynamicResource AccentColorBrush}"
+                   Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"  
+                   WindowTransitionsEnabled="False"
+                   TitleForeground="WhiteSmoke"
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
                    ResizeMode="CanMinimize" AllowsTransparency="True"
                    Height="480"  Width="320">
@@ -35,22 +37,8 @@
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/WeatherImagesResource.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
-                
                 <!--Style Rescorce Dictionary-->
                 <ResourceDictionary>
-                    <Style TargetType="Grid" x:Key="ChannelCell">
-                        <Setter Property="Background">
-                            <Setter.Value>
-                                <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-                                    <GradientStop Color="#aa3a3a3a" Offset="0.0" />
-                                    <GradientStop Color="#aa121212" Offset="1" />
-                                </LinearGradientBrush>
-                            </Setter.Value>
-                        </Setter>
-                        <Setter Property="Margin" Value="3" />
-                        <Setter Property="Width" Value="95"/>
-                        <Setter Property="Height" Value="25"/>
-                    </Style>
                     <Style TargetType="cc:ImageToggleButton" BasedOn="{StaticResource {x:Type cc:ImageToggleButton}}" x:Key="WdsCmdBtn">
                         <Setter Property="Opacity" Value=".5"/>
                         <Setter Property="Margin" Value="10 0"/>
@@ -72,6 +60,7 @@
                         </Style.Triggers>
                     </Style>
                     <PowerEase x:Key="Smooth" Power="3" presentOpti:Freeze="True"/>
+                    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource BlackColor}" />
                 </ResourceDictionary>
                 <!--Animation Stroybard Resource Dictionary-->
                 <ResourceDictionary>
@@ -107,6 +96,7 @@
                     <cvt:NumberToBoolConverter x:Key="Num2Bool"/>
                     <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
                     <cvt:NumberToProgressState x:Key="Num2Pgs"/>
+                    <helper:LocalTextConverter x:Key="LocTxtCvt"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -151,31 +141,37 @@
                 </Image>
             </cc:ImageToggleButton>
             <cc:ImageToggleButton IsChecked="{Binding ElementName=PlayerDetailFlyout, Path=IsOpen}" Style="{StaticResource WdsCmdBtn}">
-                <cc:ColorlizeImage Image="{StaticResource Wave32}" Color="{StaticResource AccentSelectedColorBrush}" 
-                                   Width="16" Height="16"/>
+                <cc:ColorlizeImage Image="{StaticResource Home24}" Color="{StaticResource AccentSelectedColorBrush}" 
+                                   Width="20" Height="16"/>
             </cc:ImageToggleButton>
         </metro:WindowCommands>
     </metro:MetroWindow.WindowCommands>
     
-    <!--<Window.CommandBindings>
-        <CommandBinding Command="Play">
-        </CommandBinding>
-    </Window.CommandBindings>-->
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PauseResumePlayerCmd}" Key="MediaPlayPause"/>
+        <KeyBinding Command="{Binding ElementName=Root, Path=ViewModel.NextSongCmd}" Key="MediaNextTrack"/>
+    </Window.InputBindings>
 
     <metro:MetroWindow.Flyouts>
         <metro:FlyoutsControl>
-            <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000"
+            <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#AA000000"
                           Header="{lex:LocText MusicFmApplication:English:WeatherDetail}"
                           x:Name="WeatherFlyout">
                 <cc:WeatherDetail x:Name="WeatherDetail" WeatherData="{Binding ElementName=Root, Path=ViewModel.WeatherMgr.WeatherData}"/>
             </metro:Flyout>
-            <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#CC000000" Position="Right"
+            <metro:Flyout DataContext="{Binding ElementName=Root}" 
+                          Background="#AA000000" Position="Right"
                           Header="{lex:LocText MusicFmApplication:English:MyCentralRoom}"
                           metro:ControlsHelper.HeaderFontSize="22"
-                          x:Name="PlayerDetailFlyout"
-                          IsOpen="{Binding ViewModel.IsShowPlayerDetail }">
-                <StackPanel Orientation="Vertical">
-                    <DockPanel Margin="0,0,10,0">
+                          x:Name="PlayerDetailFlyout" 
+                          IsOpen="{Binding ViewModel.IsShowPlayerDetail}"
+                          VerticalContentAlignment="Stretch">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Grid.Row="0" Margin="0,0,10,0" HorizontalAlignment="Right">
                         <cc:ImageButton DockPanel.Dock="Right" Margin="10,0,0,0"
                                         Command="{Binding ViewModel.OpenSettingWindowCmd}">
                             <cc:ImageButton.Image>
@@ -235,19 +231,37 @@
                                 </Style>
                             </cc:ImageButton.Style>
                         </cc:ImageButton>
-                        <Grid DockPanel.Dock="Right"/>
                     </DockPanel>
-                    <TabControl Width="230" x:Name="ServiceList">
+                    <TabControl Width="230" x:Name="ServiceList" Grid.Row="1">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
                                 <i:InvokeCommandAction Command="{Binding ViewModel.ChangeSongServiceCmd}"
                                                        CommandParameter="{Binding ElementName=ServiceList, Path=SelectedItem.Tag}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        <TabItem Header="{lex:LocText MusicFmApplication:English:DoubanFm}"
-                                 metro:ControlsHelper.HeaderFontSize="14" Tag="{x:Type sm:DoubanFm}">
+                        <TabControl.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            </Style>
+                        </TabControl.Resources>
+                        <TabItem metro:ControlsHelper.HeaderFontSize="14" 
+                                 Tag="{x:Type sm:DoubanFm}"
+                                 Header="{lex:LocText MusicFmApplication:English:DoubanFm}">
+                            <TabItem.IsSelected>
+                                <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay" ConverterParameter="{x:Type sm:DoubanFm}">
+                                    <Binding Path="ViewModel.SongService"/>
+                                </MultiBinding>
+                            </TabItem.IsSelected>
+                            <TabItem.Resources>
+                                <ObjectDataProvider x:Key="AccountTypeSource" MethodName="GetValues"  ObjectType="{x:Type sys:Enum}">
+                                    <ObjectDataProvider.MethodParameters>
+                                        <x:Type TypeName="mdl:AccountType"/>
+                                    </ObjectDataProvider.MethodParameters>
+                                </ObjectDataProvider>
+                            </TabItem.Resources>
                             <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -327,45 +341,14 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <ComboBox SelectedIndex="0" Grid.Row="0" Grid.Column="0" Height="25" x:Name="CboxAccountType" >
-                                        <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:DoubanAct}" 
-                                                  DataContext="{x:Static mdl:AccountType.DoubanFm}" >
-                                            <ComboBoxItem.IsSelected>
-                                                <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay">
-                                                    <Binding ElementName="Root" Path="ViewModel.Account.AccountInfo.AccountType"/>
-                                                    <Binding Source="{x:Static mdl:AccountType.DoubanFm}"/>
-                                                </MultiBinding>
-                                            </ComboBoxItem.IsSelected>
-                                        </ComboBoxItem>
-                                        <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:TencentQq}" 
-                                                      DataContext="{x:Static mdl:AccountType.TencentQq}"
-                                                       IsEnabled="False">
-                                            <ComboBoxItem.IsSelected>
-                                                <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay">
-                                                    <Binding ElementName="Root" Path="ViewModel.Account.AccountInfo.AccountType"/>
-                                                    <Binding Source="{x:Static mdl:AccountType.TencentQq}"/>
-                                                </MultiBinding>
-                                            </ComboBoxItem.IsSelected>
-                                        </ComboBoxItem>
-                                        <ComboBoxItem Content="{lex:LocText MusicFmApplication:English:SinaWeibo}" 
-                                                  DataContext="{x:Static mdl:AccountType.Weibo}">
-                                            <ComboBoxItem.IsSelected>
-                                                <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay">
-                                                    <Binding ElementName="Root" Path="ViewModel.Account.AccountInfo.AccountType"/>
-                                                    <Binding Source="{x:Static mdl:AccountType.Weibo}"/>
-                                                </MultiBinding>
-                                            </ComboBoxItem.IsSelected>
-                                        </ComboBoxItem>
-                                        <ComboBoxItem Content="MSN"
-                                                      IsEnabled="False"
-                                                      DataContext="{x:Static mdl:AccountType.Msn}">
-                                            <ComboBoxItem.IsSelected>
-                                                <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay">
-                                                    <Binding ElementName="Root" Path="ViewModel.Account.AccountInfo.AccountType"/>
-                                                    <Binding Source="{x:Static mdl:AccountType.Msn}"/>
-                                                </MultiBinding>
-                                            </ComboBoxItem.IsSelected>
-                                        </ComboBoxItem>
+                                    <ComboBox x:Name="CboxAccountType" SelectedIndex="0" Grid.Row="0" Grid.Column="0" Height="25" 
+                                              ItemsSource="{Binding Source={StaticResource AccountTypeSource}}"
+                                              SelectedItem="{Binding ViewModel.Account.AccountInfo.AccountType}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate >
+                                                <TextBlock Text="{Binding Converter={StaticResource LocTxtCvt}}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
                                     </ComboBox>
                                     <TextBox metro:TextboxHelper.Watermark="Email" 
                                          metro:TextboxHelper.ClearTextButton="True" 
@@ -379,7 +362,7 @@
                                                 Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"
                                                 ToolTip="{lex:LocText MusicFmApplication:English:Login}"
                                                 Command="{Binding ViewModel.Account.LoginCmd}"
-                                                CommandParameter="{Binding ElementName=CboxAccountType, Path=SelectedItem.DataContext}">
+                                                CommandParameter="{Binding ElementName=CboxAccountType, Path=SelectedItem}">
                                         <cc:ImageButton.Image>
                                             <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
                                         </cc:ImageButton.Image>
@@ -398,14 +381,32 @@
                                                ToolTip="{Binding ViewModel.Account.Feedback}"
                                                Text="{Binding ViewModel.Account.Feedback}"/>
                                 </StackPanel>
-                                <!--Channel List-->
-                                <Grid Grid.Row="3" Height="315">
-                                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"/>
+                                <!--Search box-->
+                                <Grid Grid.Row="3">
+                                    <TextBox Style="{StaticResource SearchMetroTextBox}"
+                                             metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Search}"
+                                             metro:TextboxHelper.SelectAllOnFocus="True"
+                                             metro:TextboxHelper.ButtonCommand="{Binding ViewModel.SearchCmd, Mode=OneWay}"
+                                             Margin="10,5"/>
+                                </Grid>
+                                <!--Channel List & Search Result-->
+                                <Grid Grid.Row="4">
+                                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"
+                                                          Channels="{Binding ViewModel.Channels}"
+                                                          Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource IvsNull2Vsby}}"/>
+                                    <local:SearchResultViewer ViewModel="{Binding ViewModel}"
+                                                              SearchResult="{Binding ViewModel.SearchResult}"
+                                                              Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource Null2Vsby}}"/>
                                 </Grid>
                             </Grid>
                         </TabItem>
                         <TabItem Header="{lex:LocText MusicFmApplication:English:BaiduMusic}"
                                  metro:ControlsHelper.HeaderFontSize="14" Tag="{x:Type sm:BaiduMusic}">
+                            <TabItem.IsSelected>
+                                <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay" ConverterParameter="{x:Type sm:BaiduMusic}">
+                                    <Binding Path="ViewModel.SongService"/>
+                                </MultiBinding>
+                            </TabItem.IsSelected>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -413,13 +414,40 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <Grid Grid.Row="3" Height="315">
-                                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"/>
+
+                                <StackPanel Grid.Row="1" Orientation="Vertical">
+                                    <TextBox Style="{StaticResource SearchMetroTextBox}"
+                                             x:Name="TbBaiduSearch"
+                                             metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Search}"
+                                             metro:TextboxHelper.SelectAllOnFocus="True"
+                                             metro:TextboxHelper.ButtonCommand="{Binding ViewModel.SearchCmd, Mode=OneWay}">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Enter" 
+                                                        Command="{Binding ViewModel.SearchCmd}"
+                                                        CommandParameter="{Binding ElementName=TbBaiduSearch, Path=Text}" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+                                </StackPanel>
+                                
+                                <Grid Grid.Row="2">
+                                    <local:ArtistViewer Margin="5,10"
+                                                        ViewModel="{Binding ViewModel}"
+                                                        Artist="{Binding ViewModel.CurrentArtist}"
+                                                        Visibility="{Binding ViewModel.CurrentArtist, Converter={StaticResource Null2Vsby}}"/>
+                                </Grid>
+                                
+                                <Grid Grid.Row="3">
+                                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"
+                                                          Channels="{Binding ViewModel.Channels}"
+                                                          Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource IvsNull2Vsby}}"/>
+                                    <local:SearchResultViewer ViewModel="{Binding ViewModel}"
+                                                              SearchResult="{Binding ViewModel.SearchResult}"
+                                                              Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource Null2Vsby}}"/>
                                 </Grid>
                             </Grid>
                         </TabItem>
                     </TabControl>
-                </StackPanel>
+                </Grid>
             </metro:Flyout>
         </metro:FlyoutsControl>
     </metro:MetroWindow.Flyouts>
@@ -437,8 +465,8 @@
             </Grid.RowDefinitions>
             <!--1 Progress Indicator-->
             <DockPanel Grid.Row="0" Height="20">
-                <metro:ProgressIndicator Height="3" DockPanel.Dock="Top" VerticalAlignment="Top"
-                                         ProgressColor="{DynamicResource AccentColorBrush}"
+                <metro:ProgressIndicator Height="2" DockPanel.Dock="Top" VerticalAlignment="Top"
+                                         ProgressColor="WhiteSmoke"
                                          Width="{Binding ElementName=Root, Path=Width}"
                                          Visibility="{Binding MediaManager.IsBuffering, Converter={StaticResource Bool2Visbility}}"/>
             </DockPanel>
@@ -467,7 +495,7 @@
                 </Image>
                 <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
                     <!--Song Album Picture-->
-                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCmd}">
+                    <cc:ImageButton Command="{Binding ToggleLyricDisplayCmd}" HorizontalAlignment="Center">
                         <cc:ImageButton.Image>
                             <StackPanel Orientation="Vertical">
                                 <Image x:Name="AlbumPicture" Stretch="Fill" HorizontalAlignment="Center" Source="{Binding MediaManager.SongPicture}">
@@ -481,10 +509,12 @@
                                                 </Setter.Value>
                                             </Setter>
                                             <Setter Property="Height" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Width}"/>
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <BlurEffect Radius="0"/>
+                                                </Setter.Value>
+                                            </Setter>
                                             <Style.Triggers>
-                                                <!--<Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Opacity" Value=".8"/>
-                                                </Trigger>-->
                                                 <EventTrigger RoutedEvent="MouseEnter">
                                                     <BeginStoryboard>
                                                         <Storyboard>
@@ -509,6 +539,22 @@
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </EventTrigger>
+                                                <DataTrigger Binding="{Binding IsDisylayLyric}"  Value="true">
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="15" Duration="0:0:0.01"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                    <DataTrigger.ExitActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="0" Duration="0:0:0.01"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.ExitActions>
+                                                </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Image.Style>
@@ -549,7 +595,7 @@
                                 </Style.Triggers>
                             </Style>
                         </cc:ImageButton.Style>
-                        <Grid Background="#CC000000" 
+                        <Grid Background="#AA000000" 
                               Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                               Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
                             <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False" Margin="0,8"
@@ -594,7 +640,7 @@
                         Orientation="Vertical">
                 <StackPanel.Resources>
                     <Style TargetType="TextBlock">
-                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush2}"/>
+                        <Setter Property="Foreground" Value="WhiteSmoke"/>
                         <Setter Property="HorizontalAlignment" Value="Center"/>
                         <!--<Setter Property="Effect">
                             <Setter.Value>
@@ -622,10 +668,12 @@
                 </Grid.ColumnDefinitions>
                 <Grid.Resources>
                     <Style TargetType="Button" BasedOn="{StaticResource MetroCircleButtonStyle}">
-                        <Setter Property="Height" Value="52"/>
-                        <Setter Property="Width" Value="52"/>
+                        <Setter Property="Height" Value="50"/>
+                        <Setter Property="Width" Value="50"/>
                         <Setter Property="HorizontalAlignment" Value="Center"/>
                         <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Foreground" Value="WhiteSmoke"/>
+                        <Setter Property="BorderThickness" Value="1"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Account.AccountInfo}" Value="{x:Null}">
                                 <Setter Property="IsEnabled" Value="False"/>
@@ -633,9 +681,9 @@
                         </Style.Triggers>
                     </Style>
                     <Style TargetType="cc:ColorlizeImage">
-                        <Setter Property="Height" Value="28"/>
-                        <Setter Property="Width" Value="28"/>
-                        <Setter Property="Color" Value="Black"/>
+                        <Setter Property="Height" Value="20"/>
+                        <Setter Property="Width" Value="20"/>
+                        <Setter Property="Color" Value="WhiteSmoke"/>
                         <Style.Triggers>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Color" Value="DarkGray"/>
@@ -650,7 +698,7 @@
                             <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentSong.Like}" Value="1">
-                                        <Setter Property="Color" Value="#88EE0000"/>
+                                        <Setter Property="Color" Value="#FFEE3D3D"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -674,16 +722,16 @@
             <Grid Grid.Row="4">
                 <Grid.Resources>
                     <Style TargetType="Rectangle">
-                        <Setter Property="Height" Value="2"/>
+                        <Setter Property="Height" Value="1"/>
                         <Setter Property="HorizontalAlignment" Value="Left"/>
                     </Style>
                 </Grid.Resources>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="2"/>
+                    <RowDefinition Height="1"/>
                 </Grid.RowDefinitions>
                 <Rectangle Grid.Row="0" Fill="#20CCCCCC"  Width="{Binding ElementName=Root, Path=Width}"/>
 
-                <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush3}" Opacity=".6" >
+                <Rectangle Grid.Row="0" Fill="WhiteSmoke" Opacity=".4">
                     <Rectangle.Width>
                         <MultiBinding Converter="{StaticResource MultiplyNum}">
                             <MultiBinding.Bindings>
@@ -694,7 +742,7 @@
                     </Rectangle.Width>
                 </Rectangle>
 
-                <Rectangle Grid.Row="0" Fill="{StaticResource AccentColorBrush}" >
+                <Rectangle Grid.Row="0" Fill="WhiteSmoke">
                     <Rectangle.Width>
                         <MultiBinding Converter="{StaticResource MultiplyNum}">
                             <MultiBinding.Bindings>
@@ -719,17 +767,26 @@
                         <Setter Property="Height" Value="18"/>
                         <Setter Property="Width" Value="18"/>
                     </Style>
-                    <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
+                    <Style TargetType="cc:ColorlizeImage">
                         <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
                         <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                        <Setter Property="Color" Value="WhiteSmoke"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value=".8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value=".8"/>
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="FontSize" Value="12"/>
                         <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush}"/>
+                        <Setter Property="Foreground" Value="WhiteSmoke"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="False">
-                                <Setter Property="Foreground" Value="{StaticResource AccentColorBrush3}"/>
+                                <Setter Property="Opacity" Value=".8"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -772,10 +829,24 @@
                         <cc:ColorlizeImage Image="{StaticResource Mute32}"/>
                     </cc:ImageButton.Image>
                 </cc:ImageButton>
-                <Slider Grid.Column="3" Width="70" Height="5" 
-                        Minimum="0" Maximum="1" LargeChange=".1"
-                        HorizontalAlignment="Left" Style="{StaticResource FlatSlider}"
-                        Value="{Binding MediaManager.Volume}"/>
+                <Slider Grid.Column="3" Width="70" Height="4" 
+                        Minimum="0" Maximum="1" LargeChange=".2"
+                        HorizontalAlignment="Left" 
+                        Value="{Binding MediaManager.Volume}">
+                    <Slider.Style>
+                        <Style TargetType="Slider" BasedOn="{StaticResource FlatSlider}">
+                            <Setter Property="Foreground" Value="#FFF5F5F5"/>
+                            <Setter Property="Background" Value="#78F5F5F5"/>
+                            <Setter Property="BorderBrush" Value="#FF333333" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="#FFF5F5F5" />
+                                    <Setter Property="Background" Value="#78F5F5F5" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Slider.Style>
+                </Slider>
                 <!--Download Btn & Download Progress Text-->
                 <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Center">
                     <StackPanel.Style>

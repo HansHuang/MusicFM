@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using CommonHelperLibrary.Dwm;
 using MahApps.Metro.Controls;
+using MusicFmApplication.ViewModel;
 
 namespace MusicFmApplication
 {

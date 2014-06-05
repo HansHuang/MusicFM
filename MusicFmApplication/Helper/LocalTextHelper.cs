@@ -1,7 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using WPFLocalizeExtension.Extensions;
 
-namespace MusicFmApplication
+namespace MusicFmApplication.Helper
 {
     public static class LocalTextHelper
     {
@@ -55,4 +56,7 @@ namespace MusicFmApplication
             MessageBox.Show(msg, cap, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
+
+    
+
 }

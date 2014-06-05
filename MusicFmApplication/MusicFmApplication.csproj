@@ -41,6 +41,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -75,23 +76,41 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AccountManager.cs" />
-    <Compile Include="ChannelsViewer.xaml.cs">
+    <Compile Include="Controls\ArtistViewer.xaml.cs">
+      <DependentUpon>ArtistViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SongsViewer.xaml.cs">
+      <DependentUpon>SongsViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\LocalTextConverter.cs" />
+    <Compile Include="ViewModel\AccountManager.cs" />
+    <Compile Include="Controls\ChannelsViewer.xaml.cs">
       <DependentUpon>ChannelsViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="DesktopLyric.xaml.cs">
       <DependentUpon>DesktopLyric.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LocalTextHelper.cs" />
-    <Compile Include="MediaManager.cs" />
+    <Compile Include="Helper\LocalTextHelper.cs" />
+    <Compile Include="ViewModel\MediaManager.cs" />
     <Compile Include="MiniWindow.xaml.cs">
       <DependentUpon>MiniWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SearchResultViewer.xaml.cs">
+      <DependentUpon>SearchResultViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingWindow.xaml.cs">
       <DependentUpon>SettingWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WeatherManager.cs" />
-    <Page Include="ChannelsViewer.xaml">
+    <Compile Include="ViewModel\WeatherManager.cs" />
+    <Page Include="Controls\ArtistViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ChannelsViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SongsViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -107,12 +126,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainViewModel.cs" />
+    <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="MiniWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SearchResultViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -172,6 +195,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="logo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Model\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

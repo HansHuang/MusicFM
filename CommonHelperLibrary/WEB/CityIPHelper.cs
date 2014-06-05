@@ -65,8 +65,11 @@ namespace CommonHelperLibrary.WEB
              * Due to China's national conditions, its data is not accurate everytime             * 
              * http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js
              * 
+             * Old api, seems not working now
+             * http://iframe.ip138.com/ic.asp
+             * 
              */
-            return HttpWebDealer.GetHtml("http://iframe.ip138.com/ic.asp", null, Encoding.Default);
+            return HttpWebDealer.GetHtml("http://20140507.ip138.com/ic.asp", null, Encoding.Default);
         }
 
         #endregion

@@ -1,0 +1,119 @@
+﻿<UserControl x:Class="MusicFmApplication.Controls.SongsViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
+             xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
+             mc:Ignorable="d" x:Name="Root">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/Style/ScrollViewer.xaml"/>
+                <!--Style Dictionary-->
+                <ResourceDictionary>
+                    <Style TargetType="Border" x:Key="SongBar">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                                    <GradientStop Color="#66121212" Offset="0.0" />
+                                    <GradientStop Color="#663a3a3a" Offset="1" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Margin" Value="3" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter Property="Height" Value="40"/>
+                    </Style>
+                </ResourceDictionary>
+                <!--Converter Resource Dictionary-->
+                <ResourceDictionary>
+                    <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsbty"/>
+                    <cvt:EqualiencyConverter x:Key="EquCvt"/>
+                    <cvt:EmptyStringToBoolConverter x:Key="Str2BoolCvt"/>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid DataContext="{Binding ElementName=Root}">
+        <ScrollViewer DataContext="{Binding ElementName=Root}">
+            <ScrollViewer.Style>
+                <Style TargetType="ScrollViewer" BasedOn="{StaticResource MyScrollViewer}">
+                    <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="true">
+                            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ScrollViewer.Style>
+            <ItemsControl ItemsSource="{Binding SongList}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" Orientation="Vertical" HorizontalAlignment="Left"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border >
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource SongBar}">
+                                     <Setter Property="BorderThickness" Value="2,0,0,0"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="BorderBrush" Value="RoyalBlue"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <cc:ImageButton  Command="{Binding ElementName=Root, Path=ViewModel.AddSongCmd}" CommandParameter="{Binding }">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Width="36" Height="36" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Setter Property="Source" Value="{Binding Thumb}"/>
+                                                <Setter Property="Margin" Value="5,0"/>
+                                                <Setter Property="OpacityMask">
+                                                    <Setter.Value>
+                                                        <VisualBrush>
+                                                            <VisualBrush.Visual>
+                                                                <Ellipse Width="36" Height="36" Fill="Wheat"/>
+                                                            </VisualBrush.Visual>
+                                                        </VisualBrush>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Thumb, Converter={StaticResource Str2BoolCvt}}" Value="True">
+                                                        <Setter Property="Source" Value="{StaticResource Cd48}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                    <TextBlock Grid.Row="0" Grid.Column="1"  Text="{Binding Title}" 
+                                               TextWrapping="Wrap" HorizontalAlignment="Left" Foreground="WhiteSmoke"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Foreground="Azure" TextTrimming="CharacterEllipsis">
+                                        <Run Text="{Binding Artist}" ToolTip="{Binding Artist}"/>
+                                        <Run Text="{Binding AlbumTitle, StringFormat='&lt;{0}&gt;'}" ToolTip="{Binding AlbumTitle}"/>
+                                    </TextBlock>
+                                </Grid>
+                            </cc:ImageButton>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

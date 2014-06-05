@@ -1,0 +1,133 @@
+﻿<UserControl x:Class="MusicFmApplication.Controls.SearchResultViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
+             xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
+             xmlns:local="clr-namespace:MusicFmApplication.Controls"
+             xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+             mc:Ignorable="d" x:Name="Root">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/Style/ScrollViewer.xaml"/>
+                <!--Converter Dictionary-->
+                <ResourceDictionary>
+                    <cvt:NullToVisibility x:Key="Null2Vsby"/>
+                    <cvt:InverseEqualiencyToVisibilityConverter x:Key="IvsEqu2Vbly"/>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid DataContext="{Binding ElementName=Root}"
+          Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource Null2Vsby}}">
+        <!--<Grid.Triggers>
+            <DataTrigger Binding="{Binding ViewModel.SearchResult}">
+                <DataTrigger.EnterActions>
+                    <BeginStoryboard>
+                        <DoubleAnimation/>
+                    </BeginStoryboard>
+                </DataTrigger.EnterActions>
+            </DataTrigger>
+        </Grid.Triggers>-->
+        <ScrollViewer Margin="0,20,0,0">
+            <ScrollViewer.Style>
+                <Style TargetType="ScrollViewer" BasedOn="{StaticResource MyScrollViewer}">
+                    <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="true">
+                            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ScrollViewer.Style>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <!--Artist-->
+                <!--<Grid Grid.Row="0" Margin="10,0,10,10"  Background="{StaticResource AccentColorBrush4}"
+                      DataContext="{Binding ElementName=Root, Path=ViewModel.SearchResult.Artist}"
+                      Visibility="{Binding Converter={StaticResource Null2Vsby}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Image Source="{Binding AvatarThumb}" Width="48" Height="48" Grid.Column="0">
+                        <Image.ToolTip>
+                            <Image Source="{Binding AvatarUrl}" Width="160" Height="160"/>
+                        </Image.ToolTip>
+                    </Image>
+                    <StackPanel Orientation="Vertical" Margin="10,0,0,0" Grid.Column="1">
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="WhiteSmoke"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="TextDecorations" Value="Underline"/>
+                                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="{Binding Name}" />
+                        <TextBlock Text="{Binding Region}"/>
+                    </StackPanel>
+                    <cc:ImageButton Grid.Column="2" 
+                                    Command="{Binding ElementName=Root, Path=ViewModel.PlayArtistCmd}"
+                                    CommandParameter="{Binding }">
+                        <Grid Background="{StaticResource AccentColorBrush}">
+                            <Image Source="{StaticResource Play32}" Width="16" Height="16" Margin="3,0" VerticalAlignment="Center"/>
+                        </Grid>
+                    </cc:ImageButton>
+                </Grid>-->
+                <Grid Grid.Row="0" Margin="10,0,10,10" 
+                      Visibility="{Binding Converter={StaticResource Null2Vsby}}">
+                    <local:ArtistViewer ViewModel="{Binding ViewModel}"
+                                        Artist="{Binding ViewModel.SearchResult.Artist}"/>
+                </Grid>
+                <!--Channel List-->
+                <Grid Grid.Row="1" >
+                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"
+                                          Channels="{Binding ViewModel.SearchResult.ChannelList}"
+                                          Visibility="{Binding ViewModel.SearchResult.ChannelList, Converter={StaticResource Null2Vsby}}"/>
+                </Grid>
+                <!--Song List-->
+                <Grid Grid.Row="2">
+                    <local:SongsViewer ViewModel="{Binding ViewModel}"
+                                       SongList="{Binding ViewModel.SearchResult.SongList}"
+                                       Visibility="{Binding ViewModel.SearchResult.SongList, Converter={StaticResource Null2Vsby}}"/>
+                </Grid>
+                <!--Load More Btn-->
+                <Grid Grid.Row="3" Margin="5" Background="{StaticResource AccentColorBrush}">
+                    <Grid.Visibility>
+                        <MultiBinding Converter="{StaticResource IvsEqu2Vbly}">
+                            <Binding Path="ViewModel.SearchResult.CurrentNr"/>
+                            <Binding Path="ViewModel.SearchResult.ResultCount"/>
+                        </MultiBinding>
+                    </Grid.Visibility>
+                    <cc:ImageButton HorizontalAlignment="Center" Command="{Binding ViewModel.LoadMoreSearchResultCmd}">
+                        <cc:ImageButton.Image>
+                            <Image Source="{StaticResource Plus32}" Width="16" Height="16" Margin="3"/>
+                        </cc:ImageButton.Image>
+                        <TextBlock Text="{lex:LocText MusicFmApplication:English:LoadMore}" VerticalAlignment="Center"/>
+                    </cc:ImageButton>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+        <!--Close Btn-->
+        <cc:ImageButton HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Command="{Binding HideResultViewerCmd}">
+            <cc:ColorlizeImage Image="{StaticResource Close20}" Width="17" Height="17"/>
+        </cc:ImageButton>
+    </Grid>
+</UserControl>

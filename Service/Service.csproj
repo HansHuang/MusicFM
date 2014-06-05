@@ -40,6 +40,7 @@
     <Reference Include="System.Core">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
@@ -54,13 +55,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AESForTing.cs" />
+    <Compile Include="BaiduJsonErrorCode.cs" />
     <Compile Include="BaiduMusic.cs" />
     <Compile Include="ISongService.cs" />
     <Compile Include="DoubanFm.cs" />
     <Compile Include="Model\Account.cs" />
+    <Compile Include="Model\Artist.cs" />
     <Compile Include="Model\Channel.cs" />
     <Compile Include="Model\GetSongParameter.cs" />
     <Compile Include="Model\OperationType.cs" />
+    <Compile Include="Model\SearchResult.cs" />
+    <Compile Include="Model\SearchResultWpf.cs" />
     <Compile Include="Model\Song.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

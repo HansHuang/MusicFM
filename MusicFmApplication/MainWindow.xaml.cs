@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using CommonHelperLibrary.Dwm;
 using MahApps.Metro.Controls;
+using MusicFmApplication.Helper;
+using MusicFmApplication.ViewModel;
 using Forms=System.Windows.Forms;
 using Color = System.Windows.Media.Color;
+using Image = System.Drawing.Image;
 using Rectangle = System.Windows.Shapes.Rectangle;
 
 namespace MusicFmApplication
@@ -17,11 +24,13 @@ namespace MusicFmApplication
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     [TemplatePart(Name = PartTitleBarBackground, Type = typeof(Rectangle))]
+    [TemplatePart(Name = TitleTextbolck, Type = typeof(TextBlock))]
     public partial class MainWindow : MetroWindow
     {
         #region Fields
         private const string PartTitleBarBackground = "PART_WindowTitleBackground";
-        private const double WindowOpacity = .8;
+        private const string TitleTextbolck = "WindowTitleTextBlock";
+        private const double WindowOpacity = .68;
 
         private MiniWindow _miniWindow;
 
@@ -46,21 +55,26 @@ namespace MusicFmApplication
             var wd = d as MainWindow;
             var viewModel = e.NewValue as MainViewModel;
             if (wd == null || viewModel == null) return;
-            viewModel.MediaManager.PropertyChanged += (s, arg) =>
+
+            viewModel.MediaManager.PropertyChanged += (s, arg) => 
             {
-                if (arg.PropertyName.Equals("SongPictureColor"))
+                if (arg.PropertyName.Equals("SongPictureColor")) 
                 {
-                    var storyboard = wd.FindResource("BackgroundColorStoryboard") as Storyboard;
-                    if (storyboard == null) return;
                     var color = viewModel.MediaManager.SongPictureColor;
-                    //Make color to darker
-                    const double offset = .4;
+                    //Make color to lighter
+                    const double offset = 1.2;
                     color.R = (byte)(color.R * offset);
                     color.G = (byte)(color.G * offset);
                     color.B = (byte)(color.B * offset);
-                    color.A = (byte)(WindowOpacity*256);
-                    ((ColorAnimation) storyboard.Children[0]).To = color;
-                    storyboard.Begin();
+                    color.A = (byte)(WindowOpacity * 256);
+                    if (wd.IsLoaded)
+                    {
+                        var storyboard = wd.FindResource("BackgroundColorStoryboard") as Storyboard;
+                        if (storyboard == null) return;
+                        ((ColorAnimation)storyboard.Children[0]).To = color;
+                        storyboard.Begin();
+                    }
+                    else wd.BackgroundColor = color;
                 }
                 else if (arg.PropertyName.Equals("SongPicture"))
                 {
@@ -118,14 +132,8 @@ namespace MusicFmApplication
 
             StateChanged += MainWindowStateChanged;
 
-            //Make Sure ui is ready then implement the viewModel
-            ViewModel = null;
-            Task.Run(() =>
-            {
-                Thread.Sleep(800);
-                Dispatcher.BeginInvoke((Action) (() => { ViewModel = MainViewModel.GetInstance(this);
-                }));
-            });
+            Loaded += delegate { ViewModel = MainViewModel.GetInstance(this); };
+
         }
 
         #region Set Aero Glass Effect
@@ -134,22 +142,16 @@ namespace MusicFmApplication
         void DwmHelperAeroGlassEffectChanged(object sender, EventArgs e)
         {
             if (DwmHelper.IsAeroGlassEffectEnabled)
-            {
                 DwmHelper.EnableBlurBehindWindow();
-            }
             else
-            {
                 DwmHelper.EnableBlurBehindWindow(false);
-            }
         }
 
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
             if (DwmHelper != null && DwmHelper.IsAeroGlassEffectEnabled)
-            {
                 DwmHelper.EnableBlurBehindWindow();
-            }
         }
 
         #endregion
@@ -311,13 +313,16 @@ namespace MusicFmApplication
         } 
         #endregion
 
-        #region Set the title bar to transparent
+        #region Set the title bar to transparent and the sytle of window title
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
 
             var titleBarBg = GetTemplateChild(PartTitleBarBackground) as Rectangle;
             if (titleBarBg != null) titleBarBg.Opacity = .02;
+
+            var titleTb = GetTemplateChild(TitleTextbolck) as TextBlock;
+            if (titleTb != null) titleTb.FontWeight = FontWeights.ExtraBold;
         } 
         #endregion
         

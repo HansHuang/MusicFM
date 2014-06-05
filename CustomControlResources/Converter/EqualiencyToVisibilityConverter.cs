@@ -14,7 +14,6 @@ namespace CustomControlResources.Converter
                 isEqual = values[0].ToString().Equals(parameter);
             else
                 isEqual = values[0].Equals(values[1]);
-
             return isEqual ? Visibility.Visible : Visibility.Collapsed;
         }
 

@@ -93,7 +93,7 @@
                 </ColorAnimationUsingKeyFrames>
             </Storyboard>
         </ControlTemplate.Resources>
-        <Grid d:DesignWidth="8">
+        <Grid d:DesignWidth="3">
             <Grid.Background>
                 <SolidColorBrush Color="{StaticResource ScrollbarBack}"/>
             </Grid.Background>
@@ -111,7 +111,7 @@
                     <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageUpCommand" />
                 </Track.DecreaseRepeatButton>
                 <Track.Thumb>
-                    <Thumb x:Name="thumb" Margin="0,2" Style="{StaticResource ScrollBarThumb}" BorderThickness="2,0,2,0">
+                    <Thumb x:Name="thumb" Margin="0,1" Style="{StaticResource ScrollBarThumb}" BorderThickness="1,0,1,0">
                         <Thumb.BorderBrush>
                             <SolidColorBrush Color="{StaticResource ScrollbarBack}"/>
                         </Thumb.BorderBrush>
@@ -147,7 +147,7 @@
                 </ColorAnimationUsingKeyFrames>
             </Storyboard>
         </ControlTemplate.Resources>
-        <Grid d:DesignHeight="8" d:DesignWidth="80">
+        <Grid d:DesignHeight="3" d:DesignWidth="80">
             <Grid.Background>
                 <SolidColorBrush Color="{StaticResource ScrollbarBack}"/>
             </Grid.Background>
@@ -167,7 +167,7 @@
                     <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageLeftCommand" />
                 </Track.DecreaseRepeatButton>
                 <Track.Thumb>
-                    <Thumb x:Name="thumb" Style="{StaticResource ScrollBarThumb}" Margin="2,0" BorderThickness="0,2">
+                    <Thumb x:Name="thumb" Style="{StaticResource ScrollBarThumb}" Margin="1,0" BorderThickness="0,1">
                         <Thumb.BorderBrush>
                             <SolidColorBrush Color="{StaticResource ScrollbarBack}"/>
                         </Thumb.BorderBrush>
@@ -181,7 +181,7 @@
                     <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageRightCommand" />
                 </Track.IncreaseRepeatButton>
             </Track>
-            <RepeatButton Grid.Column="2" Style="{StaticResource ScrollBarLineButton}" Width="8" 
+            <RepeatButton Grid.Column="2" Style="{StaticResource ScrollBarLineButton}" Width="3" 
                           Command="ScrollBar.LineRightCommand" 
                           Content="M 0 0 L 4 4 L 0 8 Z" Visibility="Collapsed" />
         </Grid>
@@ -195,17 +195,17 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
-    <Style x:Key="MyScroolBar" TargetType="{x:Type ScrollBar}">
+    <Style TargetType="{x:Type ScrollBar}" x:Key="MyScroolBar">
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="OverridesDefaultStyle" Value="true" />
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Horizontal">
                 <Setter Property="Width" Value="Auto" />
-                <Setter Property="Height" Value="8" />
+                <Setter Property="Height" Value="3" />
                 <Setter Property="Template" Value="{StaticResource HorizontalScrollBar}" />
             </Trigger>
             <Trigger Property="Orientation" Value="Vertical">
-                <Setter Property="Width" Value="8" />
+                <Setter Property="Width" Value="3" />
                 <Setter Property="Height" Value="Auto" />
                 <Setter Property="Template" Value="{StaticResource VerticalScrollBar}" />
             </Trigger>

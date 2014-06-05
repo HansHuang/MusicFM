@@ -27,4 +27,8 @@
     <ImageSource x:Key="Anchor24">Images/anchor24.png</ImageSource>
     <ImageSource x:Key="Open24">Images/183.24.png</ImageSource>
     <ImageSource x:Key="Close20">Images/Close.png</ImageSource>
+    <ImageSource x:Key="Song48">Images/Song48.png</ImageSource>
+    <ImageSource x:Key="Cd48">Images/CD48.png</ImageSource>
+    <ImageSource x:Key="Plus32">Images/44.32.png</ImageSource>
+    <ImageSource x:Key="Home24">Images/203.24.png</ImageSource>
 </ResourceDictionary>

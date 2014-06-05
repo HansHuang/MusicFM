@@ -79,6 +79,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Baidu.
+        /// </summary>
+        internal static string Baidu {
+            get {
+                return ResourceManager.GetString("Baidu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Baidu Music.
         /// </summary>
         internal static string BaiduMusic {
@@ -133,6 +142,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Load more.
+        /// </summary>
+        internal static string LoadMore {
+            get {
+                return ResourceManager.GetString("LoadMore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Login.
         /// </summary>
         internal static string Login {
@@ -147,6 +165,15 @@ namespace MusicFmApplication.Properties {
         internal static string Minimize2NotifyIcon {
             get {
                 return ResourceManager.GetString("Minimize2NotifyIcon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSN.
+        /// </summary>
+        internal static string Msn {
+            get {
+                return ResourceManager.GetString("Msn", resourceCulture);
             }
         }
         
@@ -250,6 +277,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        internal static string Search {
+            get {
+                return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Setting.
         /// </summary>
         internal static string Setting {
@@ -327,6 +363,15 @@ namespace MusicFmApplication.Properties {
         internal static string WeatherDetail {
             get {
                 return ResourceManager.GetString("WeatherDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Weibo.
+        /// </summary>
+        internal static string Weibo {
+            get {
+                return ResourceManager.GetString("Weibo", resourceCulture);
             }
         }
     }

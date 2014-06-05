@@ -203,7 +203,15 @@ namespace CommonHelperLibrary
         /// <returns>Target type object</returns>
         public static T Deserialize<T>(this string binary)
         {
-            return Deserialize<T>(Convert.FromBase64String(binary));
+            try
+            {
+                return Deserialize<T>(Convert.FromBase64String(binary));
+            }
+            catch (Exception e)
+            {
+                LoggerHelper.Instance.Exception(e);
+                return default(T);
+            }
         }
 
         /// <summary>

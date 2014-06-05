@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
@@ -29,9 +28,14 @@ namespace Service
         //Random for get song list
         protected Random Randomer;
 
+        protected LoggerHelper Log;
+
+        public string Name { get { return "DoubanFm"; } }
+
         public DoubanFm()
         {
             Randomer = new Random(1000000);
+            Log = LoggerHelper.Instance;
         }
 
         public List<Song> GetSongList(GainSongParameter param) 
@@ -72,6 +76,7 @@ namespace Service
                         PublishTime = song["public_time"],
                         Length = length,
                         Kbps = Convert.ToInt32(song["kbps"]),
+                        Thumb=song["picture"],
                         Picture = song["picture"].Replace("mpic", "lpic"),
                         Url = song["url"],
                         Sid = Convert.ToInt32(song["sid"]),
@@ -264,6 +269,46 @@ namespace Service
             }
         }
 
+        public SearchResult Search(string keyword, int count)
+        {
+            var result = new SearchResult { Query = keyword };
+            var url = string.Format("http://douban.fm/j/explore/search?query={0}&limit={1}&start=0",
+                                    HttpUtility.UrlEncode(keyword), count);
+            var json = HttpWebDealer.GetJsonObject(url, new WebHeaderCollection(), Encoding.UTF8);
+            try
+            {
+                if (!json["status"]) return result;
+                foreach (var channel in json["data"]["channels"])
+                {
+                    result.ChannelList.Add(new Channel
+                    {
+                        Id = channel["id"],
+                        Name = channel["name"],
+                        Description = channel["intro"],
+                        CoverImage = channel["banner"],
+                        Thumb = channel["cover"]
+                    });
+                }
+                result.CurrentNr = result.ChannelList.Count;
+                result.ResultCount = result.ChannelList.Count * (int)json["data"]["total"];
+                //Wanted count greater then actual result count
+                if (count > result.CurrentNr)
+                    result.ResultCount = result.CurrentNr;
+            }
+            catch (Exception e)
+            {
+                Log.Exception(e);
+            }
+            return result;
+        }
+
+        public List<Song> GetSongList(Artist artist)
+        {
+            //not support
+            return new List<Song>();
+        }
+
+
         private Account LoginByDoubanAccount(string userName, string password)
         {
             var json = HttpWebDealer.GetJsonObject("https://www.douban.com/j/app/login?email=" + userName +
@@ -357,7 +402,5 @@ namespace Service
         }
 
 
-
-        
     }
 }

@@ -54,6 +54,23 @@ namespace Service.Model
 
         #endregion
 
+        #region Thumb (INotifyPropertyChanged Property)
+
+        private string _thumb;
+
+        public string Thumb
+        {
+            get { return _thumb; }
+            set
+            {
+                if (_thumb != null && _thumb.Equals(value)) return;
+                _thumb = value;
+                RaisePropertyChanged("Thumb");
+            }
+        }
+
+        #endregion
+
         #region Like (INotifyPropertyChanged Property)
 
         private int _like;

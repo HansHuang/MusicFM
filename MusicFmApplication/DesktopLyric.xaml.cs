@@ -9,6 +9,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using MahApps.Metro.Models.Win32;
+using MusicFmApplication.ViewModel;
 
 namespace MusicFmApplication
 {

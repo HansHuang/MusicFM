@@ -13,6 +13,7 @@ namespace Service.Model
         public string Name { get; set; }
         public string Description { get; set; }
         public string CoverImage { get; set; }
+        public string Thumb { get; set; }
 
 
         public Channel(int id = 0, string name = "", string desc = "", string coverImage = "")
@@ -22,5 +23,12 @@ namespace Service.Model
             Description = desc;
             CoverImage = coverImage;
         }
+
+        public bool Same(Channel toCompare) 
+        {
+            if (Equals(toCompare)) return true;
+            return toCompare != null && Id == toCompare.Id && StrId == toCompare.StrId;
+        }
+
     }
 }

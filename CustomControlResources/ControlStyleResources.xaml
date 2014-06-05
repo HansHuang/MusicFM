@@ -3,7 +3,7 @@
     
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Style/ImageButton.xaml"/>
-        <!--<ResourceDictionary Source="Style/ScrollViewer.xaml"/>-->
+        <ResourceDictionary Source="Style/ScrollViewer.xaml"/>
         <ResourceDictionary Source="Style/ColorlizeImage.xaml"/>
         <ResourceDictionary>
             <Style TargetType="ToolTip">

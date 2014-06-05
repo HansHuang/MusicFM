@@ -21,9 +21,26 @@
                     <cvt:PercentageToDecimalConverter x:Key="Pct2Dcml" />
                     <cvt:NumberToProgressState x:Key="Num2Pgs"/>
                     <cvt:InverseBoolConverter x:Key="IvsBool"/>
+                    <cvt:NullToVisibility x:Key="Null2Vsby"/>
                 </ResourceDictionary>
+                <!--Style Resource-->
                 <ResourceDictionary>
-                    
+                    <Style TargetType="cc:ColorlizeImage">
+                        <!--Let btn to focus easier-->
+                        <Setter Property="Background" Value="#02222222"/>
+                        <Setter Property="Height" Value="20"/>
+                        <Setter Property="Width" Value="20"/>
+                        <Setter Property="Color" Value="WhiteSmoke"/>
+                        <Setter Property="Opacity" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Canvas}, Path=Opacity}"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Color" Value="DarkGray"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Color" Value="#CCF5F5F5"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -83,26 +100,12 @@
                     </Style.Triggers>
                 </Style>
             </Canvas.Style>
-            <Canvas.Resources>
-                <Style TargetType="cc:ColorlizeImage">
-                    <!--Let btn to focus easier-->
-                    <Setter Property="Background" Value="#01222222"/>
-                    <Setter Property="Height" Value="20"/>
-                    <Setter Property="Width" Value="20"/>
-                    <Setter Property="Color" Value="{StaticResource AccentColorBrush}"/>
-                    <Setter Property="Opacity" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Canvas}, Path=Opacity}"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Color" Value="DarkGray"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Color" Value="{StaticResource AccentColorBrush2}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Canvas.Resources>
             <!--<Ellipse Height="160" Width="160" Stroke="#66CCCCCC" StrokeThickness="1" Canvas.Left="15" Canvas.Top="15"/>-->
-            <Ellipse Height="190" Width="190" Fill="#66222222"/>
+            <Ellipse Height="190" Width="190" Opacity="0.7">
+                <Ellipse.Fill>
+                    <SolidColorBrush Color="{Binding ViewModel.MediaManager.SongPictureColor}"/>
+                </Ellipse.Fill>
+            </Ellipse>
             
             <!--Like Song Btn-->
             <cc:ImageButton Canvas.Right="28" Canvas.Top="30"
@@ -113,7 +116,7 @@
                         <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ViewModel.CurrentSong.Like}" Value="1">
-                                    <Setter Property="Color" Value="#88EE0000"/>
+                                    <Setter Property="Color" Value="#FFEE3D3D"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -239,7 +242,7 @@
                 </Style>
             </Grid.Resources>
             <Image Width="128" Height="128" Source="{StaticResource Vinyl128}" />
-            <Ellipse Width="128" Height="128" StrokeThickness="2" DataContext="{Binding ElementName=Root}">
+            <Ellipse Width="128" Height="128"  DataContext="{Binding ElementName=Root}">
                 <Ellipse.Fill>
                     <ImageBrush ImageSource="{Binding ViewModel.MediaManager.SongPicture}" Opacity=".88" />
                 </Ellipse.Fill>

@@ -123,6 +123,9 @@
   <data name="BackToMainUI" xml:space="preserve">
     <value>Back to Main Panel</value>
   </data>
+  <data name="Baidu" xml:space="preserve">
+    <value>Baidu</value>
+  </data>
   <data name="BaiduMusic" xml:space="preserve">
     <value>Baidu Music</value>
   </data>
@@ -141,11 +144,17 @@
   <data name="LikeSong" xml:space="preserve">
     <value>Like this song</value>
   </data>
+  <data name="LoadMore" xml:space="preserve">
+    <value>Load more</value>
+  </data>
   <data name="Login" xml:space="preserve">
     <value>Login</value>
   </data>
   <data name="Minimize2NotifyIcon" xml:space="preserve">
     <value>Minimize to taskbar tray icon</value>
+  </data>
+  <data name="Msn" xml:space="preserve">
+    <value>MSN</value>
   </data>
   <data name="MusicFm" xml:space="preserve">
     <value>Music FM</value>
@@ -181,6 +190,9 @@
   <data name="QuitApp" xml:space="preserve">
     <value>Quit Application</value>
   </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
   <data name="Setting" xml:space="preserve">
     <value>Setting</value>
   </data>
@@ -207,5 +219,8 @@
   </data>
   <data name="WeatherDetail" xml:space="preserve">
     <value>Weather Detail</value>
+  </data>
+  <data name="Weibo" xml:space="preserve">
+    <value>Weibo</value>
   </data>
 </root>

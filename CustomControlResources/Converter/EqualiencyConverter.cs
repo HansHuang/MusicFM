@@ -10,7 +10,13 @@ namespace CustomControlResources.Converter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture) 
         {
-            return values.Length == 2 && values[0].Equals(values[1]);
+            if (values == null || values.Length < 1 || values[0] == null) return false;
+            bool isEqual;
+            if (values.Length == 1 && parameter != null)
+                isEqual = values[0].ToString() == parameter.ToString();
+            else
+                isEqual = values[0].Equals(values[1]);
+            return isEqual;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
