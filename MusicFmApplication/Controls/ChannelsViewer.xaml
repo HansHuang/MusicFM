@@ -39,7 +39,8 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <ScrollViewer x:Name="ListViewer" DataContext="{Binding ElementName=Root}" >
+    <ScrollViewer x:Name="ListViewer" DataContext="{Binding ElementName=Root}" 
+                  PreviewMouseWheel="OnPreviewMouseWheel">
         <ScrollViewer.Style>
             <Style TargetType="ScrollViewer" BasedOn="{StaticResource MyScrollViewer}">
                 <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />

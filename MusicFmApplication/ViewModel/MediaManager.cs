@@ -105,8 +105,10 @@ namespace MusicFmApplication.ViewModel
         public double Volume
         {
             get { return _volume; }
-            set
+            set 
             {
+                if (value < 0) value = 0;
+                if (value > 1) value = 1;
                 if (_volume.Equals(value)) return;
                 _volume = value;
                 if (Player != null) Player.Volume = value;
@@ -240,6 +242,23 @@ namespace MusicFmApplication.ViewModel
 
         #endregion
 
+        #region CanAdjustSystemVolume (INotifyPropertyChanged Property)
+
+        private bool _canAdjustSystemVolume;
+
+        public bool CanAdjustSystemVolume
+        {
+            get { return _canAdjustSystemVolume; }
+            set
+            {
+                if (_canAdjustSystemVolume.Equals(value)) return;
+                _canAdjustSystemVolume = value;
+                RaisePropertyChanged("CanAdjustSystemVolume");
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region DelegateCommand
@@ -316,6 +335,29 @@ namespace MusicFmApplication.ViewModel
         }
         #endregion
 
+        #region RelayCommand VolumeControlCmd
+
+        private RelayCommand _volumeControlCmd;
+
+        public ICommand VolumeControlCmd
+        {
+            get { return _volumeControlCmd ?? (_volumeControlCmd = new RelayCommand(s => VolumeControlExecute(s as bool?))); }
+        }
+
+        private void VolumeControlExecute(bool? isUp)
+        {
+            const double step = .05;
+            var direction = isUp.GetValueOrDefault() ? 1 : -1;
+            var change = step * direction;
+
+            Volume += change;
+            //TODO: Adjust system volum when overstep
+            //http://www.dreamincode.net/forums/topic/45693-controlling-sound-volume-in-c%23/
+            //if(CanAdjustSystemVolume)
+        }
+
+        #endregion
+
         #endregion
 
         public MediaManager(MainViewModel viewModel)
@@ -323,6 +365,7 @@ namespace MusicFmApplication.ViewModel
             ViewModel = viewModel;
 
             SongPictureColor = Color.FromRgb(200, 200, 200);
+            CanAdjustSystemVolume = true;
 
             Player = new MediaPlayer();
             Player.MediaOpened += PlayerMediaOpened;

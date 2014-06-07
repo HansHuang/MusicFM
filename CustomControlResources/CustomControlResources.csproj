@@ -91,6 +91,7 @@
     <Compile Include="GifImage.cs" />
     <Compile Include="ImageButton.cs" />
     <Compile Include="ImageToggleButton.cs" />
+    <Compile Include="MouseWheelGesture.cs" />
     <Compile Include="PasswordHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -300,9 +301,6 @@
     <Folder Include="Themes\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\logo32.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\CommonHelperLibrary\CommonHelperLibrary.csproj">
       <Project>{b6082e2b-e78e-49f6-a055-f8e055440ff6}</Project>
       <Name>CommonHelperLibrary</Name>
@@ -346,9 +344,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\next32.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\logo64.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\setting32.png" />
@@ -401,6 +396,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\203.24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Music48.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

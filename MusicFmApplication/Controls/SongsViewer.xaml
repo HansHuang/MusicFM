@@ -40,7 +40,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid DataContext="{Binding ElementName=Root}">
-        <ScrollViewer DataContext="{Binding ElementName=Root}">
+        <ScrollViewer DataContext="{Binding ElementName=Root}" PreviewMouseWheel="OnPreviewMouseWheel">
             <ScrollViewer.Style>
                 <Style TargetType="ScrollViewer" BasedOn="{StaticResource MyScrollViewer}">
                     <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />

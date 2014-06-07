@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -41,13 +42,21 @@ namespace MusicFmApplication.Controls
 
         #region DependencyProperty SearchResult
         public static readonly DependencyProperty SearchResultProperty =
-            DependencyProperty.Register("SearchResult", typeof(SearchResult), typeof(SearchResultViewer), new PropertyMetadata(default(SearchResult)));
+            DependencyProperty.Register("SearchResult", typeof(SearchResult), typeof(SearchResultViewer), new PropertyMetadata(null,OnPropertyChangedd));
 
         public SearchResult SearchResult
         {
             get { return (SearchResult)GetValue(SearchResultProperty); }
             set { SetValue(SearchResultProperty, value); }
-        } 
+        }
+
+        private static void OnPropertyChangedd(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue == null) return;
+            var viewer = d as SearchResultViewer;
+            if (viewer == null) return;
+            viewer._isLoading = false;
+        }
         #endregion
 
         #region RelayCommand HideResultViewerCmd
@@ -69,6 +78,20 @@ namespace MusicFmApplication.Controls
         public SearchResultViewer()
         {
             InitializeComponent();
+        }
+
+        private bool _isLoading;
+
+        private void OnScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (_isLoading || ViewModel == null || ViewModel.SearchResult == null ||
+                SearchResult.CurrentNr == SearchResult.ResultCount) return;
+            var scroller = sender as ScrollViewer;
+            if (scroller == null) return;
+            if ((scroller.ScrollableHeight - e.VerticalOffset) > 200) return;
+
+            ViewModel.LoadMoreSearchResultCmd.Execute(null);
+            _isLoading = true;
         }
     }
 }

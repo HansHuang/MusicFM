@@ -103,7 +103,7 @@
     <ProjectReference Include="..\..\CommonHelperLibrary\CommonHelperLibrary.csproj">
       <Project>{b6082e2b-e78e-49f6-a055-f8e055440ff6}</Project>
       <Name>CommonHelperLibrary</Name>
-      <Private>False</Private>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\CustomControlResources\CustomControlResources.csproj">
       <Project>{c0f93d06-8f96-452f-9cc8-bfbefff87858}</Project>

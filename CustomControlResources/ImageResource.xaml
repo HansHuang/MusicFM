@@ -1,8 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
-    <ImageSource x:Key="LogoIco32">Images/logo32.png</ImageSource>
-    <ImageSource x:Key="LogoIco64">Images/logo64.png</ImageSource>
     <ImageSource x:Key="Heart32">Images/heart32.png</ImageSource>
     <ImageSource x:Key="Delete32">Images/delete32.png</ImageSource>
     <ImageSource x:Key="Next32">Images/next32.png</ImageSource>
@@ -31,4 +29,5 @@
     <ImageSource x:Key="Cd48">Images/CD48.png</ImageSource>
     <ImageSource x:Key="Plus32">Images/44.32.png</ImageSource>
     <ImageSource x:Key="Home24">Images/203.24.png</ImageSource>
+    <ImageSource x:Key="Music48">Images/Music48.png</ImageSource>
 </ResourceDictionary>

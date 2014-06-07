@@ -14,7 +14,7 @@
                    xmlns:local="clr-namespace:MusicFmApplication.Controls"
                    xmlns:helper="clr-namespace:MusicFmApplication.Helper"
                    x:Name="Root"
-                   Icon="{DynamicResource LogoIco32}" ShowIconOnTitleBar="False"  
+                   Icon="{DynamicResource Music48}" ShowIconOnTitleBar="False"  
                    WindowTransitionsEnabled="False"
                    TitleForeground="WhiteSmoke"
                    Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
@@ -150,6 +150,12 @@
     <Window.InputBindings>
         <KeyBinding Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PauseResumePlayerCmd}" Key="MediaPlayPause"/>
         <KeyBinding Command="{Binding ElementName=Root, Path=ViewModel.NextSongCmd}" Key="MediaNextTrack"/>
+        <MouseBinding Gesture="{x:Static cc:MouseWheelGesture.Down}" 
+                      Command="{Binding  ElementName=Root, Path=ViewModel.MediaManager.VolumeControlCmd}" 
+                      CommandParameter="{x:Static cc:BooleanClass.False}" />
+        <MouseBinding Gesture="{x:Static cc:MouseWheelGesture.Up}" 
+                      Command="{Binding  ElementName=Root, Path=ViewModel.MediaManager.VolumeControlCmd}" 
+                      CommandParameter="{x:Static cc:BooleanClass.True}" />
     </Window.InputBindings>
 
     <metro:MetroWindow.Flyouts>
@@ -429,7 +435,8 @@
                                     </TextBox>
                                 </StackPanel>
                                 
-                                <Grid Grid.Row="2">
+                                <Grid Grid.Row="2"
+                                      Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource IvsNull2Vsby}}">
                                     <local:ArtistViewer Margin="5,10"
                                                         ViewModel="{Binding ViewModel}"
                                                         Artist="{Binding ViewModel.CurrentArtist}"
@@ -460,7 +467,7 @@
                 <RowDefinition Height="4*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="2"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <!--1 Progress Indicator-->
@@ -728,7 +735,24 @@
                 </Grid.Resources>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
+                <!--<DockPanel Grid.Row="1" Margin="5,0">
+                    <DockPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="8"/>
+                            <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="False">
+                                    <Setter Property="Opacity" Value=".8"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DockPanel.Resources>
+                    <TextBlock Text="{Binding MediaManager.Position, Mode=OneWay, Converter={StaticResource Time2Str}}" DockPanel.Dock="Left"/>
+                    <TextBlock Text="{Binding MediaManager.SongLength, Mode=OneWay, Converter={StaticResource Time2Str}}" DockPanel.Dock="Right"/>
+                    <Grid DockPanel.Dock="Right"/>
+                </DockPanel>-->
                 <Rectangle Grid.Row="0" Fill="#20CCCCCC"  Width="{Binding ElementName=Root, Path=Width}"/>
 
                 <Rectangle Grid.Row="0" Fill="WhiteSmoke" Opacity=".4">
@@ -754,7 +778,7 @@
                 </Rectangle>
             </Grid>
             <!--6 Pause, volume, download btns-->
-            <Grid Grid.Row="5" VerticalAlignment="Bottom" Margin="0,8">
+            <Grid Grid.Row="5"  Margin="0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="4*"/>
@@ -764,8 +788,8 @@
                 </Grid.ColumnDefinitions>
                 <Grid.Resources>
                     <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
-                        <Setter Property="Height" Value="18"/>
-                        <Setter Property="Width" Value="18"/>
+                        <Setter Property="Height" Value="14"/>
+                        <Setter Property="Width" Value="14"/>
                     </Style>
                     <Style TargetType="cc:ColorlizeImage">
                         <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
@@ -781,13 +805,29 @@
                         </Style.Triggers>
                     </Style>
                     <Style TargetType="TextBlock">
-                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="FontSize" Value="10"/>
                         <Setter Property="VerticalAlignment" Value="Center"/>
                         <Setter Property="Foreground" Value="WhiteSmoke"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding MediaManager.IsPlaying}" Value="False">
                                 <Setter Property="Opacity" Value=".8"/>
                             </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="Slider" BasedOn="{StaticResource FlatSlider}">
+                        <Setter Property="Minimum" Value="0"/>
+                        <Setter Property="Maximum" Value="1"/>
+                        <Setter Property="LargeChange" Value=".2"/>
+                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                        <Setter Property="Foreground" Value="#FFF5F5F5"/>
+                        <Setter Property="Background" Value="#78F5F5F5"/>
+                        <Setter Property="BorderBrush" Value="#FF333333" />
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#FFF5F5F5" />
+                                <Setter Property="Background" Value="#78F5F5F5" />
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </Grid.Resources>
@@ -829,19 +869,20 @@
                         <cc:ColorlizeImage Image="{StaticResource Mute32}"/>
                     </cc:ImageButton.Image>
                 </cc:ImageButton>
-                <Slider Grid.Column="3" Width="70" Height="4" 
-                        Minimum="0" Maximum="1" LargeChange=".2"
-                        HorizontalAlignment="Left" 
-                        Value="{Binding MediaManager.Volume}">
+                <Slider Grid.Column="3" Height="1" Width="60" Value="{Binding MediaManager.Volume}"/>
+                <!--Set a transparent slider for earier operation-->
+                <Slider Grid.Column="3" Width="60" Value="{Binding MediaManager.Volume}">
                     <Slider.Style>
-                        <Style TargetType="Slider" BasedOn="{StaticResource FlatSlider}">
-                            <Setter Property="Foreground" Value="#FFF5F5F5"/>
-                            <Setter Property="Background" Value="#78F5F5F5"/>
-                            <Setter Property="BorderBrush" Value="#FF333333" />
+                        <Style TargetType="Slider" BasedOn="{StaticResource {x:Type Slider}}">
+                            <Setter Property="Height" Value="16"/>
+                            <Setter Property="Foreground" Value="#00FFFFFF"/>
+                            <Setter Property="Background" Value="#00FFFFFF"/>
+                            <Setter Property="BorderBrush" Value="#00FFFFFF" />
+                            <Setter Property="Cursor" Value="Hand"/>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Foreground" Value="#FFF5F5F5" />
-                                    <Setter Property="Background" Value="#78F5F5F5" />
+                                    <Setter Property="Foreground" Value="#00FFFFFF" />
+                                    <Setter Property="Background" Value="#00FFFFFF" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>

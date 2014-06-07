@@ -34,7 +34,7 @@
                 </DataTrigger.EnterActions>
             </DataTrigger>
         </Grid.Triggers>-->
-        <ScrollViewer Margin="0,20,0,0">
+        <ScrollViewer Margin="0,20,0,0" ScrollChanged="OnScrollChanged">
             <ScrollViewer.Style>
                 <Style TargetType="ScrollViewer" BasedOn="{StaticResource MyScrollViewer}">
                     <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
@@ -53,66 +53,29 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <!--Artist-->
-                <!--<Grid Grid.Row="0" Margin="10,0,10,10"  Background="{StaticResource AccentColorBrush4}"
-                      DataContext="{Binding ElementName=Root, Path=ViewModel.SearchResult.Artist}"
-                      Visibility="{Binding Converter={StaticResource Null2Vsby}}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Image Source="{Binding AvatarThumb}" Width="48" Height="48" Grid.Column="0">
-                        <Image.ToolTip>
-                            <Image Source="{Binding AvatarUrl}" Width="160" Height="160"/>
-                        </Image.ToolTip>
-                    </Image>
-                    <StackPanel Orientation="Vertical" Margin="10,0,0,0" Grid.Column="1">
-                        <StackPanel.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="WhiteSmoke"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="TextDecorations" Value="Underline"/>
-                                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush}"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </StackPanel.Resources>
-                        <TextBlock Text="{Binding Name}" />
-                        <TextBlock Text="{Binding Region}"/>
-                    </StackPanel>
-                    <cc:ImageButton Grid.Column="2" 
-                                    Command="{Binding ElementName=Root, Path=ViewModel.PlayArtistCmd}"
-                                    CommandParameter="{Binding }">
-                        <Grid Background="{StaticResource AccentColorBrush}">
-                            <Image Source="{StaticResource Play32}" Width="16" Height="16" Margin="3,0" VerticalAlignment="Center"/>
-                        </Grid>
-                    </cc:ImageButton>
-                </Grid>-->
                 <Grid Grid.Row="0" Margin="10,0,10,10" 
-                      Visibility="{Binding Converter={StaticResource Null2Vsby}}">
+                      Visibility="{Binding ViewModel.SearchResult.Artist, Converter={StaticResource Null2Vsby}}">
                     <local:ArtistViewer ViewModel="{Binding ViewModel}"
                                         Artist="{Binding ViewModel.SearchResult.Artist}"/>
                 </Grid>
                 <!--Channel List-->
                 <Grid Grid.Row="1" >
-                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"
-                                          Channels="{Binding ViewModel.SearchResult.ChannelList}"
-                                          Visibility="{Binding ViewModel.SearchResult.ChannelList, Converter={StaticResource Null2Vsby}}"/>
+                    <local:ChannelsViewer ViewModel="{Binding ViewModel}" IsBubblingScroll="True"
+                                          Channels="{Binding SearchResult.ChannelList}"
+                                          Visibility="{Binding SearchResult.ChannelList, Converter={StaticResource Null2Vsby}}"/>
                 </Grid>
                 <!--Song List-->
                 <Grid Grid.Row="2">
-                    <local:SongsViewer ViewModel="{Binding ViewModel}"
-                                       SongList="{Binding ViewModel.SearchResult.SongList}"
-                                       Visibility="{Binding ViewModel.SearchResult.SongList, Converter={StaticResource Null2Vsby}}"/>
+                    <local:SongsViewer ViewModel="{Binding ViewModel}" IsBubblingScroll="True"
+                                       SongList="{Binding SearchResult.SongList}"
+                                       Visibility="{Binding SearchResult.SongList, Converter={StaticResource Null2Vsby}}"/>
                 </Grid>
-                <!--Load More Btn-->
-                <Grid Grid.Row="3" Margin="5" Background="{StaticResource AccentColorBrush}">
+                <!--Load More Btn( change to auto loading now)-->
+                <!--<Grid Grid.Row="3" Margin="5" Background="{StaticResource AccentColorBrush}">
                     <Grid.Visibility>
                         <MultiBinding Converter="{StaticResource IvsEqu2Vbly}">
-                            <Binding Path="ViewModel.SearchResult.CurrentNr"/>
-                            <Binding Path="ViewModel.SearchResult.ResultCount"/>
+                            <Binding Path="SearchResult.CurrentNr"/>
+                            <Binding Path="SearchResult.ResultCount"/>
                         </MultiBinding>
                     </Grid.Visibility>
                     <cc:ImageButton HorizontalAlignment="Center" Command="{Binding ViewModel.LoadMoreSearchResultCmd}">
@@ -121,7 +84,7 @@
                         </cc:ImageButton.Image>
                         <TextBlock Text="{lex:LocText MusicFmApplication:English:LoadMore}" VerticalAlignment="Center"/>
                     </cc:ImageButton>
-                </Grid>
+                </Grid>-->
             </Grid>
         </ScrollViewer>
         <!--Close Btn-->

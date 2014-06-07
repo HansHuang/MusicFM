@@ -5,7 +5,7 @@
         xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
         xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
         Title="{lex:LocText MusicFmApplication:English:MusicFm}"
-        Height="190" Width="190"  Icon="{DynamicResource LogoIco32}" x:Name="Root"
+        Height="190" Width="190"  Icon="{DynamicResource Music48}" x:Name="Root"
         AllowsTransparency="True" WindowStyle="None" ResizeMode="CanMinimize" Background="{x:Null}">
     <Window.Resources>
         <ResourceDictionary>
@@ -70,6 +70,16 @@
             </TaskbarItemInfo.ThumbButtonInfos>
         </TaskbarItemInfo>
     </Window.TaskbarItemInfo>
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding ElementName=Root, Path=ViewModel.MediaManager.PauseResumePlayerCmd}" Key="MediaPlayPause"/>
+        <KeyBinding Command="{Binding ElementName=Root, Path=ViewModel.NextSongCmd}" Key="MediaNextTrack"/>
+        <MouseBinding Gesture="{x:Static cc:MouseWheelGesture.Down}" 
+                      Command="{Binding  ElementName=Root, Path=ViewModel.MediaManager.VolumeControlCmd}" 
+                      CommandParameter="{x:Static cc:BooleanClass.False}" />
+        <MouseBinding Gesture="{x:Static cc:MouseWheelGesture.Up}" 
+                      Command="{Binding  ElementName=Root, Path=ViewModel.MediaManager.VolumeControlCmd}" 
+                      CommandParameter="{x:Static cc:BooleanClass.True}" />
+    </Window.InputBindings>
     <Grid MouseLeftButtonDown="MainGridOnLeftMouseDown">
         <!--Operation Btns-->
         <Canvas DataContext="{Binding ElementName=Root}"

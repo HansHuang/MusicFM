@@ -5,7 +5,6 @@
         xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
         xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
         Title="Music Video" Height="740" Width="1280" 
-        cc:AeroGlassEffect.IsEnabled="True"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
         <ResourceDictionary>

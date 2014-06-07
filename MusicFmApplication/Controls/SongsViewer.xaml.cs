@@ -45,10 +45,34 @@ namespace MusicFmApplication.Controls
         } 
         #endregion
 
+        #region DependencyProperty IsBubblingScroll
+        public static readonly DependencyProperty IsBubblingScrollProperty =
+            DependencyProperty.Register("IsBubblingScroll", typeof(bool), typeof(SongsViewer), new PropertyMetadata(false));
+
+        public bool IsBubblingScroll
+        {
+            get { return (bool)GetValue(IsBubblingScrollProperty); }
+            set { SetValue(IsBubblingScrollProperty, value); }
+        } 
+        #endregion
+
         public SongsViewer()
         {
             InitializeComponent();
+        }
 
+        private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (!IsBubblingScroll || e.Handled) return;
+
+            e.Handled = true;
+            var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
+            {
+                RoutedEvent = MouseWheelEvent,
+                Source = sender
+            };
+            var parent = ((Control)sender).Parent as UIElement;
+            if (parent != null) parent.RaiseEvent(eventArg);
         }
     }
 }
