@@ -16,8 +16,11 @@ namespace Service.Model
         public string Token { get; set; }
         public DateTime LoginTime { get; set; }
         public string ExpireString { get; set; }
-        public DateTime Expire { get; set; }
+        public DateTime? Expire { get; set; }
         public string Cookie { get; set; }
+        public string BdUss { get; set; }
+        public string Ptoken { get; set; }
+        public string Stoken { get; set; }
 
         public string R { get; set; }
 

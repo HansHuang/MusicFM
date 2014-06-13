@@ -162,7 +162,7 @@
         <metro:FlyoutsControl>
             <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#AA000000"
                           Header="{lex:LocText MusicFmApplication:English:WeatherDetail}"
-                          x:Name="WeatherFlyout">
+                          x:Name="WeatherFlyout" Width="230">
                 <cc:WeatherDetail x:Name="WeatherDetail" WeatherData="{Binding ElementName=Root, Path=ViewModel.WeatherMgr.WeatherData}"/>
             </metro:Flyout>
             <metro:Flyout DataContext="{Binding ElementName=Root}" 
@@ -238,221 +238,204 @@
                             </cc:ImageButton.Style>
                         </cc:ImageButton>
                     </DockPanel>
-                    <TabControl Width="230" x:Name="ServiceList" Grid.Row="1">
-                        <i:Interaction.Triggers>
+                    <TabControl Width="230" x:Name="ServiceList" Grid.Row="1"
+                                ItemsSource="{Binding ViewModel.AvalibleSongServices}"
+                                SelectedItem="{Binding ViewModel.SongService}">
+                        <!--<i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
                                 <i:InvokeCommandAction Command="{Binding ViewModel.ChangeSongServiceCmd}"
-                                                       CommandParameter="{Binding ElementName=ServiceList, Path=SelectedItem.Tag}"/>
+                                                       CommandParameter="{Binding ElementName=ServiceList, Path=SelectedItem}"/>
                             </i:EventTrigger>
-                        </i:Interaction.Triggers>
+                        </i:Interaction.Triggers>-->
                         <TabControl.Resources>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="WhiteSmoke"/>
                             </Style>
+                            <ObjectDataProvider x:Key="AccountTypeSource" MethodName="GetValues"  ObjectType="{x:Type sys:Enum}">
+                                <ObjectDataProvider.MethodParameters>
+                                    <x:Type TypeName="mdl:AccountType"/>
+                                </ObjectDataProvider.MethodParameters>
+                            </ObjectDataProvider>
                         </TabControl.Resources>
-                        <TabItem metro:ControlsHelper.HeaderFontSize="14" 
-                                 Tag="{x:Type sm:DoubanFm}"
-                                 Header="{lex:LocText MusicFmApplication:English:DoubanFm}">
-                            <TabItem.IsSelected>
-                                <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay" ConverterParameter="{x:Type sm:DoubanFm}">
-                                    <Binding Path="ViewModel.SongService"/>
-                                </MultiBinding>
-                            </TabItem.IsSelected>
-                            <TabItem.Resources>
-                                <ObjectDataProvider x:Key="AccountTypeSource" MethodName="GetValues"  ObjectType="{x:Type sys:Enum}">
-                                    <ObjectDataProvider.MethodParameters>
-                                        <x:Type TypeName="mdl:AccountType"/>
-                                    </ObjectDataProvider.MethodParameters>
-                                </ObjectDataProvider>
-                            </TabItem.Resources>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <!--Login Btn-->
-                                <Grid Grid.Row="0">
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ViewModel.Account.IsShowLoginBox}" Value="False">
-                                                    <DataTrigger.EnterActions>
-                                                        <BeginStoryboard>
-                                                            <Storyboard>
-                                                                <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="25" Duration="0:0:0.3"/>
-                                                            </Storyboard>
-                                                        </BeginStoryboard>
-                                                    </DataTrigger.EnterActions>
-                                                    <DataTrigger.ExitActions>
-                                                        <BeginStoryboard>
-                                                            <Storyboard>
-                                                                <DoubleAnimation Storyboard.TargetProperty="Height" From="25" To="0" Duration="0:0:0.3"/>
-                                                            </Storyboard>
-                                                        </BeginStoryboard>
-                                                    </DataTrigger.ExitActions>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Grid.Style>
-                                    <cc:ImageButton Command="{Binding ViewModel.Account.ShowLoginBoxCmd}">
-                                        <cc:ImageButton.Style>
-                                            <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Foreground" Value="{StaticResource AccentColorBrush}"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </cc:ImageButton.Style>
-                                        <cc:ImageButton.Image>
-                                            <Image Source="{StaticResource User48}" Height="22" Width="22"/>
-                                        </cc:ImageButton.Image>
-                                        <TextBlock Margin="5,2,0,0" Foreground="WhiteSmoke"
-                                               Text="{Binding ViewModel.Account.UserName}"/>
-                                    </cc:ImageButton>
-                                </Grid>
-                                <!--Loging Box-->
-                                <Grid Grid.Row="1" Height="0" >
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ViewModel.Account.IsShowLoginBox}" Value="True">
-                                                    <DataTrigger.EnterActions>
-                                                        <BeginStoryboard>
-                                                            <Storyboard>
-                                                                <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="95" Duration="0:0:0.3"/>
-                                                            </Storyboard>
-                                                        </BeginStoryboard>
-                                                    </DataTrigger.EnterActions>
-                                                    <DataTrigger.ExitActions>
-                                                        <BeginStoryboard>
-                                                            <Storyboard>
-                                                                <DoubleAnimation Storyboard.TargetProperty="Height" From="95" To="0" Duration="0:0:0.3"/>
-                                                            </Storyboard>
-                                                        </BeginStoryboard>
-                                                    </DataTrigger.ExitActions>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Grid.Style>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                        <!--Header-->
+                        <TabControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding LocalName}" FontSize="14"/>
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <!--Content-->
+                        <TabControl.ContentTemplate>
+                            <DataTemplate>
+                                <Grid DataContext="{Binding ElementName=Root}">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <ComboBox x:Name="CboxAccountType" SelectedIndex="0" Grid.Row="0" Grid.Column="0" Height="25" 
-                                              ItemsSource="{Binding Source={StaticResource AccountTypeSource}}"
-                                              SelectedItem="{Binding ViewModel.Account.AccountInfo.AccountType}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate >
-                                                <TextBlock Text="{Binding Converter={StaticResource LocTxtCvt}}"/>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                    <TextBox metro:TextboxHelper.Watermark="Email" 
-                                         metro:TextboxHelper.ClearTextButton="True" 
-                                         Grid.Row="1" Grid.Column="0" Height="25"
-                                         Text="{Binding ViewModel.Account.UserName}"/>
-                                    <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Password}"
-                                              metro:TextboxHelper.ClearTextButton="True" 
-                                               Grid.Row="2" Grid.Column="0" Margin="0,2" Height="25"
-                                                cc:PasswordHelper.Password="{Binding ViewModel.Account.Passwrod, Mode=TwoWay}" />
-                                    <cc:ImageButton HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"
-                                                ToolTip="{lex:LocText MusicFmApplication:English:Login}"
-                                                Command="{Binding ViewModel.Account.LoginCmd}"
-                                                CommandParameter="{Binding ElementName=CboxAccountType, Path=SelectedItem}">
-                                        <cc:ImageButton.Image>
-                                            <Image Source="{StaticResource Login64}" Height="56" Width="56"/>
-                                        </cc:ImageButton.Image>
-                                    </cc:ImageButton>
-                                    <cc:ImageButton HorizontalAlignment="Right" VerticalAlignment="Top"
-                                                    Grid.Row="0" Grid.Column="1"
-                                                    Width="17" Height="17"
-                                                    Command="{Binding ViewModel.HideLoginBoxCmd}">
-                                        <cc:ColorlizeImage Image="{StaticResource Close20}" Width="17" Height="17"/>
-                                    </cc:ImageButton>
-                                </Grid>
-                                <!--Error Msg-->
-                                <StackPanel Grid.Row="2"
-                                            Visibility="{Binding ViewModel.Account.IsShowLoginBox, Converter={StaticResource Bool2Visbility}}">
-                                    <TextBlock Foreground="DarkRed" 
-                                               ToolTip="{Binding ViewModel.Account.Feedback}"
-                                               Text="{Binding ViewModel.Account.Feedback}"/>
-                                </StackPanel>
-                                <!--Search box-->
-                                <Grid Grid.Row="3">
-                                    <TextBox Style="{StaticResource SearchMetroTextBox}"
-                                             metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Search}"
-                                             metro:TextboxHelper.SelectAllOnFocus="True"
-                                             metro:TextboxHelper.ButtonCommand="{Binding ViewModel.SearchCmd, Mode=OneWay}"
-                                             Margin="10,5"/>
-                                </Grid>
-                                <!--Channel List & Search Result-->
-                                <Grid Grid.Row="4">
-                                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"
-                                                          Channels="{Binding ViewModel.Channels}"
-                                                          Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource IvsNull2Vsby}}"/>
-                                    <local:SearchResultViewer ViewModel="{Binding ViewModel}"
-                                                              SearchResult="{Binding ViewModel.SearchResult}"
-                                                              Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource Null2Vsby}}"/>
-                                </Grid>
-                            </Grid>
-                        </TabItem>
-                        <TabItem Header="{lex:LocText MusicFmApplication:English:BaiduMusic}"
-                                 metro:ControlsHelper.HeaderFontSize="14" Tag="{x:Type sm:BaiduMusic}">
-                            <TabItem.IsSelected>
-                                <MultiBinding Converter="{StaticResource EquCvt}" Mode="OneWay" ConverterParameter="{x:Type sm:BaiduMusic}">
-                                    <Binding Path="ViewModel.SongService"/>
-                                </MultiBinding>
-                            </TabItem.IsSelected>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-
-                                <StackPanel Grid.Row="1" Orientation="Vertical">
-                                    <TextBox Style="{StaticResource SearchMetroTextBox}"
-                                             x:Name="TbBaiduSearch"
-                                             metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Search}"
-                                             metro:TextboxHelper.SelectAllOnFocus="True"
-                                             metro:TextboxHelper.ButtonCommand="{Binding ViewModel.SearchCmd, Mode=OneWay}">
-                                        <TextBox.InputBindings>
-                                            <KeyBinding Key="Enter" 
-                                                        Command="{Binding ViewModel.SearchCmd}"
-                                                        CommandParameter="{Binding ElementName=TbBaiduSearch, Path=Text}" />
-                                        </TextBox.InputBindings>
-                                    </TextBox>
-                                </StackPanel>
-                                
-                                <Grid Grid.Row="2"
-                                      Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource IvsNull2Vsby}}">
-                                    <local:ArtistViewer Margin="5,10"
+                                    <!--Login Btn-->
+                                    <Grid Grid.Row="0">
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ViewModel.Account.IsShowLoginBox}" Value="False">
+                                                        <DataTrigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="25" Duration="0:0:0.3"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.EnterActions>
+                                                        <DataTrigger.ExitActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Height" From="25" To="0" Duration="0:0:0.3"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.ExitActions>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                        <cc:ImageButton Command="{Binding ViewModel.Account.ShowLoginBoxCmd}">
+                                            <cc:ImageButton.Style>
+                                                <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Opacity" Value=".8"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </cc:ImageButton.Style>
+                                            <cc:ImageButton.Image>
+                                                <cc:ColorlizeImage Image="{StaticResource User48}" Height="22" Width="22">
+                                                    <cc:ColorlizeImage.Color>
+                                                        <SolidColorBrush Color="{Binding ViewModel.MediaManager.SongPictureColor}"/>
+                                                    </cc:ColorlizeImage.Color>
+                                                </cc:ColorlizeImage>
+                                            </cc:ImageButton.Image>
+                                            <Grid>
+                                                <TextBlock Margin="5,2,0,0" Text="{Binding ViewModel.Account.AccountInfo.UserName}"
+                                                           Visibility="{Binding ViewModel.Account.AccountInfo, Converter={StaticResource Null2Vsby}}"/>
+                                                <TextBlock Margin="5,2,0,0" Text="{lex:LocText MusicFmApplication:English:Login}"
+                                                           Visibility="{Binding ViewModel.Account.AccountInfo, Converter={StaticResource IvsNull2Vsby}}"/>
+                                            </Grid>
+                                        </cc:ImageButton>
+                                    </Grid>
+                                    <!--Loging Box-->
+                                    <Grid Grid.Row="1" Height="0" >
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ViewModel.Account.IsShowLoginBox}" Value="True">
+                                                        <DataTrigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="95" Duration="0:0:0.3"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.EnterActions>
+                                                        <DataTrigger.ExitActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Height" From="95" To="0" Duration="0:0:0.3"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.ExitActions>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <ComboBox Grid.Row="0" Grid.Column="0" Height="25"
+                                                  ItemsSource="{Binding ViewModel.SongService.AvaliableAccountTypes}"
+                                                  SelectedItem="{Binding ViewModel.Account.AccountType, Mode=TwoWay}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate >
+                                                    <TextBlock Text="{Binding Converter={StaticResource LocTxtCvt}}"/>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                        <TextBox metro:TextboxHelper.Watermark="Email" 
+                                                 metro:TextboxHelper.ClearTextButton="True" 
+                                                 Grid.Row="1" Grid.Column="0" Height="25"
+                                                 Text="{Binding ViewModel.Account.UserName}"/>
+                                        <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Password}"
+                                                     metro:TextboxHelper.ClearTextButton="True" 
+                                                     Grid.Row="2" Grid.Column="0" Margin="0,2" Height="25"
+                                                     cc:PasswordHelper.Password="{Binding ViewModel.Account.Passwrod, Mode=TwoWay}" />
+                                        <cc:ImageButton HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                        Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"
+                                                        ToolTip="{lex:LocText MusicFmApplication:English:Login}"
+                                                        Command="{Binding ViewModel.Account.LoginCmd}">
+                                            <cc:ImageButton.Image>
+                                                <cc:ColorlizeImage Image="{StaticResource User48}" Height="56" Width="56">
+                                                    <cc:ColorlizeImage.Color>
+                                                        <SolidColorBrush Color="{Binding ViewModel.MediaManager.SongPictureColor}"/>
+                                                    </cc:ColorlizeImage.Color>
+                                                </cc:ColorlizeImage>
+                                            </cc:ImageButton.Image>
+                                        </cc:ImageButton>
+                                        <!--Close Btn-->
+                                        <cc:ImageButton HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                        Grid.Row="0" Grid.Column="1"
+                                                        Width="17" Height="17"
+                                                        Command="{Binding ViewModel.Account.HideLoginBoxCmd}">
+                                            <cc:ColorlizeImage Image="{StaticResource Close20}" Width="17" Height="17"/>
+                                        </cc:ImageButton>
+                                    </Grid>
+                                    <!--Error Msg-->
+                                    <StackPanel Grid.Row="2"
+                                                Visibility="{Binding ViewModel.Account.IsShowLoginBox, Converter={StaticResource Bool2Visbility}}">
+                                        <TextBlock Foreground="DarkRed" 
+                                                   ToolTip="{Binding ViewModel.Account.Feedback}"
+                                                   Text="{Binding ViewModel.Account.Feedback}"/>
+                                    </StackPanel>
+                                    <!--Search box-->
+                                    <StackPanel Grid.Row="3" >
+                                        <TextBox Style="{StaticResource SearchMetroTextBox}"
+                                                 x:Name="SearchBox"
+                                                 metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Search}"
+                                                 metro:TextboxHelper.SelectAllOnFocus="True"
+                                                 metro:TextboxHelper.ButtonCommand="{Binding ViewModel.SearchCmd, Mode=OneWay}">
+                                            <TextBox.InputBindings>
+                                                <KeyBinding Key="Enter" 
+                                                            Command="{Binding ViewModel.SearchCmd}"
+                                                            CommandParameter="{Binding ElementName=SearchBox, Path=Text}" />
+                                            </TextBox.InputBindings>
+                                        </TextBox>
+                                    </StackPanel>
+                                    <!--Artist Viewer-->
+                                    <Grid Grid.Row="4"
+                                          Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource IvsNull2Vsby}}">
+                                        <local:ArtistViewer Margin="5,10"
                                                         ViewModel="{Binding ViewModel}"
                                                         Artist="{Binding ViewModel.CurrentArtist}"
                                                         Visibility="{Binding ViewModel.CurrentArtist, Converter={StaticResource Null2Vsby}}"/>
-                                </Grid>
-                                
-                                <Grid Grid.Row="3">
-                                    <local:ChannelsViewer ViewModel="{Binding ViewModel}"
+                                    </Grid>
+                                    <!--Channel List & Search Result-->
+                                    <Grid Grid.Row="5" Margin="0,5">
+                                        <local:ChannelsViewer ViewModel="{Binding ViewModel}"
                                                           Channels="{Binding ViewModel.Channels}"
                                                           Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource IvsNull2Vsby}}"/>
-                                    <local:SearchResultViewer ViewModel="{Binding ViewModel}"
+                                        <local:SearchResultViewer ViewModel="{Binding ViewModel}"
                                                               SearchResult="{Binding ViewModel.SearchResult}"
                                                               Visibility="{Binding ViewModel.SearchResult, Converter={StaticResource Null2Vsby}}"/>
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        </TabItem>
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
                     </TabControl>
                 </Grid>
             </metro:Flyout>
@@ -602,7 +585,7 @@
                                 </Style.Triggers>
                             </Style>
                         </cc:ImageButton.Style>
-                        <Grid Background="#AA000000" 
+                        <Grid Background="#99000000" 
                               Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                               Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
                             <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False" Margin="0,8"
@@ -649,6 +632,7 @@
                     <Style TargetType="TextBlock">
                         <Setter Property="Foreground" Value="WhiteSmoke"/>
                         <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                         <!--<Setter Property="Effect">
                             <Setter.Value>
                                 <DropShadowEffect ShadowDepth="5" BlurRadius="15" />
@@ -656,7 +640,8 @@
                         </Setter>-->
                     </Style>
                 </StackPanel.Resources>
-                <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,3" />
+                <TextBlock Text="{Binding CurrentSong.Title}" FontSize="14" Margin="0,3" 
+                           ToolTip="{Binding CurrentSong.Title}"/>
                 <TextBlock FontSize="11"
                            Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
                         <Run Text="{Binding Path=CurrentSong.Artist}"/>

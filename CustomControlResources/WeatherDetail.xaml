@@ -22,7 +22,7 @@
             <cc:Pm25ColorConverter x:Key="Pm25Color"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Margin="0,10,0,0" Width="230">
+    <Grid Margin="5,10,5,0">
         <Grid.Resources>
             <Style TargetType="TextBlock" BasedOn="{StaticResource WeatherTxt}"/>
             <Style TargetType="{x:Type TabControl}">

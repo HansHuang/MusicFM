@@ -32,8 +32,13 @@ namespace Service
 
         public string Name { get { return "DoubanFm"; } }
 
-        public DoubanFm()
+        public string LocalName { get; set; }
+
+        public List<AccountType> AvaliableAccountTypes { get; private set; }
+
+        public DoubanFm() 
         {
+            AvaliableAccountTypes = new List<AccountType> { AccountType.DoubanFm, AccountType.Weibo};
             Randomer = new Random(1000000);
             Log = LoggerHelper.Instance;
         }
@@ -314,28 +319,37 @@ namespace Service
             var json = HttpWebDealer.GetJsonObject("https://www.douban.com/j/app/login?email=" + userName +
                                                           "&password=" + password +
                                                           "&app_name=radio_desktop_win&version=100");
-            if (json == null || json["err"] == null) return null;
-            var expire = DateTime.Now.AddMilliseconds(Convert.ToInt64(json["expire"]));
-            var account = new Account
+            try
             {
-                Email = json["email"],
-                Expire = expire,
-                ExpireString = json["expire"],
-                LoginTime = DateTime.Now,
-                Password = password,
-                R = json["r"].ToString(),
-                Token = json["token"],
-                UserId = json["user_id"].ToString(),
-                UserName = json["user_name"],
-                AccountType = AccountType.DoubanFm
-            };
-            return account;
+                if (json == null || json["err"] != "ok") return null;
+                var expire = DateTime.Now.AddMilliseconds(Convert.ToInt64(json["expire"]));
+                var account = new Account
+                {
+                    Email = json["email"],
+                    Expire = expire,
+                    ExpireString = json["expire"],
+                    LoginTime = DateTime.Now,
+                    Password = password,
+                    R = json["r"].ToString(),
+                    Token = json["token"],
+                    UserId = json["user_id"].ToString(),
+                    UserName = json["user_name"],
+                    AccountType = AccountType.DoubanFm
+                };
+                return account;
+            }
+            catch (Exception e)
+            {
+                Log.Exception(e);
+                return null;
+            }
         }
 
         private Account LoginByThirdPartyAccount(string userName, string password, AccountType type) 
         {
-            var timeOut = 2000;//2s
+            var timeOut = 3000;//3s
             Account account = null;
+            if (type != AccountType.Weibo) return account;
             var loginUrl = "http://douban.fm/partner/login?target=" + (int)type;
             var trd = new Thread(() =>
             {
@@ -382,7 +396,6 @@ namespace Service
                         };
                         browser.Dispose();
                         Application.ExitThread();
-                        return;
                     }
                 };
                 browser.Navigate(loginUrl);
@@ -392,9 +405,8 @@ namespace Service
             trd.Start();
             //trd.Join();
 
-            while (true)
+            while (timeOut > 0 && account == null)
             {
-                if (timeOut < 1 || account != null) break;
                 timeOut -= 100;
                 Thread.Sleep(100);
             }

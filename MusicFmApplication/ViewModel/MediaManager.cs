@@ -422,7 +422,7 @@ namespace MusicFmApplication.ViewModel
 
         private void PlayerMediaOpened(object sender, EventArgs e)
         {
-            App.Log.Msg(DateTime.Now + ", Played", ViewModel.CurrentSong.Url);
+            App.Log.Msg("Play ", ViewModel.CurrentSong.Url);
             IsPlaying = true;
 
             var player = (MediaPlayer)sender;

@@ -12,6 +12,8 @@ namespace Service
     public interface ISongService 
     {
         string Name { get; }
+        string LocalName { get; set; }
+        List<AccountType> AvaliableAccountTypes { get; }
 
         List<Song> GetSongList(GainSongParameter parameter);
         List<Channel> GetChannels(bool isBasic = true);

@@ -35,6 +35,11 @@ namespace CommonHelperLibrary
                 xmlDoc.Save(ConfigFileName);
         }
 
+
+        public static void SetSettingAsync(string name, string value, string appName = "App") {
+            
+        }
+
         /// <summary>
         /// Get Setting from config
         /// </summary>

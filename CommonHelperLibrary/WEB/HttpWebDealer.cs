@@ -19,8 +19,10 @@ namespace CommonHelperLibrary.WEB
     /// Class : HttpWebDealer
     /// Discription : Helper class for dealer with the http website
     /// </summary>
-    public class HttpWebDealer
+    public class HttpWebDealer 
     {
+        protected static LoggerHelper Logger = LoggerHelper.Instance;
+
         #region GetHtml
 
         /// <summary>
@@ -70,7 +72,6 @@ namespace CommonHelperLibrary.WEB
             return jsonSerializer.Deserialize<dynamic>(json);
         }
         #endregion
-
 
         #region DownloadFile
 
@@ -172,7 +173,6 @@ namespace CommonHelperLibrary.WEB
 
         #endregion
 
-
         #region GetResponseByUrl
 
         /// <summary>
@@ -185,6 +185,7 @@ namespace CommonHelperLibrary.WEB
         public static HttpWebResponse GetResponseByUrl(string url, WebHeaderCollection headers = null, int requestTimeout = 0)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
+            var postData = string.Empty;
             if (headers != null)
             {
                 request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0";
@@ -205,11 +206,27 @@ namespace CommonHelperLibrary.WEB
                         toRemove.Add(header);
                         request.UserAgent = value.FirstOrDefault();
                     }
+                    else if (header == "ContentType")
+                    {
+                        toRemove.Add(header);
+                        request.ContentType = value.FirstOrDefault();
+                    }
+                    else if (header == "Method")
+                    {
+                        toRemove.Add(header);
+                        request.Method = value.FirstOrDefault();
+                    }
+                    else if (header == "PostData")
+                    {
+                        toRemove.Add(header);
+                        postData = value.FirstOrDefault();
+                    }
                     //else if()
                 }
                 toRemove.ForEach(headers.Remove);
                 if (headers.Count > 0) request.Headers = headers;
             }
+            
             if (requestTimeout > 0) request.Timeout = requestTimeout;
 
             var count = 0;
@@ -218,13 +235,24 @@ namespace CommonHelperLibrary.WEB
             {
                 try
                 {
+                    //Post
+                    if (request.Method == "POST" && !string.IsNullOrWhiteSpace(postData))
+                    {
+                        var buffer = Encoding.ASCII.GetBytes(postData);
+                        request.ContentLength = buffer.Length;
+                        var stream = request.GetRequestStream();
+                        stream.Write(buffer, 0, buffer.Length);
+                        stream.Close();
+                    }
+
                     response = (HttpWebResponse)request.GetResponse();
                     return response;
                 }
                 catch (Exception e) 
                 {
-                    LoggerHelper.Instance.Msg("Error", url);
-                    LoggerHelper.Instance.Exception(e);
+                    Logger.Msg("Error", url);
+                    Logger.Exception(e);
+                    
                     count++;
                     Thread.Sleep(200);
                 }
@@ -233,8 +261,6 @@ namespace CommonHelperLibrary.WEB
         }
 
         #endregion
-
-
 
         //http://www.cnblogs.com/LoveJenny/archive/2011/12/02/2271543.html
         //http://www.yongfa365.com/Item/GetThumbnailImage-DrawString-DrawImageUnscaled.html

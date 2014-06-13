@@ -7,9 +7,10 @@ namespace MusicFmApplication.Helper
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return value == null || value.Equals(string.Empty)
-                       ? string.Empty
-                       : LocalTextHelper.GetLocText(value.ToString().Trim());
+            if (value == null) return string.Empty;
+            var title = value.ToString();
+            if (string.IsNullOrWhiteSpace(title)) return string.Empty;
+            return LocalTextHelper.GetLocText(title.Trim());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

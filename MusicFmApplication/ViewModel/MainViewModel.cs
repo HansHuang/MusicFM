@@ -56,7 +56,23 @@ namespace MusicFmApplication.ViewModel
         protected const int SearchOffset = 20;
 
         [ImportMany(typeof(ISongService))]
-        public List<ISongService> AvalibleSongServices { get; set; }
+        public ObservableCollection<ISongService> AvalibleSongServices { get; set; }
+
+        public readonly TaskScheduler ContextTaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+
+        #endregion
+
+        #region Events
+
+        public delegate void SongServiceChangeHandle();
+
+        public SongServiceChangeHandle SongServiceChanged;
+
+        private void OnSongServiceChanged()
+        {
+            if (SongServiceChanged != null)
+                SongServiceChanged();
+        }
 
         #endregion
 
@@ -139,9 +155,10 @@ namespace MusicFmApplication.ViewModel
                 if (_songService != null && _songService.Equals(value)) return;
                 _songService = value;
                 RaisePropertyChanged("SongService");
+
+                OnSongServiceChanged();
             }
         }
-
         #endregion
 
         #region HistorySongList (INotifyPropertyChanged Property)
@@ -416,27 +433,6 @@ namespace MusicFmApplication.ViewModel
         }
         #endregion
 
-        #region RelayCommand HideLoginBoxCmd
-
-        private RelayCommand _hideLoginBoxCmd;
-
-        public ICommand HideLoginBoxCmd
-        {
-            get { return _hideLoginBoxCmd ?? (_hideLoginBoxCmd = new RelayCommand(s => HideLoginBoxExecute())); }
-        }
-
-        private void HideLoginBoxExecute()
-        {
-            if (string.IsNullOrEmpty(Account.UserName) || Account.AccountInfo == null)
-                Account.UserName = LocalTextHelper.GetLocText("Login");
-            Account.IsShowLoginBox = false;
-            Account.Feedback = string.Empty;
-            if (Account.AccountInfo != null && Account.UserName != Account.AccountInfo.UserName)
-                Account.UserName = Account.AccountInfo.UserName;
-        }
-
-        #endregion
-
         #region RelayCommand SetChannelCmd
 
         private RelayCommand _setChannelCmd;
@@ -456,7 +452,7 @@ namespace MusicFmApplication.ViewModel
             SongList.Clear();
             NextSongCmd.Execute(false);
             IsShowPlayerDetail = false;
-            Task.Run(() => SettingHelper.SetSetting(SelectedChannelCacheName, channel.ToString(), App.Name));
+            Task.Run(() => SettingHelper.SetSetting(SelectedChannelCacheName, channel.Id.ToString(), App.Name));
         }
         #endregion
 
@@ -563,26 +559,26 @@ namespace MusicFmApplication.ViewModel
 
         #region RelayCommand ChangeSongServiceCmd
 
-        private RelayCommand _changeSongServiceCmd;
+        //private RelayCommand _changeSongServiceCmd;
 
-        public ICommand ChangeSongServiceCmd
-        {
-            get { return _changeSongServiceCmd ?? (_changeSongServiceCmd = new RelayCommand(s => ChangeSongService(s as Type))); }
-        }
+        //public ICommand ChangeSongServiceCmd
+        //{
+        //    get { return _changeSongServiceCmd ?? (_changeSongServiceCmd = new RelayCommand(s => ChangeSongService(s as ISongService))); }
+        //}
 
-        private void ChangeSongService(Type type) 
-        {
-            if (type == null || SongService.GetType() == type) return;
-            //SongService = (ISongService)Activator.CreateInstance(type);
-            SongService = AvalibleSongServices.First(s => s.GetType() == type);
-            _channelCahe = CurrentChannel;
-            //Clear search result (search result only work in specified service)
-            SearchResult = null;
-            //Re-set Current channel
-            CurrentChannel = null;
-            GetChannels();
-            Task.Run(() => SettingHelper.SetSetting(SelectedSongServiceCacheName, type.SerializeToString(), App.Name));
-        }
+        //private void ChangeSongService(ISongService service)
+        //{
+        //    if (service == null) return;
+        //    //SongService = (ISongService)Activator.CreateInstance(type);
+        //    SongService = service;
+        //    _channelCahe = CurrentChannel;
+        //    //Clear search result (search result only work in specified service)
+        //    SearchResult = null;
+        //    //Re-set Current channel
+        //    CurrentChannel = null;
+        //    GetChannels();
+        //    Task.Run(() => SettingHelper.SetSetting(SelectedSongServiceCacheName, service.Name, App.Name));
+        //}
 
         #endregion
 
@@ -605,6 +601,7 @@ namespace MusicFmApplication.ViewModel
             if (string.IsNullOrWhiteSpace(keyword)) return;
 
             MediaManager.IsBuffering = true;
+            SearchResult = null;
             var search = Task.Run(() => SongService.Search(keyword, SearchOffset));
             await search;
             SearchResult = new SearchResultWpf(search.Result);
@@ -698,12 +695,12 @@ namespace MusicFmApplication.ViewModel
         private MainViewModel(MainWindow window)
         {
             MainWindow = window;
+            ComposeSongService();
+            SongServiceChanged += HandleSongServiceChangd;
 
             MediaManager = new MediaManager(this);
             Account = new AccountManager(this);
             WeatherMgr = new WeatherManager(this);
-            
-            ComposeSongService();
 
             StartPlayer();
         }
@@ -720,12 +717,14 @@ namespace MusicFmApplication.ViewModel
         {
             //Selecte Song Service
             if (AvalibleSongServices == null || AvalibleSongServices.Count < 1) return;
-            var serviceType = SettingHelper.GetSetting(SelectedSongServiceCacheName, App.Name).Deserialize<Type>();
+            var serviceName = SettingHelper.GetSetting(SelectedSongServiceCacheName, App.Name);
 
-            SongService = AvalibleSongServices.FirstOrDefault(s => s.GetType() == serviceType) ??
+            SongService = AvalibleSongServices.FirstOrDefault(s => s.Name == serviceName) ??
                           AvalibleSongServices.First(s => s is DoubanFm);
+            //Try get account for song service
+            Account.TryGetAccount();
 
-            GetChannels();
+            //GetChannels();
             var songListExpired = SettingHelper.GetSetting(SongListExpireCacheName, App.Name).Deserialize<DateTime>();
             var songList = songListExpired < DateTime.Now
                                ? new List<Song>()
@@ -737,6 +736,17 @@ namespace MusicFmApplication.ViewModel
             }
             else if (CurrentChannel != null)
                 SetChannelCmd.Execute(CurrentChannel);
+        }
+
+        private void HandleSongServiceChangd()
+        {
+            _channelCahe = CurrentChannel;
+            //Clear search result (search result only work in specified service)
+            SearchResult = null;
+            //Re-set Current channel
+            CurrentChannel = null;
+            GetChannels();
+            SettingHelper.SetSetting(SelectedSongServiceCacheName, SongService.Name, App.Name);
         }
 
         private void GetChannels() 
@@ -813,6 +823,10 @@ namespace MusicFmApplication.ViewModel
             var catalog = new AssemblyCatalog((typeof(ISongService).Assembly));
             var container = new CompositionContainer(catalog);
             container.ComposeParts(this);
+
+            //Set Local Name
+            foreach (var servics in AvalibleSongServices)
+                servics.LocalName = LocalTextHelper.GetLocText(servics.Name);
         }
         #endregion
     }

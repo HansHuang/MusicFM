@@ -26,7 +26,8 @@ namespace CommonHelperLibrary
             AppName = "App";
         }
 
-        private static LoggerHelper GetInstance() {
+        private static LoggerHelper GetInstance()
+        {
             return _instance ?? (_instance = new LoggerHelper());
         }
 
@@ -41,10 +42,10 @@ namespace CommonHelperLibrary
             {
                 if (!IsEnable) return;
                 if (!Directory.Exists(LogDirectory)) Directory.CreateDirectory(LogDirectory);
-                var log = LogDirectory + "MusicFM" + DateTime.Now.ToString("yyyyMMdd") + ".log";
+                var log = LogDirectory + AppName + DateTime.Now.ToString("yyyyMMdd") + ".log";
                 using (var sr = new StreamWriter(log, true))
                 {
-                    sr.Write(string.Format("{0}\r\n{1}\r\n\r\n", title, msg));
+                    sr.Write(string.Format("{0} | {1} | {2}\r\n", title, DateTime.Now, msg));
                 }
             }
         }
@@ -55,7 +56,7 @@ namespace CommonHelperLibrary
         /// <param name="e">Exception</param>
         public void Exception(Exception e)
         {
-            Msg(e.Message, e.StackTrace);
+            Msg("Error", e.Message + "\r\n" + e.StackTrace);
         }
     }
 }

@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Markup.Localizer;
 using CommonHelperLibrary;
 using CustomControlResources;
 using MusicFmApplication.Helper;
+using Service;
 using Service.Model;
 
 namespace MusicFmApplication.ViewModel
@@ -40,6 +44,23 @@ namespace MusicFmApplication.ViewModel
                 if (_isShowLoginBox.Equals(value)) return;
                 _isShowLoginBox = value;
                 RaisePropertyChanged("IsShowLoginBox");
+            }
+        }
+
+        #endregion
+
+        #region AccountType (INotifyPropertyChanged Property)
+
+        private AccountType _accountType;
+
+        public AccountType AccountType
+        {
+            get { return _accountType; }
+            set
+            {
+                if (_accountType.Equals(value)) return;
+                _accountType = value;
+                RaisePropertyChanged("AccountType");
             }
         }
 
@@ -93,9 +114,8 @@ namespace MusicFmApplication.ViewModel
                 RaisePropertyChanged("AccountInfo");
             }
         }
-
         #endregion
-
+        
         #region Feedback (INotifyPropertyChanged Property)
 
         private string _feedback;
@@ -128,12 +148,26 @@ namespace MusicFmApplication.ViewModel
         public void ShowLoginBoxExecute()
         {
             IsShowLoginBox = true;
-            Task.Run(() =>
-                {
-                    Thread.Sleep(300);
-                    UserName = AccountInfo == null ? string.Empty : AccountInfo.Email;
-                    Passwrod = string.Empty;
-                });
+        }
+
+        #endregion
+
+        #region RelayCommand HideLoginBoxCmd
+
+        private RelayCommand _hideLoginBoxCmd;
+
+        public ICommand HideLoginBoxCmd
+        {
+            get { return _hideLoginBoxCmd ?? (_hideLoginBoxCmd = new RelayCommand(s => HideLoginBoxExecute())); }
+        }
+
+        private void HideLoginBoxExecute()
+        {
+            IsShowLoginBox = false;
+            Feedback = string.Empty;
+
+            if (AccountInfo != null && UserName != AccountInfo.UserName)
+                UserName = AccountInfo.UserName;
         }
 
         #endregion
@@ -147,76 +181,124 @@ namespace MusicFmApplication.ViewModel
             get { return _loginCmd ?? (_loginCmd = new RelayCommand(LoginExcute)); }
         }
 
-        public void LoginExcute(object type)
+        public async void LoginExcute(object para)
         {
-            var accType = type is AccountType ? (AccountType)type : AccountType.DoubanFm;
             if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Passwrod))
             {
                 Feedback = LocalTextHelper.GetLocText("UnamePwdCantEmpty");
                 return;
             }
+
+            var login = Task.Run(() => ViewModel.SongService.Login(UserName, Passwrod, AccountType));
+            await login;
+            if (login.Result == null)
+            {
+                Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
+                return;
+            }
             Feedback = string.Empty;
 
-            var loginTask = Task.Run(() => ViewModel.SongService.Login(UserName, Passwrod, accType));
-
-            loginTask.GetAwaiter().OnCompleted(() =>
-                {
-                    var account = loginTask.Result;
-                    ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
-                        {
-                            if (account == null)
-                            {
-                                Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
-                                return;
-                            }
-                            AccountInfo = account;
-                            UserName = account.UserName;
-                            IsShowLoginBox = false;
-                        });
-                    //Write account info to local file
-                    SettingHelper.SetSetting(CacheName, account.SerializeToString(), App.Name);
-                });
+            AccountInfo = login.Result;
+            UserName = login.Result.UserName;
+            IsShowLoginBox = false;
+            UpdateAccountDic();
         }
 
         #endregion
 
         #endregion
 
+        #region Fields
         protected MainViewModel ViewModel;
-        protected const string CacheName = "Account";
+        protected const string CacheName = "AccountDic";
+        //<Name of song service, Account info>
+        protected Dictionary<string, Account> AccountDic; 
+        #endregion
 
         public AccountManager(MainViewModel viewModel)
         {
             ViewModel = viewModel;
             IsShowLoginBox = false;
 
-            TryGetAccount();
+            viewModel.SongServiceChanged += OnSongServiceChanged;
         }
 
         /// <summary>
         /// Try to get account info from config file
         /// </summary>
-        private void TryGetAccount()
+        public async void TryGetAccount()
         {
-            Task.Run(() =>
+            AccountDic = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Dictionary<string, Account>>();
+            if (AccountDic == null)
+            {
+                AccountDic = new Dictionary<string, Account>();
+                return;
+            }
+            foreach (var pair in new Dictionary<string, Account>(AccountDic))
+            {
+                var name = pair.Key;
+                var service = ViewModel.AvalibleSongServices.FirstOrDefault(s => s.Name == name);
+                var account = pair.Value;
+                if (service == null || account == null) continue;
+                var needRefresh = account.Expire.HasValue &&
+                                  (account.Expire.GetValueOrDefault() - DateTime.Now).Days < 3;
+                if (service == ViewModel.SongService)
                 {
-                    var account = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Account>();
-                    if (account == null) return;
-                    ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                    if (needRefresh)
                     {
-                        if ((account.Expire - DateTime.Now).Days < 3)
+                        var login = Task.Run(() => service.Login(account.Email, account.Password, account.AccountType));
+                        await login;
+                        AccountInfo = login.Result;
+                        UpdateAccountDic();
+                    }
+                    else
+                    {
+                        AccountInfo = account;
+                        UserName = account.UserName;
+                    }
+
+                }
+                else if (needRefresh)
+                {
+                    Task.Run(() => service.Login(account.Email, account.Password, account.AccountType))
+                        .ContinueWith(t =>
                         {
-                            UserName = account.Email;
-                            Passwrod = account.Password;
-                            LoginCmd.Execute(account.AccountType);
-                        }
-                        else
-                        {
-                            AccountInfo = account;
-                            UserName = AccountInfo.UserName;
-                        }
-                    });
-                });
+                            AccountDic[name] = t.Result;
+                            UpdateAccountDic();
+                        }, new CancellationToken(), TaskContinuationOptions.None, ViewModel.ContextTaskScheduler);
+                }
+            }
         }
+
+        #region Processors
+        private void UpdateAccountDic()
+        {
+            var name = ViewModel.SongService.Name;
+
+            if (AccountDic.ContainsKey(name)) AccountDic[name] = AccountInfo;
+            else AccountDic.Add(name, AccountInfo);
+            Task.Run(() => SettingHelper.SetSetting(CacheName, AccountDic.SerializeToString(), App.Name));
+        }
+
+        private void OnSongServiceChanged()
+        {
+            if (ViewModel.SongService == null || AccountDic == null) return;
+            var name = ViewModel.SongService.Name;
+            AccountInfo = AccountDic.ContainsKey(name) ? AccountDic[name] : null;
+
+            if (AccountInfo == null)
+            {
+                AccountType = ViewModel.SongService.AvaliableAccountTypes[0];
+                UserName = string.Empty;
+            }
+            else
+            {
+                AccountType = AccountInfo.AccountType;
+                UserName = AccountInfo.Email;
+            }
+            Passwrod = string.Empty;
+        } 
+        #endregion
+
     }
 }

@@ -331,9 +331,6 @@
     <Resource Include="Images\User48.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Login64.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\folder32.png" />
   </ItemGroup>
   <ItemGroup>

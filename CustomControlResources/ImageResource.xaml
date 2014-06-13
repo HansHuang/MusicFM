@@ -13,7 +13,6 @@
     <ImageSource x:Key="CurrentChennle">Images/CurChannel.gif</ImageSource>
     <system:String x:Key="CrtChelStr">/CustomControlResources;component/Images/CurChannel.gif</system:String>
     <ImageSource x:Key="User48">Images/User48.png</ImageSource>
-    <ImageSource x:Key="Login64">Images/Login64.png</ImageSource>
     <ImageSource x:Key="Folder32">Images/folder32.png</ImageSource>
     <ImageSource x:Key="Setting32">Images/setting32.png</ImageSource>
     <ImageSource x:Key="About24">Images/about24.png</ImageSource>

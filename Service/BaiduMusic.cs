@@ -34,10 +34,15 @@ namespace Service
 
         public string Name { get { return "BaiduMusic"; } }
 
+        public string LocalName { get; set; }
+
+        public List<AccountType> AvaliableAccountTypes { get; private set; }
+
         public BaiduMusic()
         {
             BaseUrl = "http://tingapi.ting.baidu.com/v1/restserver/ting?format=json&from=ttpwin8&version=1.0.4";
             Logger = LoggerHelper.Instance;
+            AvaliableAccountTypes = new List<AccountType> {AccountType.Baidu};
 
             _headers = new WebHeaderCollection { { "user-agent", "ttpwin8_1.0.4" } };
             _webClient = new WebClient {Encoding = Encoding.UTF8};
@@ -112,7 +117,46 @@ namespace Service
 
         public Account Login(string userName, string password, AccountType type) 
         {
-            return null;
+            Account account = null;
+            if (type != AccountType.Baidu) return account;
+            const string url = "http://passport.baidu.com/v2/sapi/login";
+            var content = BulidContentForLogin(userName, password);
+
+            var header = new WebHeaderCollection
+            {
+                {"user-agent", "ttpwin8_1.0.4"},
+                {"ContentType", "application/x-www-form-urlencoded"},
+                {"Method","POST"},
+                {"PostData",content}
+            };
+            try
+            {
+                var json = HttpWebDealer.GetJsonObject(url, header, Encoding.UTF8);
+
+                //need verify code
+                if (json["needvcode"] == 1)
+                {
+                    //TODO
+                }
+                else if (json["errno"]==0)
+                {
+                    account = new Account
+                    {
+                        AccountType = type,
+                        Email=userName,
+                        Password=password,
+                        LoginTime=DateTime.Now,
+                        UserName = json["displayname"],
+                        UserId = json["uid"].ToString(),
+                        BdUss = json["bduss"]
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Exception(e);
+            }
+            return account;
         }
 
         public SearchResult Search(string keyword, int count) {
@@ -466,6 +510,38 @@ namespace Service
             url.Append(string.Format("&n={0}", page));
             url.Append("&rn=10");
             return url.ToString();
+        }
+
+        private string BulidContentForLogin(string userName, string password, string verifyCode = "", string verifyKey = "")
+        {
+            var content = new StringBuilder();
+            var name = Uri.EscapeDataString(userName);
+            var pass = Convert.ToBase64String(Encoding.ASCII.GetBytes(password))
+                              .Replace("+", "%2B").Replace("/", "%2F").Replace("=", "%3D");
+            //must follow alphabetical order for get sign
+            content.Append(string.Format("appid={0}&", "1"));
+            content.Append(string.Format("crypttype={0}&", 1));
+            content.Append(string.Format("isphone={0}&", 0));
+            content.Append(string.Format("logictype={0}&", "0"));
+            content.Append(string.Format("login_type={0}&", 3));
+            content.Append(string.Format("password={0}&", pass));
+            content.Append(string.Format("tpl={0}&", "qianqian"));
+            content.Append(string.Format("username={0}&", name));
+            if (!string.IsNullOrWhiteSpace(verifyCode) && !string.IsNullOrWhiteSpace(verifyKey))
+            {
+                content.Append(string.Format("vcodestr={0}&", verifyKey));
+                content.Append(string.Format("verifycode={0}&", Uri.EscapeDataString(verifyCode)));
+            }
+
+            var sign = GetContentSign(content.ToString());
+            content.Append(string.Format("sig={0}", sign));
+            return content.ToString();
+        }
+
+        private string GetContentSign(string content)
+        {
+            var str = string.Format("{0}sign_key=3a15f3fef06e24b4109f4c060dbca587", content);
+            return AESHelper.Md5Hash(str);
         }
 
         private void GetSongInfo(Song song)
