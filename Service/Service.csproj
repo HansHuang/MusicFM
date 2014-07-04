@@ -65,7 +65,6 @@
     <Compile Include="Model\GetSongParameter.cs" />
     <Compile Include="Model\OperationType.cs" />
     <Compile Include="Model\SearchResult.cs" />
-    <Compile Include="Model\SearchResultWpf.cs" />
     <Compile Include="Model\Song.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -238,9 +238,15 @@
                             </cc:ImageButton.Style>
                         </cc:ImageButton>
                     </DockPanel>
+                    <Grid Width="230" Grid.Row="1" Margin="0,10,0,0"
+                          Visibility="{Binding ViewModel.OfflineMgt.IsInternetConnected, Converter={StaticResource IvsBooltVsby}}">
+                        <local:ChannelsViewer ViewModel="{Binding ViewModel}" Channels="{Binding ViewModel.Channels}" HorizontalAlignment="Center"/>
+                    </Grid>
+                    
                     <TabControl Width="230" x:Name="ServiceList" Grid.Row="1"
                                 ItemsSource="{Binding ViewModel.AvalibleSongServices}"
-                                SelectedItem="{Binding ViewModel.SongService}">
+                                SelectedItem="{Binding ViewModel.SongService}"
+                                Visibility="{Binding ViewModel.OfflineMgt.IsInternetConnected, Converter={StaticResource Bool2Visbility}}">
                         <!--<i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
                                 <i:InvokeCommandAction Command="{Binding ViewModel.ChangeSongServiceCmd}"
@@ -251,16 +257,11 @@
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="WhiteSmoke"/>
                             </Style>
-                            <ObjectDataProvider x:Key="AccountTypeSource" MethodName="GetValues"  ObjectType="{x:Type sys:Enum}">
-                                <ObjectDataProvider.MethodParameters>
-                                    <x:Type TypeName="mdl:AccountType"/>
-                                </ObjectDataProvider.MethodParameters>
-                            </ObjectDataProvider>
                         </TabControl.Resources>
                         <!--Header-->
                         <TabControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding LocalName}" FontSize="14"/>
+                                <TextBlock Text="{Binding LocalizeName}" FontSize="14"/>
                             </DataTemplate>
                         </TabControl.ItemTemplate>
                         <!--Content-->
@@ -403,7 +404,7 @@
                                                    Text="{Binding ViewModel.Account.Feedback}"/>
                                     </StackPanel>
                                     <!--Search box-->
-                                    <StackPanel Grid.Row="3" >
+                                    <StackPanel Grid.Row="3">
                                         <TextBox Style="{StaticResource SearchMetroTextBox}"
                                                  x:Name="SearchBox"
                                                  metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Search}"
@@ -585,7 +586,7 @@
                                 </Style.Triggers>
                             </Style>
                         </cc:ImageButton.Style>
-                        <Grid Background="#99000000" 
+                        <Grid Background="#90000000" 
                               Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                               Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
                             <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False" Margin="0,8"
@@ -669,6 +670,9 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Account.AccountInfo}" Value="{x:Null}">
                                 <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding OfflineMgt.IsInternetConnected}" Value="false">
+                                <Setter Property="IsEnabled" Value="True"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

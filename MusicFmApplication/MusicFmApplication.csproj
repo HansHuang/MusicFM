@@ -83,6 +83,10 @@
       <DependentUpon>SongsViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helper\LocalTextConverter.cs" />
+    <Compile Include="Model\BackgroundType.cs" />
+    <Compile Include="Model\Channel.cs" />
+    <Compile Include="Model\SearchResult.cs" />
+    <Compile Include="Model\Song.cs" />
     <Compile Include="ViewModel\AccountManager.cs" />
     <Compile Include="Controls\ChannelsViewer.xaml.cs">
       <DependentUpon>ChannelsViewer.xaml</DependentUpon>
@@ -101,6 +105,9 @@
     <Compile Include="SettingWindow.xaml.cs">
       <DependentUpon>SettingWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\OfflineManagement.cs" />
+    <Compile Include="ViewModel\SettingManager.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\WeatherManager.cs" />
     <Page Include="Controls\ArtistViewer.xaml">
       <SubType>Designer</SubType>
@@ -196,9 +203,7 @@
   <ItemGroup>
     <Resource Include="logo.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

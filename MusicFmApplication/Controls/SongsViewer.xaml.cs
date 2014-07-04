@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MusicFmApplication.ViewModel;
-using Service.Model;
+using MusicFmApplication.Model;
 
 namespace MusicFmApplication.Controls
 {

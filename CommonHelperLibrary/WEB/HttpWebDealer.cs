@@ -36,22 +36,30 @@ namespace CommonHelperLibrary.WEB
         public static string GetHtml(string url, WebHeaderCollection headers = null, Encoding txtEncoding = null)
         {
             var html = "";
+            if (string.IsNullOrWhiteSpace(url)) return html;
             var response = GetResponseByUrl(url,headers);
             if (response == null) return html;
-            if (response.ContentEncoding.ToLower().Equals("gzip"))
+            using (var stream = response.GetResponseStream())
             {
-                if (Equals(txtEncoding, Encoding.GetEncoding("GB2312")))
-                    html = Encoding.ASCII.GetString(GZipHelper.Decompress(response.GetResponseStream()));
+                if (response.ContentEncoding.ToLower().Equals("gzip"))
+                {
+                    if (Equals(txtEncoding, Encoding.GetEncoding("GB2312")))
+                        html = Encoding.ASCII.GetString(GZipHelper.Decompress(stream));
+                    else
+                        html = Encoding.UTF8.GetString(GZipHelper.Decompress(stream));
+                }
                 else
-                    html = Encoding.UTF8.GetString(GZipHelper.Decompress(response.GetResponseStream()));
+                {
+                    StreamReader sr;
+                    if (txtEncoding == null)
+                        sr = new StreamReader(stream, true);
+                    else
+                        sr = new StreamReader(stream, txtEncoding);
+                    html = sr.ReadToEnd();
+                    sr.Close();
+                }
             }
-            else
-            {
-                txtEncoding = txtEncoding ?? Encoding.Default;
-                var sr = new StreamReader(response.GetResponseStream(), txtEncoding); //Encoding.GetEncoding("GB2312")
-                html = sr.ReadToEnd();
-                sr.Close();
-            }
+            
             return html;
         }
 
@@ -117,6 +125,7 @@ namespace CommonHelperLibrary.WEB
                                         DownloadProgressChangedEventHandler monitor = null)
         {
             if (string.IsNullOrWhiteSpace(url)) return false;
+            if (!path.EndsWith("\\")) path += "\\";
             using (var wc = new WebClient())
             {
                 //if (File.Exists(path +"\\"+ fileName)) File.Delete(path +"\\"+ fileName);
@@ -124,7 +133,7 @@ namespace CommonHelperLibrary.WEB
                 if (monitor != null)
                     wc.DownloadProgressChanged += monitor;
                 
-                wc.DownloadFileAsync(new Uri(url), path + "\\" + fileName);
+                wc.DownloadFileAsync(new Uri(url), path + fileName);
             }
             return true;
         }
@@ -262,8 +271,32 @@ namespace CommonHelperLibrary.WEB
 
         #endregion
 
-        //http://www.cnblogs.com/LoveJenny/archive/2011/12/02/2271543.html
-        //http://www.yongfa365.com/Item/GetThumbnailImage-DrawString-DrawImageUnscaled.html
+        /// <summary>
+        /// Detects the byte order mark of a file and returns  an appropriate encoding for the file.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static Encoding GetEncoding(Stream stream)
+        {
+            // Use Default of Encoding.Default (Ansi CodePage)
+            var enc = Encoding.Default;
+            // Detect byte order mark if any - otherwise assume default
+            //var simple = new MemoryStream();
+            //stream.CopyTo(simple, 5);
+            var buffer = new byte[5];
+            stream.Read(buffer, 0, 5);
+            if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
+                enc = Encoding.UTF8;
+            else if (buffer[0] == 0xfe && buffer[1] == 0xff)
+                enc = Encoding.Unicode;
+            else if (buffer[0] == 0 && buffer[1] == 0 && buffer[2] == 0xfe && buffer[3] == 0xff)
+                enc = Encoding.UTF32;
+            else if (buffer[0] == 0x2b && buffer[1] == 0x2f && buffer[2] == 0x76)
+                enc = Encoding.UTF7;
+
+            //simple.Close();
+            return enc;
+        }
 
     }
 }

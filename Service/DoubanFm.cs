@@ -32,7 +32,7 @@ namespace Service
 
         public string Name { get { return "DoubanFm"; } }
 
-        public string LocalName { get; set; }
+        public string LocalizeName { get; set; }
 
         public List<AccountType> AvaliableAccountTypes { get; private set; }
 
@@ -49,8 +49,8 @@ namespace Service
             if (string.IsNullOrWhiteSpace(url)) return new List<Song>();
 
             WebHeaderCollection header = null;
-            if (!string.IsNullOrWhiteSpace(param.AccountCookie))
-                header = new WebHeaderCollection {{"Cookie", param.AccountCookie}};
+            if (param.Account != null && !string.IsNullOrWhiteSpace(param.Account.Cookie))
+                header = new WebHeaderCollection { { "Cookie", param.Account.Cookie } };
             var json = HttpWebDealer.GetJsonObject(url, header, Encoding.UTF8) as Dictionary<string, object>;
             if (json == null || !json.ContainsKey("song"))
             {
@@ -100,7 +100,8 @@ namespace Service
         private string BulidUrlForGainSongs(GainSongParameter para) 
         {
             if (para == null) return string.Empty;
-            var isFromWebsite = !string.IsNullOrWhiteSpace(para.AccountCookie);
+            var hasAccount = para.Account != null;
+            var isFromWebsite = hasAccount && !string.IsNullOrWhiteSpace(para.Account.Cookie);
             var url = new StringBuilder();
             if (isFromWebsite)
             {
@@ -110,9 +111,9 @@ namespace Service
             else
             {
                 url.Append("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100");
-                if (!string.IsNullOrWhiteSpace(para.UserId)) url.Append("&user_id=" + para.UserId);
-                if (!string.IsNullOrEmpty(para.Expire)) url.Append("&expire=" + para.Expire);
-                if (!string.IsNullOrEmpty(para.Token)) url.Append("&token=" + para.Token);
+                if (hasAccount && !string.IsNullOrWhiteSpace(para.Account.UserId)) url.Append("&user_id=" + para.Account.UserId);
+                if (hasAccount && !string.IsNullOrEmpty(para.Account.ExpireString)) url.Append("&expire=" + para.Account.ExpireString);
+                if (hasAccount && !string.IsNullOrEmpty(para.Account.Token)) url.Append("&token=" + para.Account.Token);
                 if (!string.IsNullOrEmpty(para.History)) url.Append("&h=" + para.History);
             }
             url.Append("&channel=" + para.Channel.Id);
@@ -192,7 +193,7 @@ namespace Service
         public bool CompletedSong(SongActionParameter parameter)
         {
             if (parameter == null) return false;
-            var isFromWebsite = !string.IsNullOrWhiteSpace(parameter.AccountCookie);
+            var isFromWebsite = !string.IsNullOrWhiteSpace(parameter.Account.Cookie);
             var url = new StringBuilder();
             if (isFromWebsite)
             {
@@ -205,14 +206,14 @@ namespace Service
             else
             {
                 url.Append("http://douban.fm/j/app/radio/people?app_name=radio_desktop_win&version=100&type=e");
-                url.Append("&user_id=" + parameter.UserId);
-                url.Append("&expire=" + parameter.Expire);
-                url.Append("&token=" + parameter.Token);
+                url.Append("&user_id=" + parameter.Account.UserId);
+                url.Append("&expire=" + parameter.Account.ExpireString);
+                url.Append("&token=" + parameter.Account.Token);
                 url.Append("&sid=" + parameter.SongId);
                 url.Append("&channel=" + parameter.Channel.Id);
             }
             WebHeaderCollection header = null;
-            if (isFromWebsite) header = new WebHeaderCollection {{"Cookie", parameter.AccountCookie}};
+            if (isFromWebsite) header = new WebHeaderCollection {{"Cookie", parameter.Account.Cookie}};
             var json = HttpWebDealer.GetJsonObject(url.ToString(), header, Encoding.UTF8);
 
             return json != null && json["r"] == 0;
@@ -252,7 +253,9 @@ namespace Service
         public SongLyric GetLyric(Song song)
         {
             if (song == null) return null;
-            var lrc = SongLyricHelper.GetSongLyric(song.Title, song.Artist);
+            var lrc = string.IsNullOrWhiteSpace(song.LrcUrl)
+                          ? SongLyricHelper.GetSongLyric(song.Title, song.Artist)
+                          : SongLyricHelper.GetSongLyric(song.LrcUrl);
             return lrc;
         }
 

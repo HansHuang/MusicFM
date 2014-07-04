@@ -1,12 +1,22 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace CommonHelperLibrary
 {
+    /// <summary>
+    /// Author : Hans Huang
+    /// Date : 2014-03-31
+    /// Class : SettingHelper
+    /// Discription : Helper class for Config/Setting
+    /// </summary>
     public static class SettingHelper
     {
         internal static string ConfigFileName = "App.dat";
+
+        //DO Not access this property directily, use the GetConfigXml() method
+        internal static XmlDocument XmlDoc = null;
 
         internal static readonly object Locker = new object();
 
@@ -35,11 +45,6 @@ namespace CommonHelperLibrary
                 xmlDoc.Save(ConfigFileName);
         }
 
-
-        public static void SetSettingAsync(string name, string value, string appName = "App") {
-            
-        }
-
         /// <summary>
         /// Get Setting from config
         /// </summary>
@@ -62,23 +67,27 @@ namespace CommonHelperLibrary
         /// </summary>
         /// <param name="appName">Application Name</param>
         /// <returns>XmlDocument</returns>
-        private static XmlDocument GetConfigXml(string appName = "App")
+        private static XmlDocument GetConfigXml(string appName = "App") 
         {
-            if (appName != "App") ConfigFileName = appName + ".dat";
-            var xmlDoc = new XmlDocument();
-            //Create config file if not exist
-            if (File.Exists(ConfigFileName))
-                lock (Locker)
-                    xmlDoc.Load(ConfigFileName);
-            else
+            lock (Locker)
             {
-                var node = xmlDoc.CreateNode(XmlNodeType.Element, appName + "Config", "");
-                var nodeSettings = xmlDoc.CreateNode(XmlNodeType.Element, "Settings", "");
-                node.AppendChild(nodeSettings);
-                xmlDoc.AppendChild(node);
-                xmlDoc.Save(ConfigFileName);
+                if (XmlDoc != null) return XmlDoc;
+
+                if (appName != "App") ConfigFileName = appName + ".dat";
+                XmlDoc = new XmlDocument();
+                //Create config file if not exist
+                if (File.Exists(ConfigFileName))
+                    XmlDoc.Load(ConfigFileName);
+                else
+                {
+                    var node = XmlDoc.CreateNode(XmlNodeType.Element, appName + "Config", "");
+                    var nodeSettings = XmlDoc.CreateNode(XmlNodeType.Element, "Settings", "");
+                    node.AppendChild(nodeSettings);
+                    XmlDoc.AppendChild(node);
+                    XmlDoc.Save(ConfigFileName);
+                }
             }
-            return xmlDoc;
+            return XmlDoc;
         }
     }
 }

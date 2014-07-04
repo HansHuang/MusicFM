@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -34,7 +35,7 @@ namespace Service
 
         public string Name { get { return "BaiduMusic"; } }
 
-        public string LocalName { get; set; }
+        public string LocalizeName { get; set; }
 
         public List<AccountType> AvaliableAccountTypes { get; private set; }
 
@@ -51,6 +52,7 @@ namespace Service
         public List<Song> GetSongList(GainSongParameter param) 
         {
             var songList = new List<Song>();
+            if (_getSongsFailed == 0 && !SongFavoriteOperation(param)) return songList;
             if (_getSongsFailed > 3) return songList;
 
             var url = BulidUrlForGainSongs(param);
@@ -104,9 +106,9 @@ namespace Service
         public SongLyric GetLyric(Song song)
         {
             if (song == null) return null;
-            var lrc = !string.IsNullOrWhiteSpace(song.LrcUrl)
-                          ? SongLyricHelper.BulidSongLyric(_webClient.DownloadString(song.LrcUrl))
-                          : SongLyricHelper.GetSongLyric(song.Title, song.Artist);
+            var lrc = string.IsNullOrWhiteSpace(song.LrcUrl)
+                          ? SongLyricHelper.GetSongLyric(song.Title, song.Artist)
+                          : SongLyricHelper.GetSongLyric(song.LrcUrl);
             return lrc;
         }
 
@@ -146,9 +148,12 @@ namespace Service
                         Email=userName,
                         Password=password,
                         LoginTime=DateTime.Now,
+                        Expire=DateTime.Now.AddDays(7),
                         UserName = json["displayname"],
                         UserId = json["uid"].ToString(),
-                        BdUss = json["bduss"]
+                        BdUss = json["bduss"],
+                        Stoken = json["stoken"],
+                        Ptoken = json["ptoken"]
                     };
                 }
             }
@@ -580,6 +585,58 @@ namespace Service
             {
                 LoggerHelper.Instance.Exception(e);
             }
+        }
+
+        private bool SongFavoriteOperation(GainSongParameter para)
+        {
+            switch (para.OperationType)
+            {
+                case OperationType.Hate:
+                case OperationType.Played:
+                    break;
+                case OperationType.Like:
+                case OperationType.DisLike:
+                    try
+                    {
+                        var url = BulidUrlForSongFavorite(para);
+                        var json = HttpWebDealer.GetJsonObject(url, _headers, Encoding.UTF8);
+                        return json["error_code"].ToString() == BaiduJsonErrorCode.OK;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Exception(e);
+                        return false;
+                    }
+            }
+            return true;
+        }
+
+        private string BulidUrlForSongFavorite(GainSongParameter para)
+        {
+            if (para.Account == null || string.IsNullOrWhiteSpace(para.Account.BdUss) ||
+                string.IsNullOrWhiteSpace(para.SongId)) return string.Empty;
+
+            var method = string.Empty;
+            switch (para.OperationType)
+            {
+                case OperationType.Like:
+                    method = "baidu.ting.favorite.addSongFavorite";
+                    break;
+                case OperationType.DisLike:
+                    method = "baidu.ting.favorite.delSongFavorite";
+                    break;
+                case OperationType.Hate:
+                case OperationType.Played:
+                    //Now do nothing with these two kinds of operation
+                    break;
+            }
+            if (string.IsNullOrWhiteSpace(method)) return string.Empty;
+            var url = new StringBuilder(BaseUrl);
+            url.Append(string.Format("&method={0}", method));
+            url.Append(string.Format("&bduss={0}", para.Account.BdUss));
+            url.Append(string.Format("&songId={0}", para.SongId));
+
+            return url.ToString();
         }
         
     }

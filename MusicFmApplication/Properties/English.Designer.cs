@@ -97,6 +97,15 @@ namespace MusicFmApplication.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear offline data.
+        /// </summary>
+        internal static string CleanOffline {
+            get {
+                return ResourceManager.GetString("CleanOffline", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Douban Account.
         /// </summary>
         internal static string DoubanAct {
@@ -282,6 +291,15 @@ namespace MusicFmApplication.Properties {
         internal static string Search {
             get {
                 return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set offline listening.
+        /// </summary>
+        internal static string SetOffline {
+            get {
+                return ResourceManager.GetString("SetOffline", resourceCulture);
             }
         }
         

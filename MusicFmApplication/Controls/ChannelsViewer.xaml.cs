@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MusicFmApplication.ViewModel;
-using Service.Model;
+using MusicFmApplication.Model;
 
 namespace MusicFmApplication.Controls
 {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Service.Model
 {
+    [Serializable]
     public class Channel
     {
         public int Id { get; set; }
@@ -14,7 +15,6 @@ namespace Service.Model
         public string Description { get; set; }
         public string CoverImage { get; set; }
         public string Thumb { get; set; }
-
 
         public Channel(int id = 0, string name = "", string desc = "", string coverImage = "")
         {

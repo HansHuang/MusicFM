@@ -14,23 +14,8 @@ using Service.Model;
 
 namespace MusicFmApplication.ViewModel
 {
-    public class AccountManager : INotifyPropertyChanged
+    public class AccountManager :ViewModelBase
     {
-        #region INotifyPropertyChanged RaisePropertyChanged
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
-
         #region NotifyProperties
         #region IsShowLoginBox (INotifyPropertyChanged Property)
 

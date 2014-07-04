@@ -25,7 +25,7 @@ namespace MusicFmApplication
     {
         public static bool IsOpened = false;
 
-        protected MainViewModel ViewModel { get; set; }
+        public MainViewModel ViewModel { get; set; }
 
         #region BackgroundColor(DependencyProperty)
         public static readonly DependencyProperty BackgroundColorProperty =

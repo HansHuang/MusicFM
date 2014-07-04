@@ -8,11 +8,7 @@ namespace Service.Model
 {
     public class SongActionParameter 
     {
-        public string UserId { get; set; }
-        public string Expire { get; set; }
-        public string Token { get; set; }
-        //Get user account from webpage
-        public string AccountCookie { get; set; }
+        public Account Account { get; set; }
 
         public string SongId { get; set; }
         public Channel Channel { get; set; }
@@ -23,11 +19,7 @@ namespace Service.Model
 
         public SongActionParameter(Account account) 
         {
-            if (account == null) return;
-            UserId = account.UserId;
-            Token = account.Token;
-            Expire = account.ExpireString;
-            AccountCookie = account.Cookie;
+            Account = account;
         }
 
         /// <summary>
@@ -119,8 +111,6 @@ namespace Service.Model
                     break;
                 case OperationType.Played:
                     lastAction = ":p|";
-                    break;
-                    default:
                     break;
             }
             var history = sb.ToString();

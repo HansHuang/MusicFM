@@ -60,6 +60,9 @@
   <ItemGroup>
     <Compile Include="AESHelper.cs" />
     <Compile Include="Audio\Mp3Header.cs" />
+    <Compile Include="AutoStartupHelper.cs" />
+    <Compile Include="CopyHelper.cs" />
+    <Compile Include="DirectoryHelper.cs" />
     <Compile Include="Dwm\ColorizationColor.cs" />
     <Compile Include="Dwm\DwmHelper.cs" />
     <Compile Include="Dwm\DwmBlurbehind.cs" />
@@ -68,10 +71,12 @@
     <Compile Include="IeCookieHelper.cs" />
     <Compile Include="Dwm\NativeMethods.cs" />
     <Compile Include="ImageColorHelper.cs" />
+    <Compile Include="InternetHelper.cs" />
     <Compile Include="LoggerHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializationHelper.cs" />
     <Compile Include="SettingHelper.cs" />
+    <Compile Include="ShudownHelper.cs" />
     <Compile Include="WEB\AnalysisFlvAddress.cs" />
     <Compile Include="WEB\ChinaWeatherCityCode.cs" />
     <Compile Include="WEB\CityIPHelper.cs" />

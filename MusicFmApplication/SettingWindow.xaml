@@ -4,6 +4,8 @@
                    xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                    xmlns:lex="http://schemas.root-project.org/xaml/presentation"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
+                   xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                   xmlns:md="clr-namespace:MusicFmApplication.Model"
                    Icon="{DynamicResource Setting32}" ShowTitleBar="False"
                    ResizeMode="CanMinimize" AllowsTransparency="True"
                    Title="{lex:LocText MusicFmApplication:English:Setting}" 
@@ -20,7 +22,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Teal.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/WeatherImagesResource.xaml"/>
@@ -66,103 +68,122 @@
             <TabItem Header="General Setting"
                      metro:ControlsHelper.HeaderFontSize="13">
                 <metro:MetroContentControl>
-                    <StackPanel Orientation="Vertical" Margin="10">
-                        <StackPanel.Resources>
-                            <Style TargetType="StackPanel">
-                                <Setter Property="Orientation" Value="Horizontal"/>
+                    <ScrollViewer>
+                        <ScrollViewer.Style>
+                            <Style TargetType="ScrollViewer" BasedOn="{StaticResource MyScrollViewer}">
+                                <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsMouseOver}" Value="true">
+                                        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+                                    </DataTrigger>
+                                </Style.Triggers>
                             </Style>
-                        </StackPanel.Resources>
-                        <StackPanel>
-                            <TextBlock Text="Language" Margin="0 0 10 0"/>
-                            <ComboBox Width="200" >
-                                <ComboBoxItem Content="English"/>
-                                <ComboBoxItem Content="Chinese"/>
-                            </ComboBox>
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Mouse wheel to adjust the volume" VerticalAlignment="Center"/>
-                            <metro:ToggleSwitch IsChecked="True" HorizontalAlignment="Right" Foreground="WhiteSmoke"/>
-                        </StackPanel>
-                        <TextBlock Text="Song download folder: " Margin="0 0 0 5"/>
-                        <StackPanel>
-                            <TextBox Text="E:\GitHub\MusicFM\MusicFmApplication\bin\Debug\DownloadSongs\" 
-                                     Width="240" />
-                            <cc:ImageButton Margin="10 0 0 0">
-                                <cc:ImageButton.Image>
-                                    <cc:ColorlizeImage Image="{StaticResource Folder32}" />
-                                </cc:ImageButton.Image>
-                            </cc:ImageButton>
-                        </StackPanel>
-                        
-                        <GroupBox Header="UI Setting" Margin="-5 5">
-                            <StackPanel Orientation="Vertical">
-                                <StackPanel>
-                                    <TextBlock Text="Background Style" Margin="0 0 5 0"/>
-                                    <ComboBox>
-                                        <ComboBoxItem Content="Solid Color"/>
-                                        <ComboBoxItem Content="Image"/>
-                                    </ComboBox>
-                                </StackPanel>
-                                <Rectangle Fill="Teal" Width="270" Height="20" Margin="0 10 0 0"/>
+                        </ScrollViewer.Style>
+                        <StackPanel Orientation="Vertical" Margin="10">
+                            <StackPanel.Resources>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Orientation" Value="Horizontal"/>
+                                </Style>
+                            </StackPanel.Resources>
+                            <StackPanel>
+                                <TextBlock Text="Language" Margin="0 0 10 0"/>
+                                <ComboBox Width="200" IsEnabled="True">
+                                    <ComboBoxItem Content="English"/>
+                                    <ComboBoxItem Content="Chinese"/>
+                                </ComboBox>
                             </StackPanel>
-                            
-                        </GroupBox>
+                            <!--<StackPanel>
+                                <TextBlock Text="Can control system volumn" VerticalAlignment="Center"/>
+                                <metro:ToggleSwitch IsChecked="True" HorizontalAlignment="Right" Foreground="WhiteSmoke"/>
+                            </StackPanel>-->
+                            <TextBlock Text="Song download folder: " Margin="0 0 0 5"/>
+                            <StackPanel>
+                                <TextBox Text="{Binding ViewModel.Setting.DownloadFolder}" Width="240" />
+                                <cc:ImageButton Margin="10 0 0 0" Command="{Binding ViewModel.Setting.ChangedDownloadFolderCmd}">
+                                    <cc:ImageButton.Image>
+                                        <cc:ColorlizeImage Image="{StaticResource Folder32}" />
+                                    </cc:ImageButton.Image>
+                                </cc:ImageButton>
+                            </StackPanel>
 
-                        <GroupBox Header="Hotkey Setting" Margin="-5 5">
-                            <ScrollViewer>
-                                <ScrollViewer.Style>
-                                    <Style TargetType="ScrollViewer" BasedOn="{StaticResource {x:Type ScrollViewer}}">
-                                        <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsMouseOver}" Value="true">
-                                                <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ScrollViewer.Style>
+                            <GroupBox Header="UI Setting" Margin="-5 5">
+                                <StackPanel Orientation="Vertical">
+                                    <StackPanel>
+                                        <StackPanel.Resources>
+                                            <ObjectDataProvider x:Key="BgTypeSource" MethodName="GetValues"  ObjectType="{x:Type sys:Enum}">
+                                                <ObjectDataProvider.MethodParameters>
+                                                    <x:Type TypeName="md:BackgroundType"/>
+                                                </ObjectDataProvider.MethodParameters>
+                                            </ObjectDataProvider>
+                                        </StackPanel.Resources>
+                                        <TextBlock Text="Background Style" Margin="0 0 5 0"/>
+                                        <ComboBox ItemsSource="{Binding Source={StaticResource BgTypeSource}}"/>
+                                    </StackPanel>
+                                    <Rectangle Fill="Teal" Width="270" Height="20" Margin="0 10 0 0"/>
+                                </StackPanel>
+
+                            </GroupBox>
+
+                            <GroupBox Header="Hotkey Setting" Margin="-5 5">
                                 <Grid>
                                     <Grid.Resources>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
                                             <Setter Property="HorizontalAlignment" Value="Right"/>
                                             <Setter Property="Margin" Value="0 0 5 0"/>
                                         </Style>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                            <Setter Property="IsReadOnly" Value="True"/>
+                                            <Setter Property="Width" Value="140"/>
+                                        </Style>
                                     </Grid.Resources>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
-                                        <ColumnDefinition Width="5*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="28"/>
-                                        <RowDefinition Height="28"/>
-                                        <RowDefinition Height="28"/>
-                                        <RowDefinition Height="28"/>
-                                        <RowDefinition Height="28"/>
-                                        <RowDefinition Height="28"/>
-                                        <RowDefinition Height="28"/>
-                                        <RowDefinition Height="28"/>
-                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>
                                     </Grid.RowDefinitions>
-                                    <TextBlock Text="Like Song" Grid.Column="0" Grid.Row="0" />
-                                    <TextBox Grid.Column="1" Grid.Row="0" IsReadOnly="True"
+                                    <TextBlock Text="Enable globle hotkey" Grid.Column="0" Grid.Row="0" />
+                                    <metro:ToggleSwitch Grid.Column="1" Grid.Row="0"
+                                                        HorizontalAlignment="Left" Foreground="WhiteSmoke"
+                                                        IsChecked="{Binding ViewModel.Setting.EnableGlobleHotkey}">
+                                        <metro:ToggleSwitch.RenderTransform>
+                                            <ScaleTransform ScaleX=".8" ScaleY=".8"/>
+                                        </metro:ToggleSwitch.RenderTransform>
+                                    </metro:ToggleSwitch>
+                                    <TextBlock Text="Like Song" Grid.Column="0" Grid.Row="1" />
+                                    <TextBox Grid.Column="1" Grid.Row="1"
                                              metro:TextboxHelper.ClearTextButton="True"
                                              metro:TextboxHelper.ButtonCommand=""/>
-                                    <TextBlock Text="Never Play" Grid.Column="0" Grid.Row="1"/>
-                                    <TextBox Grid.Column="1" Grid.Row="1" IsReadOnly="True"
+                                    <TextBlock Text="Never Play" Grid.Column="0" Grid.Row="2"/>
+                                    <TextBox Grid.Column="1" Grid.Row="2"
                                              metro:TextboxHelper.ClearTextButton="True"
                                              metro:TextboxHelper.ButtonCommand=""/>
-                                    <TextBlock Text="Next Song" Grid.Column="0" Grid.Row="2"/>
-                                    <TextBox Grid.Column="1" Grid.Row="2" IsReadOnly="True"
+                                    <TextBlock Text="Next Song" Grid.Column="0" Grid.Row="3"/>
+                                    <TextBox Grid.Column="1" Grid.Row="3"
                                              metro:TextboxHelper.ClearTextButton="True"
                                              metro:TextboxHelper.ButtonCommand=""/>
-                                    <TextBlock Text="Pause Player" Grid.Column="0" Grid.Row="3"/>
-                                    <TextBox Grid.Column="1" Grid.Row="3" IsReadOnly="True"
+                                    <TextBlock Text="Pause Player" Grid.Column="0" Grid.Row="4"/>
+                                    <TextBox Grid.Column="1" Grid.Row="4"
+                                             metro:TextboxHelper.ClearTextButton="True"
+                                             metro:TextboxHelper.ButtonCommand=""/>
+                                    <TextBlock Text="Hide/Show main window" Grid.Column="0" Grid.Row="5"/>
+                                    <TextBox Grid.Column="1" Grid.Row="5"
                                              metro:TextboxHelper.ClearTextButton="True"
                                              metro:TextboxHelper.ButtonCommand=""/>
                                 </Grid>
-                            </ScrollViewer>
-                        </GroupBox>
+                            </GroupBox>
 
-                    </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
                 </metro:MetroContentControl>
             </TabItem>
             <TabItem Header="Desktop Lyric Setting"

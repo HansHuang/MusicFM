@@ -6,23 +6,8 @@ using CommonHelperLibrary.WEB;
 
 namespace MusicFmApplication.ViewModel
 {
-    public class WeatherManager : INotifyPropertyChanged
+    public class WeatherManager : ViewModelBase
     {
-        #region INotifyPropertyChanged RaisePropertyChanged
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
-
         #region WeatherData (INotifyPropertyChanged Property)
 
         private Weather _weatherData;

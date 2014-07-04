@@ -25,10 +25,12 @@ namespace CommonHelperLibrary
             if (graph == null) return new byte[0];
             byte[] buf;
             var stream = new MemoryStream();
-            try
-            {
+            try {
                 new BinaryFormatter().Serialize(stream, graph);
                 buf = stream.ToArray();
+            }
+            catch ( Exception e) {
+                buf = new byte[0];
             }
             finally
             {

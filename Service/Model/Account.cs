@@ -17,6 +17,7 @@ namespace Service.Model
         public DateTime LoginTime { get; set; }
         public string ExpireString { get; set; }
         public DateTime? Expire { get; set; }
+        //Get user account from webpage
         public string Cookie { get; set; }
         public string BdUss { get; set; }
         public string Ptoken { get; set; }

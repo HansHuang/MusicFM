@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,22 +18,8 @@ using Color = System.Windows.Media.Color;
 
 namespace MusicFmApplication.ViewModel
 {
-    public class MediaManager : INotifyPropertyChanged
+    public class MediaManager : ViewModelBase
     {
-        #region INotifyPropertyChanged RaisePropertyChanged
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        #endregion
-
         #region Fields
         public MediaPlayer Player { get; private set; }
         private List<TimeSpan> _lyricKeys;
@@ -310,7 +297,9 @@ namespace MusicFmApplication.ViewModel
                 Player.Play();
             });
 
-            GetLyric();
+            //Get lyric
+            if (ViewModel.OfflineMgt.IsInternetConnected) GetLyric();
+            else ViewModel.OfflineMgt.GetOfflineLyric();
         }
 
         #endregion
@@ -351,9 +340,9 @@ namespace MusicFmApplication.ViewModel
             var change = step * direction;
 
             Volume += change;
+            //if(ViewModel.Setting.CanAdjustSystemVolume.GetValueOrDefault())
             //TODO: Adjust system volum when overstep
             //http://www.dreamincode.net/forums/topic/45693-controlling-sound-volume-in-c%23/
-            //if(CanAdjustSystemVolume)
         }
 
         #endregion
@@ -406,11 +395,19 @@ namespace MusicFmApplication.ViewModel
             SongPicture = null;
             var picUrl = ViewModel.CurrentSong.Picture;
             if (string.IsNullOrWhiteSpace(picUrl)) return;
-            Task.Run(() =>
+            Task.Run(() => 
             {
-                var stream = HttpWebDealer.GetResponseByUrl(picUrl).GetResponseStream();
-                if (stream == null) return;
-                var bitmap = new Bitmap(stream);
+                Bitmap bitmap;
+                if (picUrl.StartsWith("http"))
+                {
+                    var stream = HttpWebDealer.GetResponseByUrl(picUrl).GetResponseStream();
+                    if (stream == null) return;
+                    bitmap = new Bitmap(stream);
+                }
+                else if (File.Exists(picUrl))
+                    bitmap = new Bitmap(picUrl);
+                else
+                    return;
                 var image = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
                                                                   BitmapSizeOptions.FromEmptyOptions());
                 if (image.CanFreeze) image.Freeze();

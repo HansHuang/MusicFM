@@ -23,10 +23,9 @@ namespace Service.Model
             ChannelList = new List<Channel>();
         }
 
-        public static SearchResult Copy(SearchResult source) 
+        public SearchResult(SearchResult source)
         {
-            source = source ?? new SearchResult();
-            return source.Serialize().Deserialize<SearchResult>();
+            this.Copy(source);
         }
     }
 }

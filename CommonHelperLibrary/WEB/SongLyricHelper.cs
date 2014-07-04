@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,13 +18,25 @@ namespace CommonHelperLibrary.WEB
     public static class SongLyricHelper
     {
         /// <summary>
-        /// Get song's lyric(String Format)
+        /// Get the path of song lyric
+        /// </summary>
+        /// <param name="title">song title</param>
+        /// <param name="artist">song artist</param> 
+        /// <returns></returns>
+        public static string GetSongLrcPath(string title, string artist)
+        {
+            List<string> list;
+            return GetSongLrcPath(title, artist, out list);
+        }
+
+        /// <summary>
+        /// Get the path of song lyric
         /// </summary>
         /// <param name="title">song title</param>
         /// <param name="artist">song artist</param> 
         /// <param name="mp3Urls">out song mp3 file url list</param> 
         /// <returns></returns>
-        public static string GetSongLrc(string title, string artist, out List<string> mp3Urls)
+        public static string GetSongLrcPath(string title, string artist, out List<string> mp3Urls)
         {
             mp3Urls = new List<string>();
             var artist2 = string.Empty;
@@ -39,7 +52,8 @@ namespace CommonHelperLibrary.WEB
             var uArtist = System.Web.HttpUtility.UrlEncode(artist);
             //Get lrc search result
             var response = HttpWebDealer.GetHtml(
-              string.Format("http://box.zhangmen.baidu.com/x?op=12&count=1&title={0}$${1}$$$$", uTitle, uArtist));
+                string.Format("http://box.zhangmen.baidu.com/x?op=12&count=1&title={0}$${1}$$$$", uTitle, uArtist), null,
+                Encoding.GetEncoding("GB2312"));
             if (string.IsNullOrEmpty(response)) return string.Empty;
 
             //Get lrc id
@@ -47,7 +61,7 @@ namespace CommonHelperLibrary.WEB
             xml.LoadXml(response);
             var lrcList = xml.GetElementsByTagName("lrcid");
             if (lrcList.Count == 0 || lrcList[0].InnerText.Equals("0"))
-                return string.IsNullOrEmpty(artist) ? string.Empty : GetSongLrc(title, artist2, out mp3Urls);
+                return string.IsNullOrEmpty(artist) ? string.Empty : GetSongLrcPath(title, artist2, out mp3Urls);
 
             //Get mp3 file url list
             var part1 = xml.GetElementsByTagName("encode");
@@ -66,12 +80,12 @@ namespace CommonHelperLibrary.WEB
 
             int lId;
             if (lrcList.Count < 1 || !int.TryParse(lrcList[0].InnerText, out lId) || lId < 1) return string.Empty;
-            var lrc = HttpWebDealer.GetHtml(string.Format("http://box.zhangmen.baidu.com/bdlrc/{0}/{1}.lrc", Math.Floor((decimal)lId / 100), lId));
+            var lrc = string.Format("http://box.zhangmen.baidu.com/bdlrc/{0}/{1}.lrc", Math.Floor((decimal)lId / 100), lId);
             return lrc;
         }
 
         /// <summary>
-        /// Get song's lyric(SongLyric Format)
+        /// Get Song Lyric object from the title&artist
         /// </summary>
         /// <param name="title">song title</param>
         /// <param name="artist">song artist</param>
@@ -79,9 +93,29 @@ namespace CommonHelperLibrary.WEB
         public static SongLyric GetSongLyric(string title, string artist)
         {
             List<string> mp3Urls;
-            var str = GetSongLrc(title, artist, out mp3Urls);
-            var lrc = BulidSongLyric(str);
+            var content = HttpWebDealer.GetHtml(GetSongLrcPath(title, artist, out mp3Urls), null, Encoding.GetEncoding("GB2312"));
+            var lrc = BulidSongLyric(content);
             if (lrc != null) lrc.Mp3Urls = mp3Urls;
+            return lrc;
+        }
+
+        /// <summary>
+        /// Get Song Lyric object from the path of lyric
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static SongLyric GetSongLyric(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return null;
+            //Get the content string of lyric
+            var content = string.Empty;
+            if (path.Trim().StartsWith("http"))
+                content = HttpWebDealer.GetHtml(path);
+            else if (File.Exists(path))
+                content = File.ReadAllText(path);
+            if (string.IsNullOrWhiteSpace(content)) return null;
+            //bulid string to lyric calss
+            var lrc = BulidSongLyric(content);
             return lrc;
         }
 

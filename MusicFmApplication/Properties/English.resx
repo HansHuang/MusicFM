@@ -129,6 +129,9 @@
   <data name="BaiduMusic" xml:space="preserve">
     <value>Baidu Music</value>
   </data>
+  <data name="CleanOffline" xml:space="preserve">
+    <value>Clear offline data</value>
+  </data>
   <data name="DoubanAct" xml:space="preserve">
     <value>Douban Account</value>
   </data>
@@ -192,6 +195,9 @@
   </data>
   <data name="Search" xml:space="preserve">
     <value>Search</value>
+  </data>
+  <data name="SetOffline" xml:space="preserve">
+    <value>Set offline listening</value>
   </data>
   <data name="Setting" xml:space="preserve">
     <value>Setting</value>

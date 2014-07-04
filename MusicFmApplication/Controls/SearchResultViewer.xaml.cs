@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using CustomControlResources;
 using MusicFmApplication.ViewModel;
-using Service.Model;
+using MusicFmApplication.Model;
 
 namespace MusicFmApplication.Controls
 {

@@ -12,7 +12,7 @@ namespace Service
     public interface ISongService 
     {
         string Name { get; }
-        string LocalName { get; set; }
+        string LocalizeName { get; set; }
         List<AccountType> AvaliableAccountTypes { get; }
 
         List<Song> GetSongList(GainSongParameter parameter);
