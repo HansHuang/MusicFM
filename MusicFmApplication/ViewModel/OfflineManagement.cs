@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
@@ -82,7 +80,8 @@ namespace MusicFmApplication.ViewModel
             ViewModel.MediaManager.IsBuffering = false;
         }
 
-        private bool DownloadSongs(string folder, Channel channel) {
+        private bool DownloadSongs(string folder, Channel channel)
+        {
             //1. Create Folders
             var picFolder = folder + "Picture\\";
             var songFolder = folder + "Song\\";
@@ -92,16 +91,18 @@ namespace MusicFmApplication.ViewModel
                 return false;
             //2. Get song data
             var songList = new List<Song>();
-            while (songList.Count < ViewModel.Setting.ChannelOfflineSize) {
+            while (songList.Count < ViewModel.Setting.ChannelOfflineSize.GetValueOrDefault())
+            {
                 songList.AddRange(ViewModel.GetSongListByChannel(channel));
             }
             //3. Download
             DownloadProgressChangedEventHandler downloadMonitor = delegate(object s, DownloadProgressChangedEventArgs e)
             {
-                if(!channel.IsOfflined) return;
+                if (!channel.IsOfflined) return;
                 channel.DownloadProgress = e.ProgressPercentage;
             };
-            foreach (var song in songList) {
+            foreach (var song in songList)
+            {
                 if (string.IsNullOrWhiteSpace(song.LrcUrl))
                     song.LrcUrl = SongLyricHelper.GetSongLrcPath(song.Title, song.Artist);
 
@@ -123,11 +124,13 @@ namespace MusicFmApplication.ViewModel
                 song.LrcUrl = lrcFolder + lrcName;
             }
             //Save song data to file
-            using (var sr = new StreamWriter(folder + "Song.dat", false)) {
+            using (var sr = new StreamWriter(folder + "Song.dat", false))
+            {
                 sr.Write(songList.SerializeToJson());
             }
             //Save song data to file
-            using (var sr = new StreamWriter(folder + "Channel.dat", false)) {
+            using (var sr = new StreamWriter(folder + "Channel.dat", false))
+            {
                 sr.Write(channel.SerializeToString());
             }
             return true;
@@ -145,7 +148,8 @@ namespace MusicFmApplication.ViewModel
             //IsInternetConnected = false;
         }
 
-        public void StartOfflinePlayer() {
+        public void StartOfflinePlayer()
+        {
             GetOfflineChannels();
 
             ViewModel.Channels = new ObservableCollection<Channel>(SongListInChannel.Keys);
@@ -159,20 +163,20 @@ namespace MusicFmApplication.ViewModel
         {
             if (isEnded.GetValueOrDefault())
                 ViewModel.HistorySongList.Insert(0, ViewModel.CurrentSong);
-            if(ViewModel.SongList.Count<1)
+            if (ViewModel.SongList.Count < 1)
                 ViewModel.SongList = new ObservableCollection<Song>(SongListInChannel[ViewModel.CurrentChannel]);
             ViewModel.CurrentSong = ViewModel.SongList[0];
             ViewModel.MediaManager.StartPlayerCmd.Execute(null);
             ViewModel.SongList.RemoveAt(0);
         }
 
-        public void LikeSongExecute(string isHate) 
+        public void LikeSongExecute(string isHate)
         {
             var sId = ViewModel.CurrentSong.Sid;
-            int like ;
+            int like;
             if (string.IsNullOrWhiteSpace(isHate))
                 ViewModel.CurrentSong.Like = like = ViewModel.CurrentSong.Like == 0 ? 1 : 0;
-            else 
+            else
             {
                 ViewModel.CurrentSong.Like = like = -1;
                 ViewModel.NextSongCmd.Execute(false);

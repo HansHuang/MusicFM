@@ -20,6 +20,7 @@ namespace MusicFmApplication.ViewModel
         private const string DownloadFolderCacheName = "DownloadFolder";
         private const string BgTypeCacheName = "BackgroundType";
         private const string EnGlobleHotkeyCacheName = "EnableGlobleHotkey";
+        private const string ChannelOfflieSizeName = "ChannelOfflieSize";
         #endregion
 
         #region NotifyProperties
@@ -122,15 +123,25 @@ namespace MusicFmApplication.ViewModel
 
         #region ChannelOfflineSize (INotifyPropertyChanged Property)
 
-        private int _channelOfflineSize;
+        private int? _channelOfflineSize;
 
-        public int ChannelOfflineSize
+        public int? ChannelOfflineSize
         {
-            get { return _channelOfflineSize = _channelOfflineSize < 1 ? 10 : _channelOfflineSize; }
+            get
+            {
+                if (_channelOfflineSize == null)
+                {
+                    int size;
+                    int.TryParse(SettingHelper.GetSetting(ChannelOfflieSizeName, App.Name), out size);
+                    _channelOfflineSize = size < 1 ? 20 : size;
+                }
+                return _channelOfflineSize;
+            }
             set
             {
-                if (_channelOfflineSize.Equals(value)) return;
+                if (_channelOfflineSize != null && _channelOfflineSize.Equals(value)) return;
                 _channelOfflineSize = value;
+                SettingHelper.SetSetting(ChannelOfflieSizeName, value.ToString(), App.Name);
                 RaisePropertyChanged("ChannelOfflineSize");
             }
         }
