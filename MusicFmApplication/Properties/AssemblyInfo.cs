@@ -8,9 +8,9 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Music FM")]
-[assembly: AssemblyDescription("Music FM Client Application")]
+[assembly: AssemblyDescription("Music FM")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Hans Huang")]
+[assembly: AssemblyCompany("Hans Huang @ Jungo Studio")]
 [assembly: AssemblyProduct("Music FM Client Application")]
 [assembly: AssemblyCopyright("Copyright © Hans Huang 2013")]
 [assembly: AssemblyTrademark("")]
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.0.0.1")]
-[assembly: AssemblyFileVersion("0.0.0.1")]
+[assembly: AssemblyVersion("0.0.5.0")]
+[assembly: AssemblyFileVersion("0.0.5.0")]

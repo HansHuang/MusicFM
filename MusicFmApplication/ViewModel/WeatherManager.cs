@@ -25,7 +25,7 @@ namespace MusicFmApplication.ViewModel
         #endregion
 
         protected const string CacheName = "Weather";
-
+        
         //protected readonly MainViewModel ViewModel;
 
         public WeatherManager(MainViewModel viewModel) 
@@ -35,6 +35,11 @@ namespace MusicFmApplication.ViewModel
             //Get Weather Detail
             Task.Run(() =>
                 {
+                    viewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                    {   
+                        //Get Weather cache from file system
+                        WeatherData = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Weather>();
+                    });
                     var weather = CityWeatherHelper.GetWeather();
                     if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
                         !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
@@ -45,9 +50,6 @@ namespace MusicFmApplication.ViewModel
                         });
                     SettingHelper.SetSetting(CacheName, weather.SerializeToString(), App.Name);
                 });
-
-            //Get Weather cache from file system
-            WeatherData = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Weather>();
         }
     }
 }

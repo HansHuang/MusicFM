@@ -8,14 +8,28 @@ using System.Threading.Tasks;
 using System.Windows.Threading;
 using CommonHelperLibrary.WEB;
 using FlvPlayer;
-using Microsoft.Practices.Prism.ViewModel;
 using MvPlayer.Service;
 using MvPlayer.Service.Model;
 
 namespace MvPlayer
 {
-    public class MainViewModel : NotificationObject
+    public class MainViewModel : INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged RaisePropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
+
         #region IsWindowLoaded (INotifyPropertyChanged Property)
 
         private bool _isWindowLoaded;

@@ -353,7 +353,6 @@ namespace MusicFmApplication.ViewModel
         {
             ViewModel = viewModel;
 
-            SongPictureColor = Color.FromRgb(200, 200, 200);
             CanAdjustSystemVolume = true;
 
             Player = new MediaPlayer();

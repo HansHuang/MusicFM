@@ -85,7 +85,7 @@ namespace CommonHelperLibrary.WEB
         }
 
         /// <summary>
-        /// Get Song Lyric object from the title&artist
+        /// Get Song Lyric object from the title & artist
         /// </summary>
         /// <param name="title">song title</param>
         /// <param name="artist">song artist</param>

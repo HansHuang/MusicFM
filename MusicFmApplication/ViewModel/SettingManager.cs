@@ -133,7 +133,7 @@ namespace MusicFmApplication.ViewModel
                 {
                     int size;
                     int.TryParse(SettingHelper.GetSetting(ChannelOfflieSizeName, App.Name), out size);
-                    _channelOfflineSize = size < 1 ? 20 : size;
+                    _channelOfflineSize = size < 20 ? 20 : size;
                 }
                 return _channelOfflineSize;
             }

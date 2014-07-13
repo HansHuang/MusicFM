@@ -61,6 +61,7 @@
     <Compile Include="AESHelper.cs" />
     <Compile Include="Audio\Mp3Header.cs" />
     <Compile Include="AutoStartupHelper.cs" />
+    <Compile Include="ColorHelper.cs" />
     <Compile Include="CopyHelper.cs" />
     <Compile Include="DirectoryHelper.cs" />
     <Compile Include="Dwm\ColorizationColor.cs" />

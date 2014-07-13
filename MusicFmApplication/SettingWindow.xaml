@@ -105,6 +105,12 @@
                                     </cc:ImageButton.Image>
                                 </cc:ImageButton>
                             </StackPanel>
+                            
+                            <StackPanel>
+                                <!--<TextBlock Text="Set channel offline size"/>-->
+                                <!--<metro:NumericUpDown Minimum="20" Maximum="200" Interval="5" Width="220"
+                                                     Value="{Binding ViewModel.Setting.ChannelOfflineSize}"/>-->
+                            </StackPanel>
 
                             <GroupBox Header="UI Setting" Margin="-5 5">
                                 <StackPanel Orientation="Vertical">
@@ -147,9 +153,9 @@
                                         <RowDefinition Height="30"/>
                                         <RowDefinition Height="30"/>
                                         <RowDefinition Height="30"/>
+                                        <!--<RowDefinition Height="30"/>
                                         <RowDefinition Height="30"/>
-                                        <RowDefinition Height="30"/>
-                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="30"/>-->
                                     </Grid.RowDefinitions>
                                     <TextBlock Text="Enable globle hotkey" Grid.Column="0" Grid.Row="0" />
                                     <metro:ToggleSwitch Grid.Column="1" Grid.Row="0"
@@ -160,25 +166,21 @@
                                         </metro:ToggleSwitch.RenderTransform>
                                     </metro:ToggleSwitch>
                                     <TextBlock Text="Like Song" Grid.Column="0" Grid.Row="1" />
+                                    <!--metro:TextboxHelper.ButtonCommand=""-->
                                     <TextBox Grid.Column="1" Grid.Row="1"
-                                             metro:TextboxHelper.ClearTextButton="True"
-                                             metro:TextboxHelper.ButtonCommand=""/>
+                                             metro:TextboxHelper.ClearTextButton="True"/>
                                     <TextBlock Text="Never Play" Grid.Column="0" Grid.Row="2"/>
                                     <TextBox Grid.Column="1" Grid.Row="2"
-                                             metro:TextboxHelper.ClearTextButton="True"
-                                             metro:TextboxHelper.ButtonCommand=""/>
+                                             metro:TextboxHelper.ClearTextButton="True"/>
                                     <TextBlock Text="Next Song" Grid.Column="0" Grid.Row="3"/>
                                     <TextBox Grid.Column="1" Grid.Row="3"
-                                             metro:TextboxHelper.ClearTextButton="True"
-                                             metro:TextboxHelper.ButtonCommand=""/>
+                                             metro:TextboxHelper.ClearTextButton="True"/>
                                     <TextBlock Text="Pause Player" Grid.Column="0" Grid.Row="4"/>
                                     <TextBox Grid.Column="1" Grid.Row="4"
-                                             metro:TextboxHelper.ClearTextButton="True"
-                                             metro:TextboxHelper.ButtonCommand=""/>
+                                             metro:TextboxHelper.ClearTextButton="True"/>
                                     <TextBlock Text="Hide/Show main window" Grid.Column="0" Grid.Row="5"/>
                                     <TextBox Grid.Column="1" Grid.Row="5"
-                                             metro:TextboxHelper.ClearTextButton="True"
-                                             metro:TextboxHelper.ButtonCommand=""/>
+                                             metro:TextboxHelper.ClearTextButton="True"/>
                                 </Grid>
                             </GroupBox>
 

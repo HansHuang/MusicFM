@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using CommonHelperLibrary.Dwm;
 using MahApps.Metro.Controls;
@@ -115,6 +110,9 @@ namespace MusicFmApplication
         public MainWindow()
         {
             InitializeComponent();
+            //set the initial color
+            var rdm = new Random();
+            BackgroundColor = Color.FromArgb(160, (byte)rdm.Next(150, 255), (byte)rdm.Next(150, 255), (byte)rdm.Next(150, 255));
 
             if (DwmHelper.IsDwmSupported)
             {

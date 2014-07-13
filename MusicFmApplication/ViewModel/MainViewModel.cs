@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using CommonHelperLibrary;
@@ -269,7 +270,6 @@ namespace MusicFmApplication.ViewModel
 
         #region CurrentChannel (INotifyPropertyChanged Property)
 
-        private Channel _channelCahe;
         private Channel _currentChannel;
 
         public Channel CurrentChannel
@@ -780,11 +780,8 @@ namespace MusicFmApplication.ViewModel
 
         private void HandleSongServiceChangd()
         {
-            _channelCahe = CurrentChannel;
             //Clear search result (search result only work in specified service)
             SearchResult = null;
-            //Re-set Current channel
-            CurrentChannel = null;
             if (ServiceChannelsCache.ContainsKey(SongService))
                 Channels = new ObservableCollection<Channel>(ServiceChannelsCache[SongService]);
             else
@@ -799,7 +796,7 @@ namespace MusicFmApplication.ViewModel
             Channels.Clear();
             basicChannels.ForEach(s => Channels.Add(new Channel(s)));
 
-            if (_channelCahe == null)
+            if (CurrentChannel == null)
             {
                 int selectedCId;
                 var selected = SettingHelper.GetSetting(SelectedChannelCacheName, App.Name);
@@ -807,7 +804,7 @@ namespace MusicFmApplication.ViewModel
                 CurrentChannel = Channels.FirstOrDefault(s => s.Id == selectedCId) ?? Channels.First();
             }
             else
-                CurrentChannel = Channels.FirstOrDefault(s => s.Same(_channelCahe));
+                CurrentChannel = Channels.FirstOrDefault(s => s.Same(CurrentChannel));
 
 
             Task.Run(() => 
