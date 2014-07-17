@@ -447,7 +447,7 @@
         <!--Main Content Panel-->
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="4*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -455,7 +455,7 @@
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <!--1 Progress Indicator-->
-            <DockPanel Grid.Row="0" Height="20">
+            <DockPanel Grid.Row="0" Height="14">
                 <metro:ProgressIndicator Height="2" DockPanel.Dock="Top" VerticalAlignment="Top"
                                          ProgressColor="WhiteSmoke"
                                          Width="{Binding ElementName=Root, Path=Width}"

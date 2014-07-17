@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -141,11 +142,13 @@ namespace MusicFmApplication.ViewModel
         public OfflineManagement(MainViewModel viewModel)
         {
             ViewModel = viewModel;
+
             OfflineFolder = Environment.CurrentDirectory + "\\OfflineData\\";
             if (!Directory.Exists(OfflineFolder)) Directory.CreateDirectory(OfflineFolder);
 
             IsInternetConnected = InternetHelper.IsConnected;
             //IsInternetConnected = false;
+            ViewModel.DownloadProgress = 100;
         }
 
         public void StartOfflinePlayer()
@@ -211,6 +214,14 @@ namespace MusicFmApplication.ViewModel
             {
                 ViewModel.MediaManager.Lyric = t.Result;
             }, new CancellationToken(), TaskContinuationOptions.None, ViewModel.ContextTaskScheduler);
+        }
+
+        public void OpenDownloadFolderExecute()
+        {
+            Task.Run(() =>
+            {
+                Process.Start("Explorer.exe", "/select," + ViewModel.CurrentSong.Url);
+            });
         }
 
         private void GetOfflineChannels()

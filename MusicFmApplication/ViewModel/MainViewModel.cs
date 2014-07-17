@@ -529,7 +529,11 @@ namespace MusicFmApplication.ViewModel
 
         public ICommand OpenDownloadFolderCmd
         {
-            get { return _openDownloadFolderCmd ?? (_openDownloadFolderCmd = new RelayCommand(s => OpenDownloadFolderExecute())); }
+            get { return _openDownloadFolderCmd ?? (_openDownloadFolderCmd = new RelayCommand(s =>
+            {
+                if (OfflineMgt.IsInternetConnected) OpenDownloadFolderExecute();
+                else OfflineMgt.OpenDownloadFolderExecute();
+            })); }
         }
 
         private void OpenDownloadFolderExecute()
