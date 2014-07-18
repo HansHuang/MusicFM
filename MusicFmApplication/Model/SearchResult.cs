@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using CommonHelperLibrary;
 using ServiceModel=Service.Model;
 
-namespace MusicFmApplication.Model
+namespace MusicFm.Model
 {
     public class SearchResult : ServiceModel.SearchResult
     {

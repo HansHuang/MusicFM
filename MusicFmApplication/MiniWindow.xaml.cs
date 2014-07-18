@@ -2,9 +2,9 @@
 using System.Windows;
 using System.Windows.Input;
 using CustomControlResources;
-using MusicFmApplication.ViewModel;
+using MusicFm.ViewModel;
 
-namespace MusicFmApplication
+namespace MusicFm
 {
     /// <summary>
     /// Interaction logic for MiniWindow.xaml

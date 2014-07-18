@@ -2,10 +2,10 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using MusicFmApplication.ViewModel;
-using MusicFmApplication.Model;
+using MusicFm.ViewModel;
+using MusicFm.Model;
 
-namespace MusicFmApplication.Controls
+namespace MusicFm.Controls
 {
     /// <summary>
     /// Interaction logic for ChannelsViewer.xaml

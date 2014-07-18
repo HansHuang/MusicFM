@@ -16,7 +16,7 @@ using CommonHelperLibrary.WEB;
 using CustomControlResources;
 using Color = System.Windows.Media.Color;
 
-namespace MusicFmApplication.ViewModel
+namespace MusicFm.ViewModel
 {
     public class MediaManager : ViewModelBase
     {

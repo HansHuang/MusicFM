@@ -8,9 +8,9 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using CommonHelperLibrary;
 using CustomControlResources;
-using MusicFmApplication.Model;
+using MusicFm.Model;
 
-namespace MusicFmApplication.ViewModel
+namespace MusicFm.ViewModel
 {
     public class SettingManager : ViewModelBase
     {

@@ -13,10 +13,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using MusicFmApplication.ViewModel;
-using MusicFmApplication.Model;
+using MusicFm.ViewModel;
+using MusicFm.Model;
 
-namespace MusicFmApplication.Controls
+namespace MusicFm.Controls
 {
     /// <summary>
     /// Interaction logic for SongsViewer.xaml

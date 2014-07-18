@@ -1,8 +1,7 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using WPFLocalizeExtension.Extensions;
 
-namespace MusicFmApplication.Helper
+namespace MusicFm.Helper
 {
     public static class LocalTextHelper
     {
@@ -15,7 +14,7 @@ namespace MusicFmApplication.Helper
         public static string GetLocText(string key)
         {
             string txt;
-            new LocTextExtension(string.Format("MusicFmApplication:English:{0}", key)).ResolveLocalizedValue(out txt);
+            new LocTextExtension(string.Format("Localization:English:{0}", key)).ResolveLocalizedValue(out txt);
             return txt;
         }
         #endregion

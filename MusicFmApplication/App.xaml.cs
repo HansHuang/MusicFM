@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using CommonHelperLibrary;
 
-namespace MusicFmApplication
+namespace MusicFm
 {
     /// <summary>
     /// Interaction logic for App.xaml

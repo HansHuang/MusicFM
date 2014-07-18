@@ -8,11 +8,11 @@ using System.Windows.Input;
 using System.Windows.Markup.Localizer;
 using CommonHelperLibrary;
 using CustomControlResources;
-using MusicFmApplication.Helper;
+using MusicFm.Helper;
 using Service;
 using Service.Model;
 
-namespace MusicFmApplication.ViewModel
+namespace MusicFm.ViewModel
 {
     public class AccountManager :ViewModelBase
     {

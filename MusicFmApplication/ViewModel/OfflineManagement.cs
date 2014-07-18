@@ -11,10 +11,10 @@ using System.Windows.Input;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 using CustomControlResources;
-using MusicFmApplication.Model;
+using MusicFm.Model;
 using ServiceModel = Service.Model;
 
-namespace MusicFmApplication.ViewModel
+namespace MusicFm.ViewModel
 {
     public class OfflineManagement : ViewModelBase
     {
@@ -169,6 +169,11 @@ namespace MusicFmApplication.ViewModel
             if (ViewModel.SongList.Count < 1)
                 ViewModel.SongList = new ObservableCollection<Song>(SongListInChannel[ViewModel.CurrentChannel]);
             ViewModel.CurrentSong = ViewModel.SongList[0];
+            if (!File.Exists(ViewModel.CurrentSong.Url))
+            {
+                ViewModel.NextSongCmd.Execute(false);
+                return;
+            }
             ViewModel.MediaManager.StartPlayerCmd.Execute(null);
             ViewModel.SongList.RemoveAt(0);
         }

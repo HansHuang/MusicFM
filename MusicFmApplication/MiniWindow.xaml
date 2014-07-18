@@ -1,10 +1,10 @@
-﻿<Window x:Class="MusicFmApplication.MiniWindow"
+﻿<Window x:Class="MusicFm.MiniWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:lex="http://schemas.root-project.org/xaml/presentation"
         xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
         xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
-        Title="{lex:LocText MusicFmApplication:English:MusicFm}"
+        Title="{lex:LocText Localization:English:MusicFm}"
         Height="190" Width="190"  Icon="{DynamicResource Music48}" x:Name="Root"
         AllowsTransparency="True" WindowStyle="None" ResizeMode="CanMinimize" Background="{x:Null}">
     <Window.Resources>
@@ -120,7 +120,7 @@
             <!--Like Song Btn-->
             <cc:ImageButton Canvas.Right="28" Canvas.Top="30"
                             Command="{Binding ViewModel.LikeSongCmd}"
-                            ToolTip="{lex:LocText MusicFmApplication:English:LikeSong}">
+                            ToolTip="{lex:LocText Localization:English:LikeSong}">
                 <cc:ColorlizeImage Image="{StaticResource Heart32}" >
                     <cc:ColorlizeImage.Style>
                         <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
@@ -137,20 +137,20 @@
             <cc:ImageButton Canvas.Right="2" Canvas.Top="85"
                             Command="{Binding ViewModel.NextSongCmd}" 
                             IsEnabled="{Binding ViewModel.SongList.Count, Converter={StaticResource Num2Bool}}"
-                            ToolTip="{lex:LocText MusicFmApplication:English:NextSong}">
+                            ToolTip="{lex:LocText Localization:English:NextSong}">
                 <cc:ColorlizeImage Image="{StaticResource Next32}"/>
             </cc:ImageButton>
             <!--Delete Song Btn-->
             <cc:ImageButton Canvas.Right="25" Canvas.Bottom="30"
                             Command="{Binding ViewModel.LikeSongCmd}"
                             CommandParameter="1"
-                            ToolTip="{lex:LocText MusicFmApplication:English:HateSong}">
+                            ToolTip="{lex:LocText Localization:English:HateSong}">
                 <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
             </cc:ImageButton>
             <!--Set Top Btn-->
             <cc:ImageButton Canvas.Left="28" Canvas.Top="30"
                             Command="{Binding SetTopMostCmd}"
-                            ToolTip="{lex:LocText MusicFmApplication:English:TopMost}">
+                            ToolTip="{lex:LocText Localization:English:TopMost}">
                 <cc:ImageButton.Image>
                     <cc:ColorlizeImage Image="{StaticResource Nail24}" Width="10"/>
                 </cc:ImageButton.Image>
@@ -171,13 +171,13 @@
             <!--Back to home Btn-->
             <cc:ImageButton Canvas.Left="2" Canvas.Top="85"
                             Command="{Binding BackMainWindowCmd}"
-                            ToolTip="{lex:LocText MusicFmApplication:English:BackToMainUI}">
+                            ToolTip="{lex:LocText Localization:English:BackToMainUI}">
                 <cc:ColorlizeImage Image="{StaticResource Back24}"/>
             </cc:ImageButton>
             <!--Minimize to taskbar notify icon Btn-->
             <cc:ImageButton Canvas.Left="25" Canvas.Bottom="30"
                             Command="{Binding MinimizeToIconCmd}"
-                            ToolTip="{lex:LocText MusicFmApplication:English:Minimize2NotifyIcon}">
+                            ToolTip="{lex:LocText Localization:English:Minimize2NotifyIcon}">
                 <cc:ColorlizeImage Image="{StaticResource Anchor24}"/>
             </cc:ImageButton>
         </Canvas>

@@ -1,4 +1,4 @@
-﻿<metro:MetroWindow x:Class="MusicFmApplication.MainWindow"
+﻿<metro:MetroWindow x:Class="MusicFm.MainWindow"
                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
@@ -11,13 +11,13 @@
                    xmlns:presentOpti="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                    xmlns:sm="clr-namespace:Service;assembly=Service"
                    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-                   xmlns:local="clr-namespace:MusicFmApplication.Controls"
-                   xmlns:helper="clr-namespace:MusicFmApplication.Helper"
+                   xmlns:local="clr-namespace:MusicFm.Controls"
+                   xmlns:helper="clr-namespace:MusicFm.Helper"
                    x:Name="Root"
                    Icon="{DynamicResource Music48}" ShowIconOnTitleBar="False"  
                    WindowTransitionsEnabled="False"
                    TitleForeground="WhiteSmoke"
-                   Title="{lex:LocText MusicFmApplication:English:MusicFm}" 
+                   Title="{lex:LocText Localization:English:MusicFm}" 
                    ResizeMode="CanMinimize" AllowsTransparency="True"
                    Height="480"  Width="320">
     <metro:MetroWindow.Background>
@@ -161,13 +161,13 @@
     <metro:MetroWindow.Flyouts>
         <metro:FlyoutsControl>
             <metro:Flyout DataContext="{Binding ElementName=Root}" Background="#AA000000"
-                          Header="{lex:LocText MusicFmApplication:English:WeatherDetail}"
+                          Header="{lex:LocText Localization:English:WeatherDetail}"
                           x:Name="WeatherFlyout" Width="230">
                 <cc:WeatherDetail x:Name="WeatherDetail" WeatherData="{Binding ElementName=Root, Path=ViewModel.WeatherMgr.WeatherData}"/>
             </metro:Flyout>
             <metro:Flyout DataContext="{Binding ElementName=Root}" 
                           Background="#AA000000" Position="Right"
-                          Header="{lex:LocText MusicFmApplication:English:MyCentralRoom}"
+                          Header="{lex:LocText Localization:English:MyCentralRoom}"
                           metro:ControlsHelper.HeaderFontSize="22"
                           x:Name="PlayerDetailFlyout" 
                           IsOpen="{Binding ViewModel.IsShowPlayerDetail}"
@@ -185,9 +185,9 @@
                             </cc:ImageButton.Image>
                             <cc:ImageButton.ToolTip>
                                 <TextBlock>
-                                    <Run Text="{lex:LocText MusicFmApplication:English:About}"/>
+                                    <Run Text="{lex:LocText Localization:English:About}"/>
                                     <Run Text=" "/>
-                                    <Run Text="{lex:LocText MusicFmApplication:English:MusicFm}"/>
+                                    <Run Text="{lex:LocText Localization:English:MusicFm}"/>
                                 </TextBlock>
                             </cc:ImageButton.ToolTip>
                             <cc:ImageButton.Effect>
@@ -211,7 +211,7 @@
                             </cc:ImageButton.Triggers>
                         </cc:ImageButton>
                         <cc:ImageButton DockPanel.Dock="Right" 
-                                        ToolTip="{lex:LocText MusicFmApplication:English:Setting}"
+                                        ToolTip="{lex:LocText Localization:English:Setting}"
                                         Command="{Binding ViewModel.OpenSettingWindowCmd}">
                             <cc:ImageButton.Image>
                                 <Image Source="{StaticResource Setting32}" Height="20" Width="20" Opacity=".6"/>
@@ -321,7 +321,7 @@
                                             <Grid>
                                                 <TextBlock Margin="5,2,0,0" Text="{Binding ViewModel.Account.AccountInfo.UserName}"
                                                            Visibility="{Binding ViewModel.Account.AccountInfo, Converter={StaticResource Null2Vsby}}"/>
-                                                <TextBlock Margin="5,2,0,0" Text="{lex:LocText MusicFmApplication:English:Login}"
+                                                <TextBlock Margin="5,2,0,0" Text="{lex:LocText Localization:English:Login}"
                                                            Visibility="{Binding ViewModel.Account.AccountInfo, Converter={StaticResource IvsNull2Vsby}}"/>
                                             </Grid>
                                         </cc:ImageButton>
@@ -372,13 +372,13 @@
                                                  metro:TextboxHelper.ClearTextButton="True" 
                                                  Grid.Row="1" Grid.Column="0" Height="25"
                                                  Text="{Binding ViewModel.Account.UserName}"/>
-                                        <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Password}"
+                                        <PasswordBox metro:TextboxHelper.Watermark="{lex:LocText Localization:English:Password}"
                                                      metro:TextboxHelper.ClearTextButton="True" 
                                                      Grid.Row="2" Grid.Column="0" Margin="0,2" Height="25"
                                                      cc:PasswordHelper.Password="{Binding ViewModel.Account.Passwrod, Mode=TwoWay}" />
                                         <cc:ImageButton HorizontalAlignment="Center" VerticalAlignment="Center"
                                                         Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"
-                                                        ToolTip="{lex:LocText MusicFmApplication:English:Login}"
+                                                        ToolTip="{lex:LocText Localization:English:Login}"
                                                         Command="{Binding ViewModel.Account.LoginCmd}">
                                             <cc:ImageButton.Image>
                                                 <cc:ColorlizeImage Image="{StaticResource User48}" Height="56" Width="56">
@@ -407,7 +407,7 @@
                                     <StackPanel Grid.Row="3">
                                         <TextBox Style="{StaticResource SearchMetroTextBox}"
                                                  x:Name="SearchBox"
-                                                 metro:TextboxHelper.Watermark="{lex:LocText MusicFmApplication:English:Search}"
+                                                 metro:TextboxHelper.Watermark="{lex:LocText Localization:English:Search}"
                                                  metro:TextboxHelper.SelectAllOnFocus="True"
                                                  metro:TextboxHelper.ButtonCommand="{Binding ViewModel.SearchCmd, Mode=OneWay}">
                                             <TextBox.InputBindings>
@@ -688,7 +688,7 @@
                     </Style>
                 </Grid.Resources>
                 <Button Grid.Column="0" Command="{Binding LikeSongCmd}"
-                        ToolTip="{lex:LocText MusicFmApplication:English:LikeSong}">
+                        ToolTip="{lex:LocText Localization:English:LikeSong}">
                     <cc:ColorlizeImage Image="{StaticResource Heart32}" >
                         <cc:ColorlizeImage.Style>
                             <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
@@ -704,13 +704,13 @@
                 <Button Grid.Column="1"
                         Command="{Binding LikeSongCmd}"
                         CommandParameter="1"
-                        ToolTip="{lex:LocText MusicFmApplication:English:HateSong}">
+                        ToolTip="{lex:LocText Localization:English:HateSong}">
                     <cc:ColorlizeImage Image="{StaticResource Delete32}"/>
                 </Button>
                 <Button Grid.Column="2" 
                         Command="{Binding NextSongCmd}"
                         IsEnabled="{Binding SongList.Count, Converter={StaticResource Num2Bool}}"
-                        ToolTip="{lex:LocText MusicFmApplication:English:NextSong}">
+                        ToolTip="{lex:LocText Localization:English:NextSong}">
                     <cc:ColorlizeImage Image="{StaticResource Next32}"/>
                 </Button>
             </Grid>

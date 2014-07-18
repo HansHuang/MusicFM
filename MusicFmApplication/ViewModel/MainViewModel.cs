@@ -16,12 +16,13 @@ using System.Windows.Input;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 using CustomControlResources;
-using MusicFmApplication.Helper;
-using MusicFmApplication.Model;
+using MusicFm.Helper;
+using MusicFm.Helper;
+using MusicFm.Model;
 using Service;
 using ServiceModel = Service.Model;
 
-namespace MusicFmApplication.ViewModel
+namespace MusicFm.ViewModel
 {
     /// <summary>
     /// Author : Hans Huang

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="AvailableLanguage">
+            <xsd:complexType>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="language" use="required" type="xsd:string" />
+              <xsd:attribute name="country" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+        </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+
+  <!-- The list of all available languages. Enter the language & country in the language it specifies. -->
+  <AvailableLanguage name="en-GB" language="English" country="Great Britain"/>
+  <AvailableLanguage name="es-ES" language="Español" country="España"/>
+  <AvailableLanguage name="fr-FR" language="Français" country="France"/>
+  <AvailableLanguage name="it-IT" language="Italiano" country="Italia"/>
+  <AvailableLanguage name="nl-BE" language="Nederlands" country="België"/>
+  <AvailableLanguage name="ru-RU" language="русский" country="Россия"/>
+  <AvailableLanguage name="zh-CN" language="中文" country="中国"/>
+  <AvailableLanguage name="zh-TW" language="台湾语" country="中国"/>
+  <AvailableLanguage name="vi-VN" language="tiếng" country="Việt"/>
+  <AvailableLanguage name="ja-JP" language="日本の" country="日本"/>
+  <AvailableLanguage name="bg-BG" language="български" country="България"/>
+</root>

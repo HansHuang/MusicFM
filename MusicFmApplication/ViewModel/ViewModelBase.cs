@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MusicFmApplication.ViewModel
+namespace MusicFm.ViewModel
 {
     public class ViewModelBase : INotifyPropertyChanged
     {

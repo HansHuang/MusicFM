@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 
-namespace MusicFmApplication.ViewModel
+namespace MusicFm.ViewModel
 {
     public class WeatherManager : ViewModelBase
     {

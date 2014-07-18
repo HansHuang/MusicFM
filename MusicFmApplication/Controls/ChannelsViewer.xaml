@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MusicFmApplication.Controls.ChannelsViewer"
+﻿<UserControl x:Class="MusicFm.Controls.ChannelsViewer"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -81,7 +81,7 @@
                                                 <Setter Property="ToolTip" Value="{Binding DownloadProgress, StringFormat={}{0} %}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding DownloadProgress}" Value="100">
-                                                        <Setter Property="ToolTip" Value="{lex:LocText MusicFmApplication:English:CleanOffline}"/>
+                                                        <Setter Property="ToolTip" Value="{lex:LocText Localization:English:CleanOffline}"/>
                                                         <Setter Property="Image" Value="{StaticResource Delete32}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -90,7 +90,7 @@
                                     </cc:ColorlizeImage>
                                     <cc:ColorlizeImage Image="{StaticResource Plus32}" Color="WhiteSmoke" Width="12" Height="12"
                                                        Visibility="{Binding IsOfflined, Converter={StaticResource IvsB2V}}"
-                                                       ToolTip="{lex:LocText MusicFmApplication:English:SetOffline}"/>
+                                                       ToolTip="{lex:LocText Localization:English:SetOffline}"/>
                                 </Grid>
                             </cc:ImageButton>
                             <cc:ImageButton Command="{Binding ElementName=Root, Path=ViewModel.SetChannelCmd}"

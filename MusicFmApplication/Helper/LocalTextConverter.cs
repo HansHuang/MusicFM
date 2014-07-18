@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Data;
 
-namespace MusicFmApplication.Helper
+namespace MusicFm.Helper
 {
     public class LocalTextConverter : IValueConverter
     {

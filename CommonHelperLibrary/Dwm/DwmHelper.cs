@@ -20,7 +20,9 @@ namespace CommonHelperLibrary.Dwm
         {
             get
             {
-                return Environment.OSVersion.Version.Major >= 6;
+                //Only support vista, 7; not win8+
+                var version = Environment.OSVersion.Version;
+                return version.Major >= 6 && version.Minor < 2;
             }
         }
 

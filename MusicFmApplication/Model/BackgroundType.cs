@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MusicFmApplication.Model
+namespace MusicFm.Model
 {
     public enum BackgroundType
     {

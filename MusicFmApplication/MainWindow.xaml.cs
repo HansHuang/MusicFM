@@ -6,14 +6,15 @@ using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using CommonHelperLibrary.Dwm;
 using MahApps.Metro.Controls;
-using MusicFmApplication.Helper;
-using MusicFmApplication.ViewModel;
+using MusicFm.Helper;
+using MusicFm.Helper;
+using MusicFm.ViewModel;
 using Forms=System.Windows.Forms;
 using Color = System.Windows.Media.Color;
 using Image = System.Drawing.Image;
 using Rectangle = System.Windows.Shapes.Rectangle;
 
-namespace MusicFmApplication
+namespace MusicFm
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -122,11 +123,11 @@ namespace MusicFmApplication
 
             SetNotifyIcon();
 
-            SizeChanged += (s, e) =>
-            {
-                if (DwmHelper != null && DwmHelper.IsAeroGlassEffectEnabled)
-                    DwmHelper.EnableBlurBehindWindow();
-            };
+            //SizeChanged += (s, e) =>
+            //{
+            //    if (DwmHelper != null && DwmHelper.IsAeroGlassEffectEnabled)
+            //        DwmHelper.EnableBlurBehindWindow();
+            //};
 
             StateChanged += MainWindowStateChanged;
 
@@ -180,7 +181,7 @@ namespace MusicFmApplication
 
             if (NotifyIcon == null)
             {
-                var iconUri = new Uri("/MusicFmApplication;component/logo.ico", UriKind.RelativeOrAbsolute);
+                var iconUri = new Uri("/MusicFm;component/logo.ico", UriKind.RelativeOrAbsolute);
                 var iconStream = Application.GetResourceStream(iconUri);
                 if (iconStream != null)
                 {

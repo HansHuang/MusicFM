@@ -14,9 +14,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using CommonHelperLibrary.Dwm;
 using MahApps.Metro.Controls;
-using MusicFmApplication.ViewModel;
+using MusicFm.ViewModel;
 
-namespace MusicFmApplication
+namespace MusicFm
 {
     /// <summary>
     /// Interaction logic for SettingWindow.xaml
