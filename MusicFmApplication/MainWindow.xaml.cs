@@ -26,7 +26,7 @@ namespace MusicFm
         #region Fields
         private const string PartTitleBarBackground = "PART_WindowTitleBackground";
         private const string TitleTextbolck = "WindowTitleTextBlock";
-        private const double WindowOpacity = .68;
+        protected static double WindowOpacity = .68;
 
         private MiniWindow _miniWindow;
 
@@ -120,6 +120,7 @@ namespace MusicFm
                 DwmHelper = new DwmHelper(this);
                 DwmHelper.AeroGlassEffectChanged += DwmHelperAeroGlassEffectChanged;
             }
+            else WindowOpacity = .9;
 
             SetNotifyIcon();
 
@@ -130,8 +131,8 @@ namespace MusicFm
             //};
 
             StateChanged += MainWindowStateChanged;
-
-            Loaded += delegate { ViewModel = MainViewModel.GetInstance(this); };
+            ViewModel = MainViewModel.GetInstance(this);
+            //Loaded += delegate { ViewModel = MainViewModel.GetInstance(this); };
 
         }
 
