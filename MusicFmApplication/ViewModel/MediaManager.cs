@@ -320,10 +320,11 @@ namespace MusicFm.ViewModel
             var direction = isUp.GetValueOrDefault() ? 1 : -1;
             var change = step * direction;
 
-            if (Volume < 1 && Volume > 0) Volume += change;
-            else if (ViewModel.Setting.CanAdjustSystemVolume.GetValueOrDefault())
-                if (change > 0) VolumeHelper.Up();
-                else VolumeHelper.Down();
+            Volume += change;
+
+            if (!ViewModel.Setting.CanAdjustSystemVolume.GetValueOrDefault()) return;
+            if (change > 0 && Volume >= .8) VolumeHelper.Up();
+            else if (change < 0 && Volume <= 0.2) VolumeHelper.Down();
         }
 
         #endregion
@@ -345,7 +346,7 @@ namespace MusicFm.ViewModel
         {
             double vlm;
             double.TryParse(SettingHelper.GetSetting(VolumeCacheName, App.Name), out vlm);
-            _volume = vlm < 0.1 ? 0.75 : vlm;
+            _volume = vlm < 0.1 ? 0.6 : vlm;
             Player.Volume = _volume;
         }
         #endregion

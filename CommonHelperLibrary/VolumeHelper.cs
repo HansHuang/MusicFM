@@ -19,12 +19,18 @@ namespace CommonHelperLibrary
         [DllImport("user32.dll")]
         static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
 
+        //Virtual-Key Codes table
+        //http://msdn.microsoft.com/en-us/library/dd375731.aspx
+        private const byte VkVolumeMute = 0xAD;
+        private const byte VkVolumeDown = 0xAE;
+        private const byte VkVolumeUp = 0xAF;
+
         /// <summary>
         /// Set volume mute
         /// </summary>
         public static void Mute()
         {
-            keybd_event((byte) Key.VolumeMute, 0, 0, 0);
+            keybd_event(VkVolumeMute, 0, 0, 0);
         }
 
         /// <summary>
@@ -32,7 +38,7 @@ namespace CommonHelperLibrary
         /// </summary>
         public static void Up()
         {
-            keybd_event((byte)Key.VolumeUp, 0, 0, 0);
+            keybd_event(VkVolumeUp, 0, 0, 0);
         }
 
         /// <summary>
@@ -40,7 +46,7 @@ namespace CommonHelperLibrary
         /// </summary>
         public static void Down()
         {
-            keybd_event((byte)Key.VolumeDown, 0, 0, 0);
+            keybd_event(VkVolumeDown, 0, 0, 0);
         }
     }
 }
