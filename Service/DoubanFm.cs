@@ -43,7 +43,7 @@ namespace Service
             Log = LoggerHelper.Instance;
         }
 
-        public List<Song> GetSongList(GainSongParameter param) 
+        public async Task<List<Song>> GetSongList(GainSongParameter param) 
         {
             var url = BulidUrlForGainSongs(param);
             if (string.IsNullOrWhiteSpace(url)) return new List<Song>();
@@ -51,7 +51,8 @@ namespace Service
             WebHeaderCollection header = null;
             if (param.Account != null && !string.IsNullOrWhiteSpace(param.Account.Cookie))
                 header = new WebHeaderCollection { { "Cookie", param.Account.Cookie } };
-            var json = HttpWebDealer.GetJsonObject(url, header, Encoding.UTF8) as Dictionary<string, object>;
+            var task = HttpWebDealerAsyc.GetJsonObject(url, header, Encoding.UTF8);
+            var json = (await task) as Dictionary<string, object>;
             if (json == null || !json.ContainsKey("song"))
             {
                 //TODO: Can't connect to internet
@@ -93,7 +94,7 @@ namespace Service
                     LoggerHelper.Instance.Exception(e);
                 }
             }
-            if (count >= 3 || list.Count < 1) return GetSongList(param);
+            if (count >= 3 || list.Count < 1) return await GetSongList(param);
             return list;
         }
 
@@ -144,7 +145,7 @@ namespace Service
         /// </summary>
         /// <param name="isBasic">Basic channels or entire channel list</param>
         /// <returns></returns>
-        public List<Channel> GetChannels(bool isBasic = true)
+        public async Task<List<Channel>> GetChannels(bool isBasic = true)
         {
             var list = new List<Channel> 
             {
@@ -168,12 +169,12 @@ namespace Service
                 new Channel(20, "女声"),
                 new Channel(22, "法语")
             };
-            if (isBasic) return list;
+            if (isBasic) return await Task.Run(() => list);
 
             //Get expansion channels
             var json = HttpWebDealer.GetJsonObject(
                 "http://www.douban.com/j/app/radio/channels?version=100&app_name=radio_desktop_win", new WebHeaderCollection(), Encoding.UTF8);
-            if (json == null || json["channels"] == null) return GetChannelsFromWebpage(list);
+            if (json == null || json["channels"] == null) return await GetChannelsFromWebpage(list);
 
             foreach (var element in json["channels"])
             {
@@ -190,7 +191,7 @@ namespace Service
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        public bool CompletedSong(SongActionParameter parameter)
+        public async Task<bool> CompletedSong(SongActionParameter parameter)
         {
             if (parameter == null) return false;
             var isFromWebsite = !string.IsNullOrWhiteSpace(parameter.Account.Cookie);
@@ -214,7 +215,7 @@ namespace Service
             }
             WebHeaderCollection header = null;
             if (isFromWebsite) header = new WebHeaderCollection {{"Cookie", parameter.Account.Cookie}};
-            var json = HttpWebDealer.GetJsonObject(url.ToString(), header, Encoding.UTF8);
+            var json = await HttpWebDealerAsyc.GetJsonObject(url.ToString(), header, Encoding.UTF8);
 
             return json != null && json["r"] == 0;
         }
@@ -224,10 +225,10 @@ namespace Service
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
-        private List<Channel> GetChannelsFromWebpage(List<Channel> list)
+        private async Task<List<Channel>> GetChannelsFromWebpage(List<Channel> list)
         {
             if (list == null) list = new List<Channel>();
-            var html = HttpWebDealer.GetHtml("http://douban.fm", null, Encoding.UTF8);
+            var html = await HttpWebDealerAsyc.GetHtml("http://douban.fm", null, Encoding.UTF8);
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
             var chls = doc.DocumentNode.SelectNodes("//ul[@id=\"promotion_chls\"]");
@@ -266,23 +267,23 @@ namespace Service
         /// <param name="password"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public Account Login(string userName, string password, AccountType type)
+        public async Task<Account> Login(string userName, string password, AccountType type)
         {
             switch (type)
             {
                 case AccountType.DoubanFm:
-                    return LoginByDoubanAccount(userName, password);
+                    return await LoginByDoubanAccount(userName, password);
                 default:
-                    return LoginByThirdPartyAccount(userName, password, type);
+                    return await Task.Run(() => LoginByThirdPartyAccount(userName, password, type));
             }
         }
 
-        public SearchResult Search(string keyword, int count)
+        public async Task<SearchResult> Search(string keyword, int count)
         {
             var result = new SearchResult { Query = keyword };
             var url = string.Format("http://douban.fm/j/explore/search?query={0}&limit={1}&start=0",
                                     HttpUtility.UrlEncode(keyword), count);
-            var json = HttpWebDealer.GetJsonObject(url, new WebHeaderCollection(), Encoding.UTF8);
+            var json = await HttpWebDealerAsyc.GetJsonObject(url, new WebHeaderCollection(), Encoding.UTF8);
             try
             {
                 if (!json["status"]) return result;
@@ -310,16 +311,16 @@ namespace Service
             return result;
         }
 
-        public List<Song> GetSongList(Artist artist)
+        public async Task<List<Song>> GetSongList(Artist artist)
         {
             //not support
-            return new List<Song>();
+            return await Task.Run(() => new List<Song>());
         }
 
 
-        private Account LoginByDoubanAccount(string userName, string password)
+        private async Task<Account> LoginByDoubanAccount(string userName, string password)
         {
-            var json = HttpWebDealer.GetJsonObject("https://www.douban.com/j/app/login?email=" + userName +
+            var json = await HttpWebDealerAsyc.GetJsonObject("https://www.douban.com/j/app/login?email=" + userName +
                                                           "&password=" + password +
                                                           "&app_name=radio_desktop_win&version=100");
             try
@@ -348,11 +349,11 @@ namespace Service
             }
         }
 
-        private Account LoginByThirdPartyAccount(string userName, string password, AccountType type) 
+        private static Account LoginByThirdPartyAccount(string userName, string password, AccountType type) 
         {
-            var timeOut = 3000;//3s
+            var timeOut = 4000;//4s
             Account account = null;
-            if (type != AccountType.Weibo) return account;
+            if (type != AccountType.Weibo) return null;
             var loginUrl = "http://douban.fm/partner/login?target=" + (int)type;
             var trd = new Thread(() =>
             {
@@ -370,7 +371,7 @@ namespace Service
                         if (submitBtn != null)
                         {
                             submitBtn.InvokeMember("click");
-                            timeOut = 3000;
+                            timeOut = 4000;
                         }
                         return;
                     }
@@ -411,7 +412,7 @@ namespace Service
             while (timeOut > 0 && account == null)
             {
                 timeOut -= 100;
-                Thread.Sleep(100);
+                Thread.Sleep(200);
             }
             return account;
         }

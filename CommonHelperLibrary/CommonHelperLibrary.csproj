@@ -67,8 +67,10 @@
     <Compile Include="Dwm\ColorizationColor.cs" />
     <Compile Include="Dwm\DwmHelper.cs" />
     <Compile Include="Dwm\DwmBlurbehind.cs" />
+    <Compile Include="EnumerableHelper.cs" />
     <Compile Include="EnumHelper.cs" />
     <Compile Include="FileSystemHelper.cs" />
+    <Compile Include="WEB\HttpWebDealerAsyc.cs" />
     <Compile Include="IeCookieHelper.cs" />
     <Compile Include="Dwm\NativeMethods.cs" />
     <Compile Include="ImageColorHelper.cs" />
@@ -77,13 +79,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializationHelper.cs" />
     <Compile Include="SettingHelper.cs" />
-    <Compile Include="ShudownHelper.cs" />
+    <Compile Include="ShutDownHelper.cs" />
+    <Compile Include="VolumeHelper.cs" />
     <Compile Include="WEB\AnalysisFlvAddress.cs" />
     <Compile Include="WEB\ChinaWeatherCityCode.cs" />
     <Compile Include="WEB\CityIPHelper.cs" />
     <Compile Include="WEB\CityWeatherHelper.cs" />
     <Compile Include="WEB\GZip.cs" />
     <Compile Include="WEB\HttpWebDealer.cs" />
+    <Compile Include="WEB\HttpWebDealerBase.cs" />
     <Compile Include="WEB\SongLyricHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

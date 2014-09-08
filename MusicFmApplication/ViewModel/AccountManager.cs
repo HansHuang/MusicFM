@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Markup.Localizer;
 using CommonHelperLibrary;
 using CustomControlResources;
 using MusicFm.Helper;
-using Service;
 using Service.Model;
 
 namespace MusicFm.ViewModel
@@ -163,10 +159,10 @@ namespace MusicFm.ViewModel
 
         public ICommand LoginCmd
         {
-            get { return _loginCmd ?? (_loginCmd = new RelayCommand(LoginExcute)); }
+            get { return _loginCmd ?? (_loginCmd = new RelayCommand(async s => await LoginExcute())); }
         }
 
-        public async void LoginExcute(object para)
+        public async Task LoginExcute()
         {
             if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Passwrod))
             {
@@ -174,17 +170,17 @@ namespace MusicFm.ViewModel
                 return;
             }
 
-            var login = Task.Run(() => ViewModel.SongService.Login(UserName, Passwrod, AccountType));
-            await login;
-            if (login.Result == null)
+            var login = ViewModel.SongService.Login(UserName, Passwrod, AccountType);
+            var result = await login;
+            if (result == null)
             {
                 Feedback = LocalTextHelper.GetLocText("UnamePwdMayWrong");
                 return;
             }
             Feedback = string.Empty;
 
-            AccountInfo = login.Result;
-            UserName = login.Result.UserName;
+            AccountInfo = result;
+            UserName = result.UserName;
             IsShowLoginBox = false;
             UpdateAccountDic();
         }
@@ -197,7 +193,7 @@ namespace MusicFm.ViewModel
         protected MainViewModel ViewModel;
         protected const string CacheName = "AccountDic";
         //<Name of song service, Account info>
-        protected Dictionary<string, Account> AccountDic; 
+        protected Dictionary<string, Account> AccountDic ;
         #endregion
 
         public AccountManager(MainViewModel viewModel)
@@ -211,7 +207,7 @@ namespace MusicFm.ViewModel
         /// <summary>
         /// Try to get account info from config file
         /// </summary>
-        public async void TryGetAccount()
+        public async Task TryGetAccount()
         {
             AccountDic = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Dictionary<string, Account>>();
             if (AccountDic == null)
@@ -231,10 +227,8 @@ namespace MusicFm.ViewModel
                 {
                     if (needRefresh)
                     {
-                        var login = Task.Run(() => service.Login(account.Email, account.Password, account.AccountType));
-                        await login;
-                        AccountInfo = login.Result;
-                        UpdateAccountDic();
+                        var login = service.Login(account.Email, account.Password, account.AccountType);
+                        AccountInfo = await login;
                     }
                     else
                     {
@@ -245,14 +239,12 @@ namespace MusicFm.ViewModel
                 }
                 else if (needRefresh)
                 {
-                    Task.Run(() => service.Login(account.Email, account.Password, account.AccountType))
-                        .ContinueWith(t =>
-                        {
-                            AccountDic[name] = t.Result;
-                            UpdateAccountDic();
-                        }, new CancellationToken(), TaskContinuationOptions.None, ViewModel.ContextTaskScheduler);
+                    var act =await service.Login(account.Email, account.Password, account.AccountType);
+                    AccountDic[name] = act;
                 }
             }
+
+            UpdateAccountDic();
         }
 
         #region Processors

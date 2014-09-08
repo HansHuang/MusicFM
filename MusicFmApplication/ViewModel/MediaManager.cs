@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -99,7 +98,7 @@ namespace MusicFm.ViewModel
                 if (_volume.Equals(value)) return;
                 _volume = value;
                 if (Player != null) Player.Volume = value;
-                SettingHelper.SetSetting(VolumeCacheName, value.SerializeToString(), App.Name);
+                SettingHelper.SetSetting(VolumeCacheName, string.Format("{0}", value), App.Name);
                 RaisePropertyChanged("Volume");
             }
         }
@@ -229,26 +228,9 @@ namespace MusicFm.ViewModel
 
         #endregion
 
-        #region CanAdjustSystemVolume (INotifyPropertyChanged Property)
-
-        private bool _canAdjustSystemVolume;
-
-        public bool CanAdjustSystemVolume
-        {
-            get { return _canAdjustSystemVolume; }
-            set
-            {
-                if (_canAdjustSystemVolume.Equals(value)) return;
-                _canAdjustSystemVolume = value;
-                RaisePropertyChanged("CanAdjustSystemVolume");
-            }
-        }
-
         #endregion
 
-        #endregion
-
-        #region DelegateCommand
+        #region RelayCommands
 
         #region RelayCommand PauseResumePlayerCmd
 
@@ -282,21 +264,20 @@ namespace MusicFm.ViewModel
 
         public ICommand StartPlayerCmd
         {
-            get { return _startPlayerCmd ?? (_startPlayerCmd = new RelayCommand(s => StartPlayerExecute())); }
+            get { return _startPlayerCmd ?? (_startPlayerCmd = new RelayCommand(s =>StartPlayerExecute())); }
         }
 
         private void StartPlayerExecute()
         {
             if (ViewModel.CurrentSong == null) return;
-
+            //Get song picture task
             GetSongPicture();
-
+            //open and play song
             Player.Dispatcher.InvokeAsync(() =>
             {
                 Player.Open(new Uri(ViewModel.CurrentSong.Url));
                 Player.Play();
             });
-
             //Get lyric
             if (ViewModel.OfflineMgt.IsInternetConnected) GetLyric();
             else ViewModel.OfflineMgt.GetOfflineLyric();
@@ -339,29 +320,35 @@ namespace MusicFm.ViewModel
             var direction = isUp.GetValueOrDefault() ? 1 : -1;
             var change = step * direction;
 
-            Volume += change;
-            //if(ViewModel.Setting.CanAdjustSystemVolume.GetValueOrDefault())
-            //TODO: Adjust system volum when overstep
-            //http://www.dreamincode.net/forums/topic/45693-controlling-sound-volume-in-c%23/
+            if (Volume < 1 && Volume > 0) Volume += change;
+            else if (ViewModel.Setting.CanAdjustSystemVolume.GetValueOrDefault())
+                if (change > 0) VolumeHelper.Up();
+                else VolumeHelper.Down();
         }
 
         #endregion
 
         #endregion
 
+        #region Construction Method
         public MediaManager(MainViewModel viewModel)
         {
             ViewModel = viewModel;
 
-            CanAdjustSystemVolume = true;
-
             Player = new MediaPlayer();
             Player.MediaOpened += PlayerMediaOpened;
 
-            var vlm = SettingHelper.GetSetting(VolumeCacheName, App.Name).Deserialize<double>();
+            GetVolume();
+        }
+
+        private void GetVolume()
+        {
+            double vlm;
+            double.TryParse(SettingHelper.GetSetting(VolumeCacheName, App.Name), out vlm);
             _volume = vlm < 0.1 ? 0.75 : vlm;
             Player.Volume = _volume;
         }
+        #endregion
 
         #region Processors
         /// <summary>

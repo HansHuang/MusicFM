@@ -57,7 +57,7 @@ namespace MusicFm.ViewModel
 
         public bool? CanAdjustSystemVolume
         {
-            get { return _canAdjustSystemVolume; }
+            get { return _canAdjustSystemVolume ?? (_canAdjustSystemVolume = true); }
             set
             {
                 if (_canAdjustSystemVolume.Equals(value)) return;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
@@ -132,8 +133,12 @@ namespace MusicFm
 
             StateChanged += MainWindowStateChanged;
             ViewModel = MainViewModel.GetInstance(this);
-            //Loaded += delegate { ViewModel = MainViewModel.GetInstance(this); };
+            Loaded += MainWindowLoaded;
+        }
 
+        private void MainWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.StartPlayerCmd.Execute(null);
         }
 
         #region Set Aero Glass Effect

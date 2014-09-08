@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CommonHelperLibrary
 {
-    class ShudownHelper
+    public static class ShutDownHelper
     {
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         internal struct TokPriv1Luid

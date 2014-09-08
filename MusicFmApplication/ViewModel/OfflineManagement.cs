@@ -16,6 +16,12 @@ using ServiceModel = Service.Model;
 
 namespace MusicFm.ViewModel
 {
+    /// <summary>
+    /// Author : Hans Huang @ Jungo Studio
+    /// Date : July 18th, 2014
+    /// Class : OfflineManagement
+    /// Discription : Offline play mode vm
+    /// </summary>
     public class OfflineManagement : ViewModelBase
     {
 
@@ -57,7 +63,7 @@ namespace MusicFm.ViewModel
             if (channel == null || (ViewModel.CurrentChannel == channel && !IsInternetConnected)) return;
             ViewModel.MediaManager.IsBuffering = true;
 
-            var t = Task.Run(() =>
+            var t = Task.Run(async () =>
             {
                 var folder = OfflineFolder + string.Format("{0}({1})\\", channel.StrId, channel.Id);
                 //Clear offline data
@@ -67,7 +73,7 @@ namespace MusicFm.ViewModel
                     SongListInChannel.Remove(channel);
                     return false;
                 }
-                return DownloadSongs(folder, channel);
+                return await DownloadSongs(folder, channel);
             });
 
             try
@@ -81,31 +87,35 @@ namespace MusicFm.ViewModel
             ViewModel.MediaManager.IsBuffering = false;
         }
 
-        private bool DownloadSongs(string folder, Channel channel)
+        private async Task<bool> DownloadSongs(string folder, Channel channel)
         {
             //1. Create Folders
             var picFolder = folder + "Picture\\";
             var songFolder = folder + "Song\\";
             var lrcFolder = folder + "Lyric\\";
-            if (!DirectoryHelper.MakeSureExist(folder) || !DirectoryHelper.MakeSureExist(picFolder) ||
-                !DirectoryHelper.MakeSureExist(songFolder) || !DirectoryHelper.MakeSureExist(lrcFolder))
-                return false;
+            var folders = new List<string> {folder, picFolder, songFolder, lrcFolder};
+            if (folders.Any(s => !DirectoryHelper.MakeSureExist(s))) return false;
             //2. Get song data
             var songList = new List<Song>();
             while (songList.Count < ViewModel.Setting.ChannelOfflineSize.GetValueOrDefault())
             {
-                songList.AddRange(ViewModel.GetSongListByChannel(channel));
+                var getSong = ViewModel.GetSongListByChannel(channel);
+                var songs = (await getSong).Select(s => new Song(s));
+                songList.AddRange(songs);
             }
             //3. Download
+            //3.1 define download monitor
             DownloadProgressChangedEventHandler downloadMonitor = delegate(object s, DownloadProgressChangedEventArgs e)
             {
                 if (!channel.IsOfflined) return;
                 channel.DownloadProgress = e.ProgressPercentage;
             };
-            foreach (var song in songList)
+            //3.2 define download worker
+            Action<Song> download = async song =>
             {
+                Task<string> getLycUrl = null;
                 if (string.IsNullOrWhiteSpace(song.LrcUrl))
-                    song.LrcUrl = SongLyricHelper.GetSongLrcPath(song.Title, song.Artist);
+                    getLycUrl = SongLyricHelper.GetSongLrcPath(song.Title, song.Artist);
 
                 //bulid file name
                 var nameBase = song.Artist + "-" + song.Title;
@@ -117,13 +127,21 @@ namespace MusicFm.ViewModel
                 HttpWebDealer.DownloadFile(songName, song.Url, songFolder, downloadMonitor);
                 HttpWebDealer.DownloadFile(picName, song.Picture, picFolder);
                 HttpWebDealer.DownloadFile(thumbName, song.Thumb, picFolder);
-                HttpWebDealer.DownloadFile(lrcName, song.LrcUrl, lrcFolder);
+                var lycUrl = getLycUrl == null ? song.LrcUrl : await getLycUrl;
+                HttpWebDealer.DownloadFile(lrcName, lycUrl, lrcFolder);
                 //change each path in song
                 song.Url = songFolder + songName;
                 song.Picture = picFolder + picName;
                 song.Thumb = picFolder + thumbName;
                 song.LrcUrl = lrcFolder + lrcName;
-            }
+            };
+            //3.3 split to multiple thread
+            var workList = songList.Split(5).ToList();
+            var workTasks = workList.Select(songs => Task.Run(() =>
+            {
+                foreach (var song in songs) download(song);
+            })).ToArray();
+            Task.WaitAll(workTasks);
             //Save song data to file
             using (var sr = new StreamWriter(folder + "Song.dat", false))
             {
@@ -139,6 +157,7 @@ namespace MusicFm.ViewModel
 
         #endregion
 
+        #region Execution for command
         public OfflineManagement(MainViewModel viewModel)
         {
             ViewModel = viewModel;
@@ -229,6 +248,24 @@ namespace MusicFm.ViewModel
             });
         }
 
+        /// <summary>
+        /// Check and Initial offline state for each individual channel
+        /// </summary>
+        /// <param name="channels"></param>
+        public void CheckIsOfflined(List<Channel> channels)
+        {
+            if (!Directory.Exists(OfflineFolder) || channels == null) return;
+            var dirList = Directory.GetDirectories(OfflineFolder);
+            channels.ForEach(s =>
+            {
+                var name = string.Format("{0}({1})", s.StrId, s.Id);
+                s.IsOfflined = dirList.Any(d => d.EndsWith(name));
+                s.DownloadProgress = 100;
+            });
+        } 
+        #endregion
+
+        #region Private processors
         private void GetOfflineChannels()
         {
             var dirList = Directory.GetDirectories(OfflineFolder);
@@ -249,8 +286,8 @@ namespace MusicFm.ViewModel
                 }
                 catch { continue; }
             }
-        }
-
+        } 
+        #endregion
 
     }
 }

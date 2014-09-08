@@ -13,12 +13,22 @@ namespace CommonHelperLibrary
     /// </summary>
     public static class SettingHelper
     {
-        internal static string ConfigFileName = "App.dat";
+        private static string ConfigFileName = "App.dat";
 
-        //DO Not access this property directily, use the GetConfigXml() method
-        internal static XmlDocument XmlDoc = null;
+        private static XmlDocument XmlDoc = null;
 
         internal static readonly object Locker = new object();
+
+        /// <summary>
+        /// Task for save setting
+        /// </summary>
+        /// <param name="name">Setting Name</param>
+        /// <param name="value">Setting Value</param>
+        /// <param name="appName">Application Name</param>
+        public static async Task SetSettingTask(string name, string value, string appName = "App")
+        {
+            await Task.Run(() => SetSetting(name, value, appName));
+        }
 
         /// <summary>
         /// Set Setting into config

@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
@@ -24,32 +23,54 @@ namespace MusicFm.ViewModel
         }
         #endregion
 
+        #region ViewModel (INotifyPropertyChanged Property)
+
+        private MainViewModel _viewModel;
+
+        public MainViewModel ViewModel
+        {
+            get { return _viewModel; }
+            set
+            {
+                if (_viewModel != null && _viewModel.Equals(value)) return;
+                _viewModel = value;
+                RaisePropertyChanged("ViewModel");
+            }
+        }
+
+        #endregion
+
         protected const string CacheName = "Weather";
+        
         
         //protected readonly MainViewModel ViewModel;
 
         public WeatherManager(MainViewModel viewModel) 
         {
-            //ViewModel = viewModel;
+            ViewModel = viewModel;
+            GetWeatherDetail();
+        }
 
-            //Get Weather Detail
+        private void GetWeatherDetail()
+        {
             Task.Run(() =>
+            {
+                //Get Weather cache from file system
+                var weatherInSetting = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Weather>();
+                ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
                 {
-                    viewModel.MainWindow.Dispatcher.InvokeAsync(() =>
-                    {   
-                        //Get Weather cache from file system
-                        WeatherData = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Weather>();
-                    });
-                    var weather = CityWeatherHelper.GetWeather();
-                    if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
-                        !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
-                        weather.LifeIndexes = new ObservableCollection<LifeIndex>(weather.LifeIndexes);
-                    viewModel.MainWindow.Dispatcher.InvokeAsync(() =>
-                        {
-                            WeatherData = weather;
-                        });
-                    SettingHelper.SetSetting(CacheName, weather.SerializeToString(), App.Name);
+                    WeatherData = weatherInSetting;
                 });
+                var weather = CityWeatherHelper.GetWeather();
+                if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
+                    !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
+                    weather.LifeIndexes = new ObservableCollection<LifeIndex>(weather.LifeIndexes);
+                ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                {
+                    WeatherData = weather;
+                });
+                SettingHelper.SetSetting(CacheName, weather.SerializeToString(), App.Name);
+            });
         }
     }
 }

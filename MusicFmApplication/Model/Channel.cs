@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -58,6 +59,23 @@ namespace MusicFm.Model
                 RaisePropertyChanged("DownloadProgress");
             }
         }
+        #endregion
+
+        #region ChannelList (INotifyPropertyChanged Property)
+
+        private ObservableCollection<Song> _channelList;
+
+        public ObservableCollection<Song> ChannelList
+        {
+            get { return _channelList ?? (_channelList=new ObservableCollection<Song>()); }
+            set
+            {
+                if (_channelList != null && _channelList.Equals(value)) return;
+                _channelList = value;
+                RaisePropertyChanged("ChannelList");
+            }
+        }
+
         #endregion
 
         public Channel() { }

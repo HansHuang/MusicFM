@@ -2,14 +2,10 @@
                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-                   xmlns:behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
                    xmlns:lex="http://schemas.root-project.org/xaml/presentation"
                    xmlns:cvt="clr-namespace:CustomControlResources.Converter;assembly=CustomControlResources"
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
-                   xmlns:mdl="clr-namespace:Service.Model;assembly=Service"
-                   xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    xmlns:presentOpti="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
-                   xmlns:sm="clr-namespace:Service;assembly=Service"
                    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
                    xmlns:local="clr-namespace:MusicFm.Controls"
                    xmlns:helper="clr-namespace:MusicFm.Helper"
@@ -463,26 +459,31 @@
             </DockPanel>
             <!--2 Song Photo & Lyric-->
             <Grid Grid.Row="1" VerticalAlignment="Center">
-                <Image VerticalAlignment="Center" HorizontalAlignment="Center" Width="220" Height="220"
+                <Image VerticalAlignment="Center" HorizontalAlignment="Center" Width="240" Height="240"
                        Visibility="{Binding MediaManager.SongPicture, Converter={StaticResource IvsNull2Vsby}}"
-                       Source="{StaticResource Vinyl256}" Opacity=".9">
-                    <Image.RenderTransform>
-                        <RotateTransform/>
+                       Source="{StaticResource Cover256}" Opacity=".9">
+                    <!--<Image.RenderTransform>
+                        <RotateTransform />
                     </Image.RenderTransform>
                     <Image.Style>
                         <Style TargetType="Image">
                             <Setter Property="RenderTransformOrigin" Value=".5, .5"/>
                             <Style.Triggers>
                                 <EventTrigger RoutedEvent="Loaded">
-                                    <BeginStoryboard>
+                                    <BeginStoryboard x:Name="PictureRotateStroybard">
                                         <Storyboard>
                                             <DoubleAnimation Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)" To="360" Duration="0:0:4" RepeatBehavior="Forever"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </EventTrigger>
+                                <DataTrigger Binding="{Binding CurrentSong.Picture, Converter={StaticResource Null2Bool}}" Value="true">
+                                    <DataTrigger.EnterActions>
+                                        <PauseStoryboard BeginStoryboardName="PictureRotateStroybard"/>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Image.Style>
+                    </Image.Style>-->
                 </Image>
                 <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
                     <!--Song Album Picture-->
@@ -551,8 +552,7 @@
                                     </Image.Style>
                                 </Image>
                                 <cc:ControlReflection Host="{Binding ElementName=AlbumPicture}"
-                                                      ReflectionPercent=".3"
-                                                      Opacity=".7"/>
+                                                      ReflectionPercent=".3" Opacity=".7"/>
                             </StackPanel>
                         </cc:ImageButton.Image>
                     </cc:ImageButton>

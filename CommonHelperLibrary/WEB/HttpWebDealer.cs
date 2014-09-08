@@ -38,28 +38,7 @@ namespace CommonHelperLibrary.WEB
             var html = "";
             if (string.IsNullOrWhiteSpace(url)) return html;
             var response = GetResponseByUrl(url,headers);
-            if (response == null) return html;
-            using (var stream = response.GetResponseStream())
-            {
-                if (response.ContentEncoding.ToLower().Equals("gzip"))
-                {
-                    if (Equals(txtEncoding, Encoding.GetEncoding("GB2312")))
-                        html = Encoding.ASCII.GetString(GZipHelper.Decompress(stream));
-                    else
-                        html = Encoding.UTF8.GetString(GZipHelper.Decompress(stream));
-                }
-                else
-                {
-                    StreamReader sr;
-                    if (txtEncoding == null)
-                        sr = new StreamReader(stream, true);
-                    else
-                        sr = new StreamReader(stream, txtEncoding);
-                    html = sr.ReadToEnd();
-                    sr.Close();
-                }
-            }
-            
+            html = HttpWebDealerBase.GetHtmlFromResponse(response, txtEncoding);
             return html;
         }
 
@@ -193,67 +172,17 @@ namespace CommonHelperLibrary.WEB
         /// <returns></returns>
         public static HttpWebResponse GetResponseByUrl(string url, WebHeaderCollection headers = null, int requestTimeout = 0)
         {
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            var postData = string.Empty;
-            if (headers != null)
-            {
-                request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0";
-                //http://stackoverflow.com/questions/239725/cannot-set-some-http-headers-when-using-system-net-webrequest
-                var toRemove = new List<string>();
-                for (var i = 0; i < headers.Count; ++i)
-                {
-                    var header = headers.GetKey(i);
-                    var value = headers.GetValues(i);
-                    if (string.IsNullOrWhiteSpace(header) || value == null || value.Length < 1) continue;
-                    if (header == "Referer")
-                    {
-                        toRemove.Add(header);
-                        request.Referer = value.Aggregate((s, t) => s + "; " + t);
-                    }
-                    else if (string.Equals(header, "user-agent",StringComparison.OrdinalIgnoreCase))
-                    {
-                        toRemove.Add(header);
-                        request.UserAgent = value.FirstOrDefault();
-                    }
-                    else if (header == "ContentType")
-                    {
-                        toRemove.Add(header);
-                        request.ContentType = value.FirstOrDefault();
-                    }
-                    else if (header == "Method")
-                    {
-                        toRemove.Add(header);
-                        request.Method = value.FirstOrDefault();
-                    }
-                    else if (header == "PostData")
-                    {
-                        toRemove.Add(header);
-                        postData = value.FirstOrDefault();
-                    }
-                    //else if()
-                }
-                toRemove.ForEach(headers.Remove);
-                if (headers.Count > 0) request.Headers = headers;
-            }
-            
-            if (requestTimeout > 0) request.Timeout = requestTimeout;
-
-            var count = 0;
             HttpWebResponse response = null;
-            while (count < 3)
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            if (requestTimeout > 0) request.Timeout = requestTimeout;
+            string postData;
+            HttpWebDealerBase.CorrectHeader(request, headers, out postData);
+            
+            for (var i = 0; i < 3; i++)
             {
                 try
                 {
-                    //Post
-                    if (request.Method == "POST" && !string.IsNullOrWhiteSpace(postData))
-                    {
-                        var buffer = Encoding.ASCII.GetBytes(postData);
-                        request.ContentLength = buffer.Length;
-                        var stream = request.GetRequestStream();
-                        stream.Write(buffer, 0, buffer.Length);
-                        stream.Close();
-                    }
-
+                    HttpWebDealerBase.TryPostData(request, postData);
                     response = (HttpWebResponse)request.GetResponse();
                     return response;
                 }
@@ -261,10 +190,8 @@ namespace CommonHelperLibrary.WEB
                 {
                     Logger.Msg("Error", url);
                     Logger.Exception(e);
-                    
-                    count++;
-                    Thread.Sleep(200);
                 }
+                Thread.Sleep(200);
             }
             return response;
         }

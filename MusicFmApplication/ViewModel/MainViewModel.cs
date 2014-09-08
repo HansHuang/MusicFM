@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 using CustomControlResources;
-using MusicFm.Helper;
 using MusicFm.Helper;
 using MusicFm.Model;
 using Service;
@@ -357,6 +353,26 @@ namespace MusicFm.ViewModel
 
         #region Delegate Commands
 
+        #region RelayCommand StartPlayerCmd
+
+        private RelayCommand _startPlayerCmd;
+
+        public ICommand StartPlayerCmd
+        {
+            get { return _startPlayerCmd ?? (_startPlayerCmd = new RelayCommand(async s => await StartPlayerExecute())); }
+        }
+
+        private async Task StartPlayerExecute()
+        {
+            if (OfflineMgt.IsInternetConnected)
+            {
+                await StartOnlinePlayer();
+            }
+            else OfflineMgt.StartOfflinePlayer();
+        }
+
+        #endregion
+
         #region RelayCommand NextSongCmd
 
         private RelayCommand _nextSongCmd;
@@ -365,18 +381,19 @@ namespace MusicFm.ViewModel
         {
             get
             {
-                return _nextSongCmd ?? (_nextSongCmd = new RelayCommand(s =>
+                return _nextSongCmd ?? (_nextSongCmd = new RelayCommand(async s =>
                 {
-                    if (OfflineMgt.IsInternetConnected) NextSongExecute(s as bool?);
+                    if (OfflineMgt.IsInternetConnected) await NextSongExecute(s as bool?);
                     else OfflineMgt.NextSongExecute(s as bool?);
                 }));
             }
         }
 
-        private void NextSongExecute(bool? isEnded = false)
+        private async Task NextSongExecute(bool? isEnded = false)
         {
             IsDownlading = false;
             DownloadProgress = 0;
+            Task<bool> submit = null;
             //If song is ended, add it to history(Display inverted order)
             if (isEnded.GetValueOrDefault())
             {
@@ -387,33 +404,33 @@ namespace MusicFm.ViewModel
                         .CurrentSongID(CurrentSong)
                         .CurrentChennal(CurrentChannel)
                         .PositionSeconds(CurrentSong.Length);
-                    Task.Run(() => SongService.CompletedSong(para));
+                    submit = SongService.CompletedSong(para);
                 }
             }
 
-            Action<List<Song>> action = songs =>
-                {
-                    if (songs != null) songs.ForEach(s => SongList.Add(s));
-                    if (SongList.Count < 1) return;
-                    //Set current song & playing 
-                    CurrentSong = SongList[0];
-                    //Play current new song with new url
-                    MediaManager.StartPlayerCmd.Execute(null);
-                    //RaisePropertyChanged("MediaManager");
-                    SongList.RemoveAt(0);
-                };
+            Action<List<Song>> play = songs =>
+            {
+                if (songs != null) songs.ForEach(s => SongList.Add(s));
+                if (SongList.Count < 1) return;
+                //Set current song & playing 
+                CurrentSong = SongList[0];
+                //Play current new song with new url
+                MediaManager.StartPlayerCmd.Execute(null);
+                //RaisePropertyChanged("MediaManager");
+                SongList.RemoveAt(0);
+            };
             //Can only play after get song list
-            if (SongList.Count < 1) GetSongList(action);
-            //Directlly play next & get song list in another thread when list count less then elements
+            if (SongList.Count < 1) play(await GetSongList());
             else if (SongList.Count < 3)
             {
-                //Task to get song list
-                GetSongList(songs => songs.ForEach(s => SongList.Add(s)));
                 //Play
-                action(null);
+                play(null);
+                //Task to get song list
+                (await GetSongList()).ForEach(s => SongList.Add(s));
             }
-            //Directlly play next
-            else action(null);
+            else play(null);//Directlly play next
+
+            if (submit != null) await submit;
         }
 
         #endregion
@@ -426,15 +443,15 @@ namespace MusicFm.ViewModel
         {
             get
             {
-                return _likeSongCmd ?? (_likeSongCmd = new RelayCommand(s =>
+                return _likeSongCmd ?? (_likeSongCmd = new RelayCommand(async s =>
                 {
-                    if (OfflineMgt.IsInternetConnected) LikeSongExecute(s as string);
+                    if (OfflineMgt.IsInternetConnected) await LikeSongExecute(s as string);
                     else OfflineMgt.LikeSongExecute((s as string));
                 }));
             }
         }
 
-        private void LikeSongExecute(string isHate)
+        private async Task LikeSongExecute(string isHate)
         {
             ServiceModel.OperationType actionType;
             var ishate = !string.IsNullOrWhiteSpace(isHate);
@@ -447,16 +464,13 @@ namespace MusicFm.ViewModel
                 actionType = CurrentSong.Like == 0 ? ServiceModel.OperationType.Like : ServiceModel.OperationType.DisLike;
 
             MediaManager.IsBuffering = true;
-            Action<List<Song>> action = songs =>
-            {
-                MediaManager.IsBuffering = false;
-                if (songs == null || songs.Count < 1) return;
-                SongList.Clear();
-                if (!ishate)
-                    CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
-                songs.ForEach(s => SongList.Add(s));
-            };
-            GetSongList(action, actionType);
+            var getSong = GetSongList(actionType);
+            var songs = await getSong;
+            if (songs == null || songs.Count < 1) return;
+            SongList.Clear();
+            if (!ishate) CurrentSong.Like = CurrentSong.Like == 0 ? 1 : 0;
+            songs.ForEach(s => SongList.Add(s));
+            MediaManager.IsBuffering = false;
         }
         #endregion
 
@@ -494,7 +508,7 @@ namespace MusicFm.ViewModel
             SongList.Clear();
             NextSongCmd.Execute(false);
             IsShowPlayerDetail = false;
-            Task.Run(() => SettingHelper.SetSetting(SelectedChannelCacheName, channel.Id.ToString(), App.Name));
+            Task.Run(() => SettingHelper.SetSetting(SelectedChannelCacheName, string.Format("{0}", channel.Id), App.Name));
         }
         #endregion
 
@@ -579,14 +593,8 @@ namespace MusicFm.ViewModel
         {
             if (DesktopLyric.IsOpened)
             {
-                var ownedWds = MainWindow.OwnedWindows;
-                for (var i = 0; i < ownedWds.Count; i++)
-                {
-                    var wd = ownedWds[i];
-                    if (!(wd is DesktopLyric)) continue;
-                    wd.Close();
-                    return;
-                }
+                var wd = MainWindow.OwnedWindows.OfType<DesktopLyric>().FirstOrDefault();
+                if (wd != null) wd.Close();
             }
             else
             {
@@ -627,10 +635,10 @@ namespace MusicFm.ViewModel
 
         public ICommand SearchCmd
         {
-            get { return _searchCmd ?? (_searchCmd = new RelayCommand(SearchExecute)); }
+            get { return _searchCmd ?? (_searchCmd = new RelayCommand(async s => await SearchExecute(s))); }
         }
 
-        private async void SearchExecute(object para)
+        private async Task SearchExecute(object para)
         {
             var keyword = string.Empty;
             if (para is TextBox)
@@ -641,9 +649,8 @@ namespace MusicFm.ViewModel
 
             MediaManager.IsBuffering = true;
             SearchResult = null;
-            var search = Task.Run(() => SongService.Search(keyword, SearchOffset));
-            await search;
-            SearchResult = new SearchResult(search.Result);
+            var search = SongService.Search(keyword, SearchOffset);
+            SearchResult = new SearchResult(await search);
             MediaManager.IsBuffering = false;
         }
 
@@ -661,9 +668,9 @@ namespace MusicFm.ViewModel
         private void AddSongExecute(Song song)
         {
             if (song == null || SongList == null) return;
+            IsShowPlayerDetail = false;
             SongList.Insert(0, song);
             NextSongCmd.Execute(false);
-            IsShowPlayerDetail = false;
         }
 
         #endregion
@@ -674,18 +681,21 @@ namespace MusicFm.ViewModel
 
         public ICommand LoadMoreSearchResultCmd
         {
-            get { return _loadMoreSearchResultCmd ?? (_loadMoreSearchResultCmd = new RelayCommand(s => LoadMoreSearchResultExeture())); }
+            get
+            {
+                return _loadMoreSearchResultCmd ??
+                       (_loadMoreSearchResultCmd = new RelayCommand(async s => await LoadMoreSearchResultExeture()));
+            }
         }
 
-        private async void LoadMoreSearchResultExeture()
+        private async Task LoadMoreSearchResultExeture()
         {
             if (SearchResult == null) return;
 
             MediaManager.IsBuffering = true;
             var count = SearchOffset + SearchResult.CurrentNr;
-            var search = Task.Run(() => SongService.Search(SearchResult.Query, count));
-            await search;
-            SearchResult = new SearchResult(search.Result);
+            var search = SongService.Search(SearchResult.Query, count);
+            SearchResult = new SearchResult(await search);
             MediaManager.IsBuffering = false;
         }
 
@@ -703,23 +713,23 @@ namespace MusicFm.ViewModel
         private async void PlayArtistExecute(ServiceModel.Artist artist)
         {
             if (artist == null || string.IsNullOrWhiteSpace(artist.Name)) return;
+            IsShowPlayerDetail = false;
             switch (SongService.Name)
             {
                 case "DoubanFm":
                     break;
                 case "BaiduMusic":
-                    var tryGetSong = Task.Run(() => SongService.GetSongList(artist));
-                    await tryGetSong;
-                    if (tryGetSong.Result == null || tryGetSong.Result.Count == 0) return;
+                    var tryGetSong = SongService.GetSongList(artist);
+                    var songs = await tryGetSong;
+                    if (songs == null || songs.Count == 0) return;
                     CurrentChannel = null;
                     SearchResult = null;
                     CurrentArtist = artist;
                     SongList.Clear();
-                    SongList = new ObservableCollection<Song>(tryGetSong.Result.Select(s => new Song(s)));
+                    SongList = new ObservableCollection<Song>(songs.Select(s => new Song(s)));
                     NextSongCmd.Execute(false);
                     break;
             }
-            IsShowPlayerDetail = false;
         }
 
         #endregion
@@ -736,18 +746,11 @@ namespace MusicFm.ViewModel
             MainWindow = window;
             ComposeSongService();
             SongServiceChanged += HandleSongServiceChangd;
-
             MediaManager = new MediaManager(this);
             Account = new AccountManager(this);
             WeatherMgr = new WeatherManager(this);
             Setting = new SettingManager(this);
             OfflineMgt = new OfflineManagement(this);
-
-            Task.Factory.StartNew(() =>
-            {
-                if (OfflineMgt.IsInternetConnected) StartPlayer();
-                else OfflineMgt.StartOfflinePlayer();
-            }, new CancellationToken(), TaskCreationOptions.None, ContextTaskScheduler);
         }
 
         public static MainViewModel GetInstance(MainWindow window = null)
@@ -755,21 +758,17 @@ namespace MusicFm.ViewModel
             return _instance ?? (_instance = new MainViewModel(window));
         }
         #endregion
-
+        
         #region Processors
 
-        private void StartPlayer()
+        private async Task StartOnlinePlayer()
         {
             //Selecte Song Service
             if (AvalibleSongServices == null || AvalibleSongServices.Count < 1) return;
-            var serviceName = SettingHelper.GetSetting(SelectedSongServiceCacheName, App.Name);
-
-            SongService = AvalibleSongServices.FirstOrDefault(s => s.Name == serviceName) ??
-                          AvalibleSongServices.First(s => s is DoubanFm);
             //Try get account for song service
-            Account.TryGetAccount();
+            await Account.TryGetAccount();
 
-            //GetChannels();
+            await GetChannels();
             var songListExpired = SettingHelper.GetSetting(SongListExpireCacheName, App.Name).Deserialize<DateTime>();
             var songList = songListExpired < DateTime.Now
                                ? new List<Song>()
@@ -783,23 +782,22 @@ namespace MusicFm.ViewModel
                 SetChannelCmd.Execute(CurrentChannel);
         }
 
-        private void HandleSongServiceChangd()
+        private async void HandleSongServiceChangd()
         {
             //Clear search result (search result only work in specified service)
             SearchResult = null;
             if (ServiceChannelsCache.ContainsKey(SongService))
                 Channels = new ObservableCollection<Channel>(ServiceChannelsCache[SongService]);
             else
-                GetChannels();
+                await GetChannels();
 
-            Task.Run(() => SettingHelper.SetSetting(SelectedSongServiceCacheName, SongService.Name, App.Name));
+            var save = SettingHelper.SetSettingTask(SelectedSongServiceCacheName, SongService.Name, App.Name);
         }
 
-        private void GetChannels()
+        private async Task GetChannels()
         {
-            var basicChannels = SongService.GetChannels();
             Channels.Clear();
-            basicChannels.ForEach(s => Channels.Add(new Channel(s)));
+            (await SongService.GetChannels()).ForEach(s => Channels.Add(new Channel(s)));
 
             if (CurrentChannel == null)
             {
@@ -812,67 +810,44 @@ namespace MusicFm.ViewModel
                 CurrentChannel = Channels.FirstOrDefault(s => s.Same(CurrentChannel));
 
 
-            Task.Run(() => 
-            {
-                var allChannels = SongService.GetChannels(false).Select(s => new Channel(s)).ToList();
-                //check if already offlined
-                if (Directory.Exists(OfflineMgt.OfflineFolder))
-                {
-                    var dirList = Directory.GetDirectories(OfflineMgt.OfflineFolder);
-                    allChannels.ForEach(s =>
-                    {
-                        var name = string.Format("{0}({1})", s.StrId, s.Id);
-                        s.IsOfflined = dirList.Any(d => d.EndsWith(name));
-                        s.DownloadProgress = 100;
-                    });
-                }
+            var allChannels = (await SongService.GetChannels(false)).Select(s => new Channel(s)).ToList();
+            //check if already offlined
+            OfflineMgt.CheckIsOfflined(allChannels);
+            //Save to channel cache
+            if (ServiceChannelsCache.ContainsKey(SongService)) ServiceChannelsCache[SongService] = allChannels;
+            else ServiceChannelsCache.Add(SongService, allChannels);
 
-                if (!ServiceChannelsCache.ContainsKey(SongService))
-                    ServiceChannelsCache.Add(SongService, allChannels);
-                else
-                    ServiceChannelsCache[SongService] = allChannels;
-
-                MainWindow.Dispatcher.InvokeAsync(() =>
-                {
-                    Channels.Clear();
-                    Channels=new ObservableCollection<Channel>(allChannels);
-                    var crtChannel = Channels.FirstOrDefault(s => s.Same(CurrentChannel));
-                    if (crtChannel != null) CurrentChannel = crtChannel;
-                });
-            });
+            Channels.Clear();
+            Channels = new ObservableCollection<Channel>(allChannels);
+            var crtChannel = Channels.FirstOrDefault(s => s.Same(CurrentChannel));
+            if (crtChannel != null) CurrentChannel = crtChannel;
         }
 
         /// <summary>
         /// Get Song List
         /// </summary>
-        /// <param name="callBack">Call Back Function(para is song list get from server)</param>
         /// <param name="actionType">OperationType (Played is default)</param>
-        private void GetSongList(Action<List<Song>> callBack = null, ServiceModel.OperationType actionType = ServiceModel.OperationType.Played)
+        private async Task<List<Song>> GetSongList(ServiceModel.OperationType actionType = ServiceModel.OperationType.Played)
         {
-            Task.Run(() =>
-            {
-                MediaManager.IsBuffering = true;
-                //Get existed songs id list
-                var exitingIds = SongList.Select(s => s.Sid);
-                //Generate gain song parameter
-                List<Song> songs;
-                if (CurrentChannel != null)
-                {
-                    songs = GetSongListByChannel(CurrentChannel, actionType);
-                }
-                else if (CurrentArtist != null)
-                    songs = SongService.GetSongList(CurrentArtist).Select(s => new Song(s)).ToList();
-                else
-                    songs = new List<Song>();
-                songs = songs.Where(s => !exitingIds.Contains(s.Sid)).ToList();
+            MediaManager.IsBuffering = true;
+            //Get existed songs id list
+            var exitingIds = SongList.Select(s => s.Sid);
+            //Generate gain song parameter
+            Task<List<ServiceModel.Song>> action;
+            if (CurrentChannel != null)
+                action = GetSongListByChannel(CurrentChannel, actionType);
+            else if (CurrentArtist != null)
+                action = SongService.GetSongList(CurrentArtist);
+            else
+                action = Task.Run(() => new List<ServiceModel.Song>());
+            var songs = (await action).Where(s => !exitingIds.Contains(s.Sid)).Select(s => new Song(s)).ToList();
 
-                //Notify song list back to the main thread
-                MainWindow.Dispatcher.InvokeAsync(() => { if (callBack != null) callBack(songs); });
-                SettingHelper.SetSetting(SongListCacheName, songs.SerializeToString(), App.Name);
-                //The url of song maybe expired in 2 hours
-                SettingHelper.SetSetting(SongListExpireCacheName, DateTime.Now.AddHours(2).SerializeToString(), App.Name);
-                MediaManager.IsBuffering = false;
-            });
+            var saveSongs = SettingHelper.SetSettingTask(SongListCacheName, songs.SerializeToString(), App.Name);
+            //The url of song maybe expired in 2 hours
+            var expired = DateTime.Now.AddHours(2).SerializeToString();
+            var saveExpired = SettingHelper.SetSettingTask(SongListExpireCacheName, expired, App.Name);
+            MediaManager.IsBuffering = false;
+            return songs;
         }
 
         /// <summary>
@@ -881,28 +856,35 @@ namespace MusicFm.ViewModel
         /// <param name="channel"></param>
         /// <param name="actionType"></param>
         /// <returns></returns>
-        public List<Song> GetSongListByChannel(Channel channel, ServiceModel.OperationType actionType = ServiceModel.OperationType.Played)
+        public async Task<List<ServiceModel.Song>> GetSongListByChannel(Channel channel,
+            ServiceModel.OperationType actionType = ServiceModel.OperationType.Played)
         {
             var history = HistorySongList.Cast<ServiceModel.Song>().ToList();
             history.Add(CurrentSong);
             var para = new ServiceModel.GainSongParameter(Account.AccountInfo)
                 .HistoryString(history, actionType)
-                .PositionSeconds((int)MediaManager.Position.TotalSeconds)
+                .PositionSeconds((int) MediaManager.Position.TotalSeconds)
                 .CurrentSongID(CurrentSong)
                 .CurrentChennal(channel);
-            return SongService.GetSongList((ServiceModel.GainSongParameter)para).Select(s => new Song(s)).ToList();
+            var task = SongService.GetSongList((ServiceModel.GainSongParameter) para);
+            return await task;
         }
 
         private void ComposeSongService()
         {
-            var catalog = new AssemblyCatalog((typeof(ISongService).Assembly));
+            var catalog = new AssemblyCatalog((typeof (ISongService).Assembly));
             var container = new CompositionContainer(catalog);
             container.ComposeParts(this);
 
             //Set Local Name
             foreach (var servics in AvalibleSongServices)
                 servics.LocalizeName = LocalTextHelper.GetLocText(servics.Name);
+            //Set active song services
+            var serviceName = SettingHelper.GetSetting(SelectedSongServiceCacheName, App.Name);
+            SongService = AvalibleSongServices.FirstOrDefault(s => s.Name == serviceName) ??
+                          AvalibleSongServices.First(s => s is DoubanFm);
         }
+
         #endregion
     }
 }

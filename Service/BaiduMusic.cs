@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -27,7 +26,7 @@ namespace Service
         private readonly Dictionary<string, int> _gotSongList = new Dictionary<string, int>();
         private KeyValuePair<int, int> _artistSongList;
         private readonly WebHeaderCollection _headers;
-        private readonly WebClient _webClient;
+        //private readonly WebClient _webClient;
         private int _getSongsFailed;
 
         protected string BaseUrl;
@@ -46,10 +45,10 @@ namespace Service
             AvaliableAccountTypes = new List<AccountType> {AccountType.Baidu};
 
             _headers = new WebHeaderCollection { { "user-agent", "ttpwin8_1.0.4" } };
-            _webClient = new WebClient {Encoding = Encoding.UTF8};
+            //_webClient = new WebClient {Encoding = Encoding.UTF8};
         }
 
-        public List<Song> GetSongList(GainSongParameter param) 
+        public async Task<List<Song>> GetSongList(GainSongParameter param) 
         {
             var songList = new List<Song>();
             if (_getSongsFailed == 0 && !SongFavoriteOperation(param)) return songList;
@@ -60,7 +59,8 @@ namespace Service
 
             try
             {
-                var result = HttpWebDealer.GetJsonObject(url, _headers, Encoding.UTF8)["result"];
+                var task = HttpWebDealerAsyc.GetJsonObject(url, _headers, Encoding.UTF8);
+                var result = (await task)["result"];
                 var songs = (IEnumerable)result["songlist"];
                 songList.AddRange(from dynamic song in songs
                                   select new Song
@@ -69,7 +69,7 @@ namespace Service
                                       Artist = song["artist"],
                                       Sid = Convert.ToInt32(song["songid"]),
                                   });
-                if (songList.Count < 1) return GetSongList(param);
+                if (songList.Count < 1) return await GetSongList(param);
                 _gotSongList[param.Channel.StrId]++;
                 _getSongsFailed = 0;
 
@@ -85,17 +85,13 @@ namespace Service
             return songList;
         }
 
-        public List<Channel> GetChannels(bool isBasic = true)
+        public async Task<List<Channel>> GetChannels(bool isBasic = true)
         {
+            //if (isBasic)
+            if (_basicChannels == null || _basicChannels.Count < 0)
+                GetBasicChannels();
 
-            if (isBasic)
-            {
-                if (_basicChannels == null || _basicChannels.Count < 0)
-                    GetBasicChannels();
-                return _basicChannels;
-            }
-
-            return _basicChannels;
+            return await Task.Run(() => _basicChannels);
         }
 
         /// <summary>
@@ -112,15 +108,15 @@ namespace Service
             return lrc;
         }
 
-        public bool CompletedSong(SongActionParameter parameter) 
+        public async Task<bool> CompletedSong(SongActionParameter parameter)
         {
-            return true;
+            return await Task.Run(() => true);
         }
 
-        public Account Login(string userName, string password, AccountType type) 
+        public async Task<Account> Login(string userName, string password, AccountType type) 
         {
             Account account = null;
-            if (type != AccountType.Baidu) return account;
+            if (type != AccountType.Baidu) return null;
             const string url = "http://passport.baidu.com/v2/sapi/login";
             var content = BulidContentForLogin(userName, password);
 
@@ -133,12 +129,12 @@ namespace Service
             };
             try
             {
-                var json = HttpWebDealer.GetJsonObject(url, header, Encoding.UTF8);
+                var json =await HttpWebDealerAsyc.GetJsonObject(url, header, Encoding.UTF8);
 
                 //need verify code
                 if (json["needvcode"] == 1)
                 {
-                    //TODO
+                    //TODO: need verify code
                 }
                 else if (json["errno"]==0)
                 {
@@ -164,12 +160,12 @@ namespace Service
             return account;
         }
 
-        public SearchResult Search(string keyword, int count) {
+        public async Task<SearchResult> Search(string keyword, int count) {
             var url = BaseUrl + string.Format("&method=baidu.ting.search.common&query={0}&page_size={1}&page_no=1",
                                               HttpUtility.UrlEncode(keyword), count);
             var result = new SearchResult {Query = keyword};
 
-            var json = HttpWebDealer.GetJsonObject(url, _headers, Encoding.UTF8);
+            var json = await HttpWebDealerAsyc.GetJsonObject(url, _headers, Encoding.UTF8);
             if (json == null) return null;
             result.Query = json["query"];
             result.ResultCount = Convert.ToInt32(json["pages"]["total"]);
@@ -219,17 +215,18 @@ namespace Service
             return result;
         }
 
-        public List<Song> GetSongList(Artist artist) 
+        public async Task<List<Song>> GetSongList(Artist artist) 
         {
             var songList = new List<Song>();
             if (artist == null || artist.Id < 0) return songList;
             if (_artistSongList.Key != artist.Id) _artistSongList = new KeyValuePair<int, int>(artist.Id, 0);
             //Order: 1-time; 2-hot
-            var url = BaseUrl + string.Format("&method=baidu.ting.artist.getSongList&artistid={0}&offset={1}&limits=10&order=2",
-                                              artist.Id, _artistSongList.Value);
+            var order = DateTime.Now.Millisecond%2;
+            var url = BaseUrl + string.Format("&method=baidu.ting.artist.getSongList&artistid={0}&offset={1}&limits=10&order={2}",
+                          artist.Id, _artistSongList.Value, order);
             try
             {
-                var json = HttpWebDealer.GetJsonObject(url, _headers, Encoding.UTF8);
+                var json = await HttpWebDealerAsyc.GetJsonObject(url, _headers, Encoding.UTF8);
                 if (json == null) return null;
                 if (json["error_code"].ToString() != BaiduJsonErrorCode.OK)
                 {

@@ -18,15 +18,16 @@ namespace CommonHelperLibrary.WEB
     public static class SongLyricHelper
     {
         /// <summary>
-        /// Get the path of song lyric
+        /// Get the path of song lyric by async
         /// </summary>
         /// <param name="title">song title</param>
         /// <param name="artist">song artist</param> 
         /// <returns></returns>
-        public static string GetSongLrcPath(string title, string artist)
+        public static async Task<string> GetSongLrcPath(string title, string artist)
         {
             List<string> list;
-            return GetSongLrcPath(title, artist, out list);
+            var t = Task.Run(() => GetSongLrcPath(title, artist, out list));
+            return await t;
         }
 
         /// <summary>

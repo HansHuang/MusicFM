@@ -92,11 +92,6 @@
     <Compile Include="Model\Channel.cs" />
     <Compile Include="Model\SearchResult.cs" />
     <Compile Include="Model\Song.cs" />
-    <Compile Include="Test.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Test.resx</DependentUpon>
-    </Compile>
     <Compile Include="ViewModel\AccountManager.cs" />
     <Compile Include="Controls\ChannelsViewer.xaml.cs">
       <DependentUpon>ChannelsViewer.xaml</DependentUpon>
@@ -170,10 +165,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Test.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Test.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
