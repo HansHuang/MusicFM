@@ -157,7 +157,6 @@ namespace MusicFm.ViewModel
 
         #endregion
 
-        #region Execution for command
         public OfflineManagement(MainViewModel viewModel)
         {
             ViewModel = viewModel;
@@ -169,6 +168,8 @@ namespace MusicFm.ViewModel
             //IsInternetConnected = false;
             ViewModel.DownloadProgress = 100;
         }
+
+        #region Execution for command
 
         public void StartOfflinePlayer()
         {

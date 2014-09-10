@@ -175,7 +175,7 @@
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="0" Margin="0,0,10,0" HorizontalAlignment="Right">
                         <cc:ImageButton DockPanel.Dock="Right" Margin="10,0,0,0"
-                                        Command="{Binding ViewModel.OpenSettingWindowCmd}">
+                                        Command="{Binding ViewModel.OpenAboutWdCmd}">
                             <cc:ImageButton.Image>
                                 <Image Source="{StaticResource About24}" Height="18" Width="18"/>
                             </cc:ImageButton.Image>

@@ -21,7 +21,7 @@ using ServiceModel = Service.Model;
 namespace MusicFm.ViewModel
 {
     /// <summary>
-    /// Author : Hans Huang
+    /// Author : Hans Huang @ Jungo Studio
     /// Date : 2013-10-19
     /// Class : MainViewModel
     /// Discription : ViewModel of MainWindow
@@ -351,7 +351,7 @@ namespace MusicFm.ViewModel
 
         #endregion
 
-        #region Delegate Commands
+        #region Relay Commands
 
         #region RelayCommand StartPlayerCmd
 
@@ -365,9 +365,7 @@ namespace MusicFm.ViewModel
         private async Task StartPlayerExecute()
         {
             if (OfflineMgt.IsInternetConnected)
-            {
                 await StartOnlinePlayer();
-            }
             else OfflineMgt.StartOfflinePlayer();
         }
 
@@ -423,14 +421,13 @@ namespace MusicFm.ViewModel
             if (SongList.Count < 1) play(await GetSongList());
             else if (SongList.Count < 3)
             {
-                //Play
                 play(null);
                 //Task to get song list
                 (await GetSongList()).ForEach(s => SongList.Add(s));
             }
             else play(null);//Directlly play next
 
-            if (submit != null) await submit;
+            //if (submit != null) await submit;
         }
 
         #endregion
@@ -580,6 +577,24 @@ namespace MusicFm.ViewModel
         }
         #endregion
 
+        #region RelayCommand OpenAboutWdCmd
+
+        private RelayCommand _openAboutWdCmd;
+
+        public ICommand OpenAboutWdCmd
+        {
+            get { return _openAboutWdCmd ?? (_openAboutWdCmd = new RelayCommand(s => OpenAboutWdExecute())); }
+        }
+
+        private void OpenAboutWdExecute()
+        {
+            if (AboutWindow.IsOpened) return;
+            var wd = new AboutWindow(this) { Owner = MainWindow };
+            wd.Show();
+        }
+
+        #endregion
+
         #region RelayCommand ToggleDesktopLyricCmd
 
         private RelayCommand _toggleDesktopLyricCmd;
@@ -649,8 +664,8 @@ namespace MusicFm.ViewModel
 
             MediaManager.IsBuffering = true;
             SearchResult = null;
-            var search = SongService.Search(keyword, SearchOffset);
-            SearchResult = new SearchResult(await search);
+            var result = await SongService.Search(keyword, SearchOffset);
+            SearchResult = new SearchResult(result);
             MediaManager.IsBuffering = false;
         }
 
@@ -668,9 +683,9 @@ namespace MusicFm.ViewModel
         private void AddSongExecute(Song song)
         {
             if (song == null || SongList == null) return;
-            IsShowPlayerDetail = false;
             SongList.Insert(0, song);
             NextSongCmd.Execute(false);
+            IsShowPlayerDetail = false;
         }
 
         #endregion
@@ -713,7 +728,6 @@ namespace MusicFm.ViewModel
         private async void PlayArtistExecute(ServiceModel.Artist artist)
         {
             if (artist == null || string.IsNullOrWhiteSpace(artist.Name)) return;
-            IsShowPlayerDetail = false;
             switch (SongService.Name)
             {
                 case "DoubanFm":
@@ -730,6 +744,7 @@ namespace MusicFm.ViewModel
                     NextSongCmd.Execute(false);
                     break;
             }
+            IsShowPlayerDetail = false;
         }
 
         #endregion

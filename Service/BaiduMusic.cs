@@ -160,58 +160,13 @@ namespace Service
             return account;
         }
 
-        public async Task<SearchResult> Search(string keyword, int count) {
+        public async Task<SearchResult> Search(string keyword, int count) 
+        {
             var url = BaseUrl + string.Format("&method=baidu.ting.search.common&query={0}&page_size={1}&page_no=1",
                                               HttpUtility.UrlEncode(keyword), count);
-            var result = new SearchResult {Query = keyword};
-
             var json = await HttpWebDealerAsyc.GetJsonObject(url, _headers, Encoding.UTF8);
             if (json == null) return null;
-            result.Query = json["query"];
-            result.ResultCount = Convert.ToInt32(json["pages"]["total"]);
-            result.CurrentNr = Convert.ToInt32(json["pages"]["rn_num"]);
-            if (count > result.CurrentNr)
-                result.ResultCount = result.CurrentNr;
-            if (json.ContainsKey("artist"))
-            {
-                try
-                {
-                    result.Artist = new Artist
-                    {
-                        Id = Convert.ToInt32(json["artist"]["artist_id"]),
-                        Uid = json["artist"]["ting_uid"],
-                        Name = json["artist"]["name"],
-                        Region = json["artist"]["country"],
-                        AlbumCount = Convert.ToInt32(json["artist"]["albums_total"]),
-                        SongCount = Convert.ToInt32(json["artist"]["songs_total"]),
-                        AvatarUrl = json["artist"]["avatar"]["big"],
-                        AvatarThumb = json["artist"]["avatar"]["small"],
-                    };
-                }
-                catch (Exception e)
-                {
-                    Logger.Exception(e);
-                }
-            }
-            if (json.ContainsKey("song_list"))
-            {
-                try
-                {
-                    result.SongList.AddRange(from dynamic song in (IEnumerable)json["song_list"]
-                                             select new Song
-                                             {
-                                                 Title = song["title"].Replace("<em>", "").Replace("</em>", ""),
-                                                 Artist = song["author"].Replace("<em>", "").Replace("</em>", ""),
-                                                 Sid = Convert.ToInt32(song["song_id"]),
-                                             });
-                    result.SongList.ForEach(GetSongInfo);
-                    result.SongList = result.SongList.Where(s => !string.IsNullOrWhiteSpace(s.Url)).ToList();
-                }
-                catch (Exception e)
-                {
-                    Logger.Exception(e);
-                }
-            }
+            var result = await Task.Run(() => GetSearchResultData(json, count));
             return result;
         }
 
@@ -255,6 +210,59 @@ namespace Service
 
 
             return songList;
+        }
+
+        public SearchResult GetSearchResultData(dynamic json, int count) 
+        {
+            var result = new SearchResult 
+            {
+                Query = json["query"],
+                ResultCount = Convert.ToInt32(json["pages"]["total"]),
+                CurrentNr = Convert.ToInt32(json["pages"]["rn_num"])
+            };
+            if (count > result.CurrentNr)
+                result.ResultCount = result.CurrentNr;
+            if (json.ContainsKey("artist"))
+            {
+                try
+                {
+                    result.Artist = new Artist
+                    {
+                        Id = Convert.ToInt32(json["artist"]["artist_id"]),
+                        Uid = json["artist"]["ting_uid"],
+                        Name = json["artist"]["name"],
+                        Region = json["artist"]["country"],
+                        AlbumCount = Convert.ToInt32(json["artist"]["albums_total"]),
+                        SongCount = Convert.ToInt32(json["artist"]["songs_total"]),
+                        AvatarUrl = json["artist"]["avatar"]["big"],
+                        AvatarThumb = json["artist"]["avatar"]["small"],
+                    };
+                }
+                catch (Exception e)
+                {
+                    Logger.Exception(e);
+                }
+            }
+            if (json.ContainsKey("song_list"))
+            {
+                try
+                {
+                    result.SongList.AddRange(from dynamic song in (IEnumerable)json["song_list"]
+                                             select new Song
+                                             {
+                                                 Title = song["title"].Replace("<em>", "").Replace("</em>", ""),
+                                                 Artist = song["author"].Replace("<em>", "").Replace("</em>", ""),
+                                                 Sid = Convert.ToInt32(song["song_id"]),
+                                             });
+                    result.SongList.ForEach(GetSongInfo);
+                    result.SongList = result.SongList.Where(s => !string.IsNullOrWhiteSpace(s.Url)).ToList();
+                }
+                catch (Exception e)
+                {
+                    Logger.Exception(e);
+                }
+            }
+            return result;
         }
 
         private void GetBasicChannels()

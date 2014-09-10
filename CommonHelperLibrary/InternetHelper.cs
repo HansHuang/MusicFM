@@ -17,9 +17,9 @@ namespace CommonHelperLibrary
 
         public static bool IsConnected
         {
-            get
+            get 
             {
-                var dwFlag = new int();
+                var dwFlag = 0;
                 return InternetGetConnectedState(ref dwFlag, 0);
             }
         }

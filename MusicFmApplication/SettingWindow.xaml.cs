@@ -41,8 +41,10 @@ namespace MusicFm
         public SettingWindow(MainViewModel viewModel)
         {
             ViewModel = viewModel;
-            var rdm = new Random();
-            BackgroundColor = Color.FromArgb(215, (byte)rdm.Next(0, 150), (byte)rdm.Next(0, 150), (byte)rdm.Next(0, 150));
+
+            var color = viewModel.MediaManager.SongPictureColor;
+            color.A = 200;
+            BackgroundColor = color;
 
             InitializeComponent();
 

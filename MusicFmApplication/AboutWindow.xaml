@@ -1,0 +1,43 @@
+﻿<metro:MetroWindow x:Class="MusicFm.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                   xmlns:lex="http://schemas.root-project.org/xaml/presentation"
+                   xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
+                   xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                   xmlns:md="clr-namespace:MusicFm.Model"
+                   Icon="{DynamicResource About64}" ShowTitleBar="False"
+                   ResizeMode="CanMinimize" AllowsTransparency="True"
+                   Title="{lex:LocText Localization:English:About}" 
+                   Background="{Binding ElementName=Root, Path=BackgroundColor}"
+                   Height="480"  Width="320" x:Name="Root"
+                   DataContext="{Binding Source={RelativeSource Self}}">
+    <metro:MetroWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Teal.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ImageResource.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/ControlStyleResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </metro:MetroWindow.Resources>
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value="WhiteSmoke"/>
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="{lex:LocText Localization:English:MusicFm}" HorizontalAlignment="Center" FontSize="20" Margin="0,10,0,0"/>
+        <TextBlock Grid.Row="1" Text="{Binding ElementName=Root, Path=AboutTxt}" />
+    </Grid>
+</metro:MetroWindow>

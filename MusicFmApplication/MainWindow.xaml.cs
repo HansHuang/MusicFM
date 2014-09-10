@@ -133,11 +133,6 @@ namespace MusicFm
 
             StateChanged += MainWindowStateChanged;
             ViewModel = MainViewModel.GetInstance(this);
-            Loaded += MainWindowLoaded;
-        }
-
-        private void MainWindowLoaded(object sender, RoutedEventArgs e)
-        {
             ViewModel.StartPlayerCmd.Execute(null);
         }
 

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using CustomControlResources;
 using MusicFm.ViewModel;
 using Service.Model;
 
@@ -43,6 +44,23 @@ namespace MusicFm.Controls
             get { return (Artist)GetValue(ArtistProperty); }
             set { SetValue(ArtistProperty, value); }
         } 
+        #endregion
+
+        #region RelayCommand ClosePlayingArtistCmd
+
+        private RelayCommand _closePlayingArtistCmd;
+
+        public ICommand ClosePlayingArtistCmd
+        {
+            get { return _closePlayingArtistCmd ?? (_closePlayingArtistCmd = new RelayCommand(s => ClosePlayingArtistExecute())); }
+        }
+
+        private void ClosePlayingArtistExecute()
+        {
+            if (ViewModel.Channels == null) return;
+            ViewModel.SetChannelCmd.Execute(ViewModel.Channels.FirstOrDefault());
+        }
+
         #endregion
 
         public ArtistViewer()

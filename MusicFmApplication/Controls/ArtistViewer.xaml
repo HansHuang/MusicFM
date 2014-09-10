@@ -16,7 +16,7 @@
                 <!--Converter Dictionary-->
                 <ResourceDictionary>
                     <cvt:NullToVisibility x:Key="Null2Vsby"/>
-                    <cvt:InverseEqualiencyToVisibilityConverter x:Key="IvsEqu2Vbly"/>
+                    <cvt:InverseNullToVisibilityConveter x:Key="IvsNull2Vsby"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -51,10 +51,16 @@
         </StackPanel>
         <cc:ImageButton Grid.Column="2" 
                         Command="{Binding ElementName=Root, Path=ViewModel.PlayArtistCmd}"
-                        CommandParameter="{Binding }">
+                        CommandParameter="{Binding }"
+                        Visibility="{Binding ElementName=Root, Path=ViewModel.CurrentArtist, Converter={StaticResource IvsNull2Vsby}}">
             <Grid Background="{StaticResource AccentColorBrush}">
                 <cc:ColorlizeImage Image="{StaticResource Play32}" Width="16" Height="16" Margin="3,0" VerticalAlignment="Center" Color="WhiteSmoke"/>
             </Grid>
+        </cc:ImageButton>
+        <cc:ImageButton HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="2" Width="17" Height="17" 
+                        Command="{Binding ElementName=Root, Path=ClosePlayingArtistCmd}"
+                        Visibility="{Binding ElementName=Root, Path=ViewModel.CurrentArtist, Converter={StaticResource Null2Vsby}}">
+            <cc:ColorlizeImage Image="{StaticResource Close20}" Width="17" Height="17"/>
         </cc:ImageButton>
     </Grid>
 </UserControl>
