@@ -12,12 +12,12 @@ namespace CustomControlResources.Converter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (values == null || values.Length < 1 || values[0] == null) return Visibility.Collapsed;
+            if (values == null || values.Length < 1) return Visibility.Collapsed;
             bool isEqual;
-            if (values.Length == 1 && parameter != null)
+            if (values.Length == 1 && parameter != null && values[0] != null)
                 isEqual = values[0].ToString().Equals(parameter);
             else
-                isEqual = values[0].Equals(values[1]);
+                isEqual = Equals(values[0],values[1]);
             return isEqual ? Visibility.Collapsed : Visibility.Visible;
         }
 

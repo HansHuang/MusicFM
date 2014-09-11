@@ -15,8 +15,8 @@
                 <ResourceDictionary Source="pack://application:,,,/CustomControlResources;component/Style/ScrollViewer.xaml"/>
                 <!--Converter Dictionary-->
                 <ResourceDictionary>
-                    <cvt:NullToVisibility x:Key="Null2Vsby"/>
-                    <cvt:InverseNullToVisibilityConveter x:Key="IvsNull2Vsby"/>
+                    <cvt:EqualiencyToVisibilityConverter x:Key="Equ2Vsby"/>
+                    <cvt:InverseEqualiencyToVisibilityConverter x:Key="IvsEqu2Vsby"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -51,15 +51,25 @@
         </StackPanel>
         <cc:ImageButton Grid.Column="2" 
                         Command="{Binding ElementName=Root, Path=ViewModel.PlayArtistCmd}"
-                        CommandParameter="{Binding }"
-                        Visibility="{Binding ElementName=Root, Path=ViewModel.CurrentArtist, Converter={StaticResource IvsNull2Vsby}}">
+                        CommandParameter="{Binding }">
+            <cc:ImageButton.Visibility>
+                <MultiBinding Converter="{StaticResource IvsEqu2Vsby}">
+                    <Binding ElementName="Root" Path="ViewModel.CurrentArtist"/>
+                    <Binding />
+                </MultiBinding>
+            </cc:ImageButton.Visibility>
             <Grid Background="{StaticResource AccentColorBrush}">
                 <cc:ColorlizeImage Image="{StaticResource Play32}" Width="16" Height="16" Margin="3,0" VerticalAlignment="Center" Color="WhiteSmoke"/>
             </Grid>
         </cc:ImageButton>
         <cc:ImageButton HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Column="2" Width="17" Height="17" 
-                        Command="{Binding ElementName=Root, Path=ClosePlayingArtistCmd}"
-                        Visibility="{Binding ElementName=Root, Path=ViewModel.CurrentArtist, Converter={StaticResource Null2Vsby}}">
+                        Command="{Binding ElementName=Root, Path=ClosePlayingArtistCmd}">
+            <cc:ImageButton.Visibility>
+                <MultiBinding Converter="{StaticResource Equ2Vsby}">
+                    <Binding ElementName="Root" Path="ViewModel.CurrentArtist"/>
+                    <Binding />
+                </MultiBinding>
+            </cc:ImageButton.Visibility>
             <cc:ColorlizeImage Image="{StaticResource Close20}" Width="17" Height="17"/>
         </cc:ImageButton>
     </Grid>
