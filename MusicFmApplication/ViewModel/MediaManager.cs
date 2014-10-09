@@ -319,6 +319,8 @@ namespace MusicFm.ViewModel
             const double step = .05;
             var direction = isUp.GetValueOrDefault() ? 1 : -1;
             var change = step * direction;
+            //decrease the change when the volume already quite low
+            if (change < 0 && Volume < 0.3) change *= 0.2;
 
             Volume += change;
 

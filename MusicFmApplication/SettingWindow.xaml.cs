@@ -27,6 +27,8 @@ namespace MusicFm
 
         public MainViewModel ViewModel { get; set; }
 
+        protected static double WindowOpacity = .68;
+
         #region BackgroundColor(DependencyProperty)
         public static readonly DependencyProperty BackgroundColorProperty =
             DependencyProperty.Register("BackgroundColor", typeof(Color), typeof(SettingWindow), new PropertyMetadata(default(Color)));
@@ -41,13 +43,7 @@ namespace MusicFm
         public SettingWindow(MainViewModel viewModel)
         {
             ViewModel = viewModel;
-
-            var color = viewModel.MediaManager.SongPictureColor;
-            color.A = 200;
-            BackgroundColor = color;
-
             InitializeComponent();
-
             IsOpened = true;
             Closed += (s, e) => { IsOpened = false; };
 
@@ -56,6 +52,11 @@ namespace MusicFm
                 DwmHelper = new DwmHelper(this);
                 DwmHelper.AeroGlassEffectChanged += DwmHelperAeroGlassEffectChanged;
             }
+            else WindowOpacity = .9;
+
+            var color = viewModel.MediaManager.SongPictureColor;
+            color.A = (byte)(WindowOpacity * 256);
+            BackgroundColor = color;
         }
 
         #region Aero Glass Effect

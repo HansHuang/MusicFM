@@ -34,6 +34,8 @@ namespace CustomControlResources
 
         #endregion
 
+
+
         #region ImageHover
 
         public static readonly DependencyProperty ImageHoverProperty =

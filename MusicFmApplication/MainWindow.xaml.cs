@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using CommonHelperLibrary.Dwm;
 using MahApps.Metro.Controls;
-using MusicFm.Helper;
 using MusicFm.Helper;
 using MusicFm.ViewModel;
 using Forms=System.Windows.Forms;

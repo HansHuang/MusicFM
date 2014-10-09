@@ -29,7 +29,7 @@ namespace CommonHelperLibrary
                 new BinaryFormatter().Serialize(stream, graph);
                 buf = stream.ToArray();
             }
-            catch ( Exception e) {
+            catch (Exception) {
                 buf = new byte[0];
             }
             finally
