@@ -21,8 +21,13 @@ namespace MusicFm
     /// <summary>
     /// Interaction logic for SettingWindow.xaml
     /// </summary>
+    [TemplatePart(Name = PartTitleBarBackground, Type = typeof(Rectangle))]
+    [TemplatePart(Name = TitleTextbolck, Type = typeof(TextBlock))]
     public partial class SettingWindow : MetroWindow 
     {
+        private const string PartTitleBarBackground = "PART_WindowTitleBackground";
+        private const string TitleTextbolck = "WindowTitleTextBlock";
+
         public static bool IsOpened = false;
 
         public MainViewModel ViewModel { get; set; }
@@ -58,6 +63,17 @@ namespace MusicFm
             color.A = (byte)(WindowOpacity * 256);
             BackgroundColor = color;
         }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            var titleBarBg = GetTemplateChild(PartTitleBarBackground) as Rectangle;
+            if (titleBarBg != null) titleBarBg.Opacity = .02;
+
+            var titleTb = GetTemplateChild(TitleTextbolck) as TextBlock;
+            if (titleTb != null) titleTb.FontWeight = FontWeights.ExtraBold;
+        } 
 
         #region Aero Glass Effect
         protected DwmHelper DwmHelper;

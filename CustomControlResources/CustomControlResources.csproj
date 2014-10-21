@@ -61,7 +61,11 @@
   <ItemGroup>
     <Compile Include="AreoGlassEffect.cs" />
     <Compile Include="AsyncProperty.cs" />
+    <Compile Include="BindingProxy.cs" />
     <Compile Include="BooleanClass.cs" />
+    <Compile Include="CarouselPage.xaml.cs">
+      <DependentUpon>CarouselPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ColorlizeImage.xaml.cs">
       <DependentUpon>ColorlizeImage.xaml</DependentUpon>
     </Compile>
@@ -256,6 +260,10 @@
     <Resource Include="Images\WeatherImages\30small\night\n53.png" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="CarouselPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ColorlizeImage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

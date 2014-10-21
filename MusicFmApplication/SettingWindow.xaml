@@ -6,7 +6,7 @@
                    xmlns:cc="clr-namespace:CustomControlResources;assembly=CustomControlResources"
                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
                    xmlns:md="clr-namespace:MusicFm.Model"
-                   Icon="{DynamicResource Setting32}" ShowTitleBar="False"
+                   Icon="{DynamicResource Setting32}" ShowTitleBar="True" ShowIconOnTitleBar="False"
                    ResizeMode="CanMinimize" AllowsTransparency="True"
                    Title="{lex:LocText Localization:English:Setting}" 
                    Height="480"  Width="320" x:Name="Root"
@@ -32,7 +32,7 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </metro:MetroWindow.Resources>
-    <Grid DataContext="{Binding ElementName=Root}" Margin="5,20,10,5">
+    <Grid DataContext="{Binding ElementName=Root}" Margin="5,0,10,5">
         <Grid.Resources>
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="WhiteSmoke"/>
@@ -63,7 +63,7 @@
                 </Setter>
             </Style>
         </Grid.Resources>
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" Visibility="Collapsed">
             <GroupBox Header="General Setting" Margin="0 5">
                 <StackPanel Orientation="Vertical">
                     <StackPanel.Resources>
@@ -175,5 +175,64 @@
                 </Grid>
             </GroupBox>
         </StackPanel>
+        <cc:CarouselPage x:Name="CarouselPage">
+            <cc:CarouselPage.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                        <ResourceDictionary>
+                            <cc:BindingProxy x:Key="Proxy" Data="{Binding ElementName=CarouselPage}"/>
+                            <Style x:Key="BackBtn" TargetType="Button" BasedOn="{StaticResource MetroCircleButtonStyle}">
+                                <Style.Resources>
+                                    <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                                </Style.Resources>
+                                <Setter Property="Width" Value="40"/>
+                                <Setter Property="Height" Value="40"/>
+                                <Setter Property="Command" Value="{Binding Source={StaticResource Proxy}, Path=Data.NavegateCmd}"/>
+                                <Setter Property="CommandParameter" Value="0"/>
+                                <Setter Property="Foreground" Value="WhiteSmoke"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <Rectangle Width="16" Height="12">
+                                            <Rectangle.Fill>
+                                                <VisualBrush Stretch="Fill">
+                                                    <VisualBrush.Visual>
+                                                        <Canvas Width="48" Height="48" Clip="F1 M 0,0L 48,0L 48,48L 0,48L 0,0" UseLayoutRounding="False" >
+                                                            <Path Width="25" Height="18" Canvas.Left="11" Canvas.Top="15" Stretch="Fill" Fill="WhiteSmoke" 
+                                                  Data="F1 M 36,22L 36,26L 19.75,26L 27,33L 20.5,33L 11,24L 20.5,15L 27,15L 19.75,22L 36,22 Z " />
+                                                        </Canvas>
+                                                    </VisualBrush.Visual>
+                                                </VisualBrush>
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ResourceDictionary>
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </cc:CarouselPage.Resources>
+            <cc:CarouselPage.Pages>
+                <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource Proxy}}">
+                    <Button Content="General Setting" Width="180" Margin="15"
+                            Command="{Binding Path=Data.NavegateCmd}" CommandParameter="1"/>
+                    <Button Content="UI Setting" Width="180" Margin="15"
+                            Command="{Binding Path=Data.NavegateCmd}" CommandParameter="2"/>
+                    <Button Content="Hotkey Setting" Width="180" Margin="15"
+                            Command="{Binding Path=Data.NavegateCmd}" CommandParameter="3"/>
+                </StackPanel>
+                <StackPanel DataContext="{Binding Source={StaticResource Proxy}}">
+                    <Button Style="{StaticResource BackBtn}"/>
+                </StackPanel>
+                <StackPanel>
+                    
+                </StackPanel>
+                <StackPanel>
+                    
+                </StackPanel>
+            </cc:CarouselPage.Pages>
+        </cc:CarouselPage>
     </Grid>
 </metro:MetroWindow>
