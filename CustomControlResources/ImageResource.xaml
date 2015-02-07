@@ -30,5 +30,4 @@
     <ImageSource x:Key="Home24">Images/203.24.png</ImageSource>
     <ImageSource x:Key="Music48">Images/Music48.png</ImageSource>
     <ImageSource x:Key="CloudDownload32">Images/176.32.png</ImageSource>
-    <ImageSource x:Key="Cover256">Images/Cover256.png</ImageSource>
 </ResourceDictionary>

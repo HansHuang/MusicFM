@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows;
 using CommonHelperLibrary;
 using CommonHelperLibrary.WEB;
 
@@ -57,7 +58,7 @@ namespace MusicFm.ViewModel
             {
                 //Get Weather cache from file system
                 var weatherInSetting = SettingHelper.GetSetting(CacheName, App.Name).Deserialize<Weather>();
-                ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     WeatherData = weatherInSetting;
                 });
@@ -65,7 +66,7 @@ namespace MusicFm.ViewModel
                 if (weather.LifeIndexes != null && weather.LifeIndexes.Count > 0 &&
                     !(weather.LifeIndexes is ObservableCollection<LifeIndex>))
                     weather.LifeIndexes = new ObservableCollection<LifeIndex>(weather.LifeIndexes);
-                ViewModel.MainWindow.Dispatcher.InvokeAsync(() =>
+                Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     WeatherData = weather;
                 });

@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CommonHelperLibrary;
+using MusicFm.ViewModel;
+using Service;
 
 namespace MusicFm
 {
@@ -17,7 +22,7 @@ namespace MusicFm
     /// </summary>
     public partial class App : Application
     {
-
+        public static MainViewModel ViewModel { get; private set; }
         public const string Name = "MusicFM";
         public static LoggerHelper Log { get; private set; }
 
@@ -52,6 +57,16 @@ namespace MusicFm
                 };
 
             InitializeComponent();
+
+            ViewModel =  MainViewModel.GetInstance(Current.MainWindow);
+            ComposeIoc();
+        }
+
+        private void ComposeIoc()
+        {
+            var catalog = new DirectoryCatalog(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            var container = new CompositionContainer(catalog);
+            container.ComposeParts(ViewModel);
         }
     }
 }

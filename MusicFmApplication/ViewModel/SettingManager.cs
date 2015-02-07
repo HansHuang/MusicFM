@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
 using CommonHelperLibrary;
@@ -21,6 +16,7 @@ namespace MusicFm.ViewModel
         private const string BgTypeCacheName = "BackgroundType";
         private const string EnGlobleHotkeyCacheName = "EnableGlobleHotkey";
         private const string ChannelOfflieSizeName = "ChannelOfflieSize";
+        private const string CanAdjustSysVlmCacheName = "CanAdjustSystemVolume";
         #endregion
 
         #region NotifyProperties
@@ -57,11 +53,20 @@ namespace MusicFm.ViewModel
 
         public bool? CanAdjustSystemVolume
         {
-            get { return _canAdjustSystemVolume ?? (_canAdjustSystemVolume = true); }
+            get
+            {
+                if (_canAdjustSystemVolume != null) return _canAdjustSystemVolume;
+                var str = SettingHelper.GetSetting(CanAdjustSysVlmCacheName, App.Name);
+                bool result;
+                if (!bool.TryParse(str, out result)) result = true;
+                _canAdjustSystemVolume = result;
+                return _canAdjustSystemVolume;
+            }
             set
             {
-                if (_canAdjustSystemVolume.Equals(value)) return;
+                if (_canAdjustSystemVolume != null && _canAdjustSystemVolume.Equals(value)) return;
                 _canAdjustSystemVolume = value;
+                SettingHelper.SetSetting(CanAdjustSysVlmCacheName, value + "", App.Name);
                 RaisePropertyChanged("CanAdjustSystemVolume");
             }
         }
@@ -103,11 +108,9 @@ namespace MusicFm.ViewModel
         {
             get
             {
-                if (_enableGlobleHotkey == null)
-                {
-                    bool enable;
-                    _enableGlobleHotkey = !bool.TryParse(SettingHelper.GetSetting(EnGlobleHotkeyCacheName, App.Name), out enable) || enable;
-                }
+                if (_enableGlobleHotkey != null) return _enableGlobleHotkey;
+                bool enable;
+                _enableGlobleHotkey = !bool.TryParse(SettingHelper.GetSetting(EnGlobleHotkeyCacheName, App.Name), out enable) || enable;
                 return _enableGlobleHotkey;
             }
             set
@@ -171,7 +174,6 @@ namespace MusicFm.ViewModel
         public SettingManager(MainViewModel viewModel)
         {
             ViewModel = viewModel;
-
         }
 
     }

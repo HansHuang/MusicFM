@@ -70,6 +70,10 @@
     <Compile Include="EnumerableHelper.cs" />
     <Compile Include="EnumHelper.cs" />
     <Compile Include="FileSystemHelper.cs" />
+    <Compile Include="Hotkey\HotKey.cs" />
+    <Compile Include="Hotkey\HotKeyAlreadyRegisteredException.cs" />
+    <Compile Include="Hotkey\HotKeyEventArgs.cs" />
+    <Compile Include="Hotkey\HotKeyHost.cs" />
     <Compile Include="WEB\HttpWebDealerAsyc.cs" />
     <Compile Include="IeCookieHelper.cs" />
     <Compile Include="Dwm\NativeMethods.cs" />

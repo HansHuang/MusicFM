@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using CommonHelperLibrary;
@@ -32,7 +33,7 @@ namespace MusicFm.ViewModel
 
         private static MainViewModel _instance;
 
-        public MainWindow MainWindow { get; private set; }
+        public Window MainWindow { get; private set; }
 
         private const string SongListCacheName = "SongList";
         private const string SongListExpireCacheName = "SongListExpire";
@@ -45,8 +46,6 @@ namespace MusicFm.ViewModel
         public ObservableCollection<ISongService> AvalibleSongServices { get; set; }
 
         protected Dictionary<ISongService, List<Channel>> ServiceChannelsCache = new Dictionary<ISongService, List<Channel>>();
-
-        public readonly TaskScheduler ContextTaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
         #endregion
 
@@ -61,8 +60,7 @@ namespace MusicFm.ViewModel
             if (SongServiceChanged == null) return;
             if (CurrentChannel == null) SongServiceChanged();
             else
-                Task.Factory.StartNew(() => SongServiceChanged(), new CancellationToken(), TaskCreationOptions.None,
-                                      ContextTaskScheduler);
+                Application.Current.Dispatcher.BeginInvoke(SongServiceChanged);
         }
 
         #endregion
@@ -364,6 +362,8 @@ namespace MusicFm.ViewModel
 
         private async Task StartPlayerExecute()
         {
+            if (SongService == null) InitialSongService();
+
             if (OfflineMgt.IsInternetConnected)
                 await StartOnlinePlayer();
             else OfflineMgt.StartOfflinePlayer();
@@ -756,19 +756,20 @@ namespace MusicFm.ViewModel
         /// Please call the GetInstance method
         /// </summary>
         /// <param name="window"></param>
-        private MainViewModel(MainWindow window)
+        private MainViewModel(Window window)
         {
             MainWindow = window;
-            ComposeSongService();
+
             SongServiceChanged += HandleSongServiceChangd;
             MediaManager = new MediaManager(this);
             Account = new AccountManager(this);
             WeatherMgr = new WeatherManager(this);
             Setting = new SettingManager(this);
             OfflineMgt = new OfflineManagement(this);
+
         }
 
-        public static MainViewModel GetInstance(MainWindow window = null)
+        public static MainViewModel GetInstance(Window window = null)
         {
             return _instance ?? (_instance = new MainViewModel(window));
         }
@@ -885,12 +886,8 @@ namespace MusicFm.ViewModel
             return await task;
         }
 
-        private void ComposeSongService()
+        public void InitialSongService()
         {
-            var catalog = new AssemblyCatalog((typeof (ISongService).Assembly));
-            var container = new CompositionContainer(catalog);
-            container.ComposeParts(this);
-
             //Set Local Name
             foreach (var servics in AvalibleSongServices)
                 servics.LocalizeName = LocalTextHelper.GetLocText(servics.Name);

@@ -110,6 +110,22 @@ namespace MusicFm
         public MainWindow()
         {
             InitializeComponent();
+
+            SetNotifyIcon();
+
+            //SizeChanged += (s, e) =>
+            //{
+            //    if (DwmHelper != null && DwmHelper.IsAeroGlassEffectEnabled)
+            //        DwmHelper.EnableBlurBehindWindow();
+            //};
+
+            Loaded += MainWindowLoaded;
+            StateChanged += MainWindowStateChanged;
+            ViewModel = App.ViewModel;
+        }
+
+        private void MainWindowLoaded(object sender, RoutedEventArgs e)
+        {
             //set the initial color
             var rdm = new Random();
             BackgroundColor = Color.FromArgb(160, (byte)rdm.Next(150, 255), (byte)rdm.Next(150, 255), (byte)rdm.Next(150, 255));
@@ -121,16 +137,6 @@ namespace MusicFm
             }
             else WindowOpacity = .9;
 
-            SetNotifyIcon();
-
-            //SizeChanged += (s, e) =>
-            //{
-            //    if (DwmHelper != null && DwmHelper.IsAeroGlassEffectEnabled)
-            //        DwmHelper.EnableBlurBehindWindow();
-            //};
-
-            StateChanged += MainWindowStateChanged;
-            ViewModel = MainViewModel.GetInstance(this);
             ViewModel.StartPlayerCmd.Execute(null);
         }
 

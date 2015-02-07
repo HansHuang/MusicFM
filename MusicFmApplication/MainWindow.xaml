@@ -15,7 +15,7 @@
                    TitleForeground="WhiteSmoke"
                    Title="{lex:LocText Localization:English:MusicFm}" 
                    ResizeMode="CanMinimize" AllowsTransparency="True"
-                   Height="480"  Width="320">
+                   Height="480" Width="320">
     <metro:MetroWindow.Background>
         <SolidColorBrush Color="{Binding ElementName=Root, Path=BackgroundColor}"/>
     </metro:MetroWindow.Background>
@@ -459,11 +459,11 @@
             </DockPanel>
             <!--2 Song Photo & Lyric-->
             <Grid Grid.Row="1" VerticalAlignment="Center">
-                <Image VerticalAlignment="Center" HorizontalAlignment="Center" Width="240" Height="240"
+                <Image VerticalAlignment="Top" HorizontalAlignment="Center" Width="240" Height="240"
                        Visibility="{Binding MediaManager.SongPicture, Converter={StaticResource IvsNull2Vsby}}"
-                       Source="{StaticResource Cover256}" Opacity=".9">
-                    <!--<Image.RenderTransform>
-                        <RotateTransform />
+                       Source="{StaticResource Vinyl256}" Opacity=".9">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="0" />
                     </Image.RenderTransform>
                     <Image.Style>
                         <Style TargetType="Image">
@@ -480,10 +480,13 @@
                                     <DataTrigger.EnterActions>
                                         <PauseStoryboard BeginStoryboardName="PictureRotateStroybard"/>
                                     </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <ResumeStoryboard BeginStoryboardName="PictureRotateStroybard"/>
+                                    </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Image.Style>-->
+                    </Image.Style>
                 </Image>
                 <Grid Visibility="{Binding Path=CurrentSong, Converter={StaticResource Null2Vsby}}">
                     <!--Song Album Picture-->
@@ -500,14 +503,14 @@
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="15" Duration="0:0:0.01"/>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="15" Duration="0:0:0.04"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.EnterActions>
                                         <DataTrigger.ExitActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="0" Duration="0:0:0.01"/>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="0" Duration="0:0:0.04"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.ExitActions>

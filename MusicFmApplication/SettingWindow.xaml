@@ -63,118 +63,6 @@
                 </Setter>
             </Style>
         </Grid.Resources>
-        <StackPanel Orientation="Vertical" Visibility="Collapsed">
-            <GroupBox Header="General Setting" Margin="0 5">
-                <StackPanel Orientation="Vertical">
-                    <StackPanel.Resources>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Orientation" Value="Horizontal"/>
-                        </Style>
-                        <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
-                            <Setter Property="Height" Value="20"/>
-                            <Setter Property="Width" Value="20"/>
-                        </Style>
-                        <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
-                            <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
-                            <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <StackPanel>
-                        <TextBlock Text="Language" Margin="0 0 10 0"/>
-                        <ComboBox Width="200" SelectedIndex="1">
-                            <ComboBoxItem Content="English"/>
-                            <ComboBoxItem Content="Chinese"/>
-                        </ComboBox>
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="Enable control system volumn" VerticalAlignment="Center"/>
-                        <metro:ToggleSwitch IsChecked="True" />
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="Song download folder: " Margin="0 0 0 5"/>
-                        <TextBox Text="{Binding ViewModel.Setting.DownloadFolder}" Width="120" />
-                        <cc:ImageButton Margin="10 0 0 0" Command="{Binding ViewModel.Setting.ChangedDownloadFolderCmd}">
-                            <cc:ImageButton.Image>
-                                <cc:ColorlizeImage Image="{StaticResource Folder32}" />
-                            </cc:ImageButton.Image>
-                        </cc:ImageButton>
-                    </StackPanel>
-                    <!--<StackPanel>
-                        <TextBlock Text="Set channel offline size"/>
-                        <metro:NumericUpDown Minimum="20" Maximum="200" Interval="5" Width="220"
-                                                     Value="{Binding ViewModel.Setting.ChannelOfflineSize}"/>
-                    </StackPanel>-->
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Header="UI Setting" Margin="0 5">
-                <StackPanel Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel.Resources>
-                            <ObjectDataProvider x:Key="BgTypeSource" MethodName="GetValues"  ObjectType="{x:Type sys:Enum}">
-                                <ObjectDataProvider.MethodParameters>
-                                    <x:Type TypeName="md:BackgroundType"/>
-                                </ObjectDataProvider.MethodParameters>
-                            </ObjectDataProvider>
-                        </StackPanel.Resources>
-                        <TextBlock Text="Background Style" Margin="0 0 5 0"/>
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BgTypeSource}}" Width="200"/>
-                    </StackPanel>
-                    <Rectangle Fill="Teal" Width="270" Height="20" Margin="0 10 0 0"/>
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Header="Hotkey Setting" Margin="0 5">
-                <Grid>
-                    <Grid.Resources>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-                            <Setter Property="HorizontalAlignment" Value="Right"/>
-                            <Setter Property="Margin" Value="0 0 5 0"/>
-                        </Style>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-                            <Setter Property="IsReadOnly" Value="True"/>
-                            <Setter Property="Width" Value="140"/>
-                        </Style>
-                    </Grid.Resources>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <!--<RowDefinition Height="30"/>
-                                        <RowDefinition Height="30"/>
-                                        <RowDefinition Height="30"/>-->
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Enable globle hotkey" Grid.Column="0" Grid.Row="0" />
-                    <metro:ToggleSwitch Grid.Column="1" Grid.Row="0"
-                                        IsChecked="{Binding ViewModel.Setting.EnableGlobleHotkey}"/>
-                    
-                    <TextBlock Text="Hide/Show main window" Grid.Column="0" Grid.Row="1"/>
-                    <TextBox Grid.Column="1" Grid.Row="1"
-                             metro:TextboxHelper.ClearTextButton="True"/>
-
-                    <TextBlock Text="Pause Player" Grid.Column="0" Grid.Row="2"/>
-                    <TextBox Grid.Column="1" Grid.Row="2"
-                             metro:TextboxHelper.ClearTextButton="True"/>
-                    
-                    <TextBlock Text="Next Song" Grid.Column="0" Grid.Row="3"/>
-                    <TextBox Grid.Column="1" Grid.Row="3"
-                             metro:TextboxHelper.ClearTextButton="True"/>
-                    
-                    <TextBlock Text="Like Song" Grid.Column="0" Grid.Row="4" />
-                    <TextBox Grid.Column="1" Grid.Row="4"
-                             metro:TextboxHelper.ClearTextButton="True"/>
-                    <!--metro:TextboxHelper.ButtonCommand=""-->
-                    <TextBox Grid.Column="1" Grid.Row="5"
-                             metro:TextboxHelper.ClearTextButton="True"/>
-                    <TextBlock Text="Never Play" Grid.Column="0" Grid.Row="5"/>
-                </Grid>
-            </GroupBox>
-        </StackPanel>
         <cc:CarouselPage x:Name="CarouselPage">
             <cc:CarouselPage.Resources>
                 <ResourceDictionary>
@@ -182,20 +70,24 @@
                         <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
                         <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                         <ResourceDictionary>
-                            <cc:BindingProxy x:Key="Proxy" Data="{Binding ElementName=CarouselPage}"/>
+                            <cc:BindingProxy x:Key="PageProxy" Data="{Binding ElementName=CarouselPage}"/>
+                            <cc:BindingProxy x:Key="RootProxy" Data="{Binding ElementName=Root}"/>
                             <Style x:Key="BackBtn" TargetType="Button" BasedOn="{StaticResource MetroCircleButtonStyle}">
                                 <Style.Resources>
                                     <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
                                 </Style.Resources>
-                                <Setter Property="Width" Value="40"/>
-                                <Setter Property="Height" Value="40"/>
-                                <Setter Property="Command" Value="{Binding Source={StaticResource Proxy}, Path=Data.NavegateCmd}"/>
+                                <Setter Property="Width" Value="30"/>
+                                <Setter Property="Height" Value="30"/>
+                                <Setter Property="Command" Value="{Binding Source={StaticResource PageProxy}, Path=Data.NavegateCmd}"/>
                                 <Setter Property="CommandParameter" Value="0"/>
                                 <Setter Property="Foreground" Value="WhiteSmoke"/>
                                 <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                <Setter Property="VerticalAlignment" Value="Top"/>
+                                <Setter Property="Margin" Value="0 5 5 0"/>
                                 <Setter Property="Content">
                                     <Setter.Value>
-                                        <Rectangle Width="16" Height="12">
+                                        <Rectangle Width="13" Height="9">
                                             <Rectangle.Fill>
                                                 <VisualBrush Stretch="Fill">
                                                     <VisualBrush.Visual>
@@ -215,23 +107,155 @@
                 </ResourceDictionary>
             </cc:CarouselPage.Resources>
             <cc:CarouselPage.Pages>
-                <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource Proxy}}">
-                    <Button Content="General Setting" Width="180" Margin="15"
-                            Command="{Binding Path=Data.NavegateCmd}" CommandParameter="1"/>
-                    <Button Content="UI Setting" Width="180" Margin="15"
-                            Command="{Binding Path=Data.NavegateCmd}" CommandParameter="2"/>
-                    <Button Content="Hotkey Setting" Width="180" Margin="15"
-                            Command="{Binding Path=Data.NavegateCmd}" CommandParameter="3"/>
-                </StackPanel>
-                <StackPanel DataContext="{Binding Source={StaticResource Proxy}}">
+                <!--0 General Setting-->
+                <Grid>
+                    <GroupBox Header="General Setting" Margin="5">
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel.Resources>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Orientation" Value="Horizontal"/>
+                                    <Setter Property="Margin" Value="2 5"/>
+                                </Style>
+                                <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
+                                    <Setter Property="Height" Value="20"/>
+                                    <Setter Property="Width" Value="20"/>
+                                </Style>
+                                <Style TargetType="cc:ColorlizeImage" BasedOn="{StaticResource {x:Type cc:ColorlizeImage}}">
+                                    <Setter Property="Height" Value="{Binding Path=Height, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                                    <Setter Property="Width" Value="{Binding Path=Width, RelativeSource={RelativeSource FindAncestor, AncestorType=cc:ImageButton}}"/>
+                                </Style>
+                            </StackPanel.Resources>
+                            <StackPanel>
+                                <TextBlock Text="Language" Margin="0 0 10 0"/>
+                                <ComboBox Width="200" SelectedIndex="1">
+                                    <ComboBoxItem Content="English"/>
+                                    <ComboBoxItem Content="Chinese"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Enable control system volumn" VerticalAlignment="Center"/>
+                                <metro:ToggleSwitch IsChecked="{Binding Source={StaticResource RootProxy}, Path=Data.ViewModel.Setting.CanAdjustSystemVolume}" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Song download folder: " Margin="0 0 0 5"/>
+                                <TextBox Text="{Binding Source={StaticResource RootProxy}, Path=Data.ViewModel.Setting.DownloadFolder}" Width="120" />
+                                <cc:ImageButton Margin="10 0 0 0" Command="{Binding Source={StaticResource RootProxy}, Path=Data.ViewModel.Setting.ChangedDownloadFolderCmd}">
+                                    <cc:ImageButton.Image>
+                                        <cc:ColorlizeImage Image="{StaticResource Folder32}" />
+                                    </cc:ImageButton.Image>
+                                </cc:ImageButton>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0 10" DataContext="{Binding Source={StaticResource PageProxy}}">
+                                <Button Content="UI Setting" Width="180" Margin="5"
+                                        Command="{Binding Path=Data.NavegateCmd}" CommandParameter="1"/>
+                                <Button Content="Hotkey Setting" Width="180" Margin="5"
+                                        Command="{Binding Path=Data.NavegateCmd}" CommandParameter="2"/>
+                                <Button Content="Screen lyric Setting" Width="180" Margin="5"
+                                        Command="{Binding Path=Data.NavegateCmd}" CommandParameter="3"/>
+                            </StackPanel>
+                            <!--<StackPanel>
+                        <TextBlock Text="Set channel offline size"/>
+                        <metro:NumericUpDown Minimum="20" Maximum="200" Interval="5" Width="220"
+                                                     Value="{Binding ViewModel.Setting.ChannelOfflineSize}"/>
+                    </StackPanel>-->
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+                <!--1 UI Setting-->
+                <Grid>
+                    <GroupBox Header="UI Setting" Margin="5">
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel.Resources>
+                                    <ObjectDataProvider x:Key="BgTypeSource" MethodName="GetValues"  ObjectType="{x:Type sys:Enum}">
+                                        <ObjectDataProvider.MethodParameters>
+                                            <x:Type TypeName="md:BackgroundType"/>
+                                        </ObjectDataProvider.MethodParameters>
+                                    </ObjectDataProvider>
+                                </StackPanel.Resources>
+                                <TextBlock Text="Background Style" Margin="0 0 5 0"/>
+                                <ComboBox ItemsSource="{Binding Source={StaticResource BgTypeSource}}" Width="200"/>
+                            </StackPanel>
+                            <Rectangle Fill="Teal" Width="270" Height="20" Margin="0 10 0 0"/>
+                        </StackPanel>
+                    </GroupBox>
                     <Button Style="{StaticResource BackBtn}"/>
-                </StackPanel>
-                <StackPanel>
-                    
-                </StackPanel>
-                <StackPanel>
-                    
-                </StackPanel>
+                </Grid>
+                <!--2 Hotkey Setting-->
+                <Grid>
+                    <GroupBox Header="Hotkey Setting" Margin="5">
+                        <Grid>
+                            <Grid.Resources>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="Margin" Value="0 0 5 0"/>
+                                </Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                    <Setter Property="IsReadOnly" Value="True"/>
+                                    <Setter Property="Width" Value="140"/>
+                                    <Setter Property="IsEnabled" Value="{Binding Source={StaticResource RootProxy}, Path=Data.ViewModel.Setting.EnableGlobleHotkey}"/>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Enable globle hotkey" Grid.Column="0" Grid.Row="0" />
+                            <metro:ToggleSwitch Grid.Column="1" Grid.Row="0"
+                                                IsChecked="{Binding Source={StaticResource RootProxy}, Path=Data.ViewModel.Setting.EnableGlobleHotkey}"/>
+
+                            <TextBlock Text="Hide/Show main window" Grid.Column="0" Grid.Row="1"/>
+                            <TextBox Grid.Column="1" Grid.Row="1"
+                                     metro:TextboxHelper.ClearTextButton="True"/>
+
+                            <TextBlock Text="Pause Player" Grid.Column="0" Grid.Row="2"/>
+                            <TextBox Grid.Column="1" Grid.Row="2"
+                                     metro:TextboxHelper.ClearTextButton="True"/>
+
+                            <TextBlock Text="Next Song" Grid.Column="0" Grid.Row="3"/>
+                            <TextBox Grid.Column="1" Grid.Row="3"
+                                     metro:TextboxHelper.ClearTextButton="True"/>
+
+                            <TextBlock Text="Like Song" Grid.Column="0" Grid.Row="4" />
+                            <TextBox Grid.Column="1" Grid.Row="4"
+                                     metro:TextboxHelper.ClearTextButton="True"/>
+                            <!--metro:TextboxHelper.ButtonCommand=""-->
+                            <TextBox Grid.Column="1" Grid.Row="5"
+                                     metro:TextboxHelper.ClearTextButton="True"/>
+                            <TextBlock Text="Never Play" Grid.Column="0" Grid.Row="5"/>
+                            <TextBox Grid.Column="1" Grid.Row="5"
+                                     metro:TextboxHelper.ClearTextButton="True"/>
+
+                            <TextBlock Text="Volume Up" Grid.Column="0" Grid.Row="6"/>
+                            <TextBox Grid.Column="1" Grid.Row="6"
+                                     metro:TextboxHelper.ClearTextButton="True"/>
+                            
+                            <TextBlock Text="Volume Down" Grid.Column="0" Grid.Row="7"/>
+                            <TextBox Grid.Column="1" Grid.Row="7"
+                                     metro:TextboxHelper.ClearTextButton="True"/>
+                        </Grid>
+                    </GroupBox>
+                    <Button Style="{StaticResource BackBtn}"/>
+                </Grid>
+                <!--3 Screen lyric Setting-->
+                <Grid>
+                    <GroupBox Header="Screen lyric Setting" Margin="5">
+                        <Grid>
+                            
+                        </Grid>
+                    </GroupBox>
+                    <Button Style="{StaticResource BackBtn}"/>
+                </Grid>
             </cc:CarouselPage.Pages>
         </cc:CarouselPage>
     </Grid>

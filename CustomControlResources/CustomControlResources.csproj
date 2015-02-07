@@ -93,6 +93,7 @@
       <DependentUpon>DayWeatherControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="GifImage.cs" />
+    <Compile Include="HotkeySettingBox.cs" />
     <Compile Include="ImageButton.cs" />
     <Compile Include="ImageToggleButton.cs" />
     <Compile Include="MouseWheelGesture.cs" />

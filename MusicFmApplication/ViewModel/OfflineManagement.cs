@@ -238,7 +238,7 @@ namespace MusicFm.ViewModel
             }).ContinueWith(t =>
             {
                 ViewModel.MediaManager.Lyric = t.Result;
-            }, new CancellationToken(), TaskContinuationOptions.None, ViewModel.ContextTaskScheduler);
+            },TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         public void OpenDownloadFolderExecute()

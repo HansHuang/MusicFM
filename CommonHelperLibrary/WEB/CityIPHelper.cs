@@ -69,7 +69,7 @@ namespace CommonHelperLibrary.WEB
              * http://iframe.ip138.com/ic.asp
              * 
              */
-            return HttpWebDealer.GetHtml("http://20140507.ip138.com/ic.asp", null, Encoding.Default);
+            return HttpWebDealer.GetHtml("http://1111.ip138.com/ic.asp", null, Encoding.Default);
         }
 
         #endregion

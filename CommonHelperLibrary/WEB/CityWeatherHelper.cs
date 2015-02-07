@@ -226,6 +226,7 @@ namespace CommonHelperLibrary.WEB
         private static string GetCityCode(string cityName = "")
         {
             if (string.IsNullOrEmpty(cityName.Trim())) cityName = CityIPHelper.GetCurrentCity();
+            return cityName;
             return ChinaWeatherCityCode.GetCode(cityName);
         }
 

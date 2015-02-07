@@ -132,7 +132,7 @@ namespace MusicFm
         #endregion
 
         private string GetAboutTxt() {
-            return "    Hello";
+            return "    Hans Huang @ Jungo Studio";
         }
     }
 }

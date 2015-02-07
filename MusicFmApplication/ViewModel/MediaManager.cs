@@ -460,7 +460,7 @@ namespace MusicFm.ViewModel
 
         protected DispatcherOperation DispatcherInvokeAsync(Action callback)
         {
-            return ViewModel.MainWindow.Dispatcher.InvokeAsync(callback);
+            return Application.Current.Dispatcher.InvokeAsync(callback);
         }
 
         #endregion
