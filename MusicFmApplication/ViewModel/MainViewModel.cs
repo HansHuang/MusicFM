@@ -27,7 +27,7 @@ namespace MusicFm.ViewModel
     /// Class : MainViewModel
     /// Discription : ViewModel of MainWindow
     /// </summary>
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ViewModelBase, IPartImportsSatisfiedNotification 
     {
         #region Fields
 
@@ -362,8 +362,6 @@ namespace MusicFm.ViewModel
 
         private async Task StartPlayerExecute()
         {
-            if (SongService == null) InitialSongService();
-
             if (OfflineMgt.IsInternetConnected)
                 await StartOnlinePlayer();
             else OfflineMgt.StartOfflinePlayer();
@@ -898,5 +896,10 @@ namespace MusicFm.ViewModel
         }
 
         #endregion
+
+        public void OnImportsSatisfied()
+        {
+            InitialSongService();
+        }
     }
 }
