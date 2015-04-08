@@ -176,7 +176,7 @@ namespace CommonHelperLibrary.WEB
         public static string GetWeatherJson(string cityCode = "")
         {
             //1. Get city code and its validation
-            if (string.IsNullOrEmpty(cityCode.Trim())) cityCode = GetCityCode().Trim();
+            if (string.IsNullOrWhiteSpace(cityCode)) cityCode = GetCityCode();
             if (!(new Regex(@"^\d{9}$").IsMatch(cityCode))) return null;
 
             //2. Get json data from web
@@ -185,24 +185,21 @@ namespace CommonHelperLibrary.WEB
             var urlAir = "http://mobile.weather.com.cn/data/air/" + cityCode + ".html";
             var urlAirRefer = "http://mobile.weather.com.cn/air/" + cityCode + ".html";
             string weatherInfo = "", weatherIndex = "", airIndex = "";
-            Task.Run(() =>
+            var t1 = Task.Run(() =>
             {
                 weatherInfo = HttpWebDealer.GetHtml(urlInfo, null, Encoding.UTF8).Trim();
             });
-            Task.Run(() =>
+            var t2 = Task.Run(() =>
             {
                 weatherIndex = HttpWebDealer.GetHtml(urlIndex, null, Encoding.UTF8).Trim();
             });
-            Task.Run(() => 
+            var t3 = Task.Run(() =>
             {
                 var header = new WebHeaderCollection {{"Referer", urlAirRefer}};
                 airIndex = HttpWebDealer.GetHtml(urlAir, header, Encoding.UTF8).Trim();
             });
-            while (string.IsNullOrEmpty(weatherInfo) || string.IsNullOrEmpty(weatherIndex) || string.IsNullOrEmpty(airIndex))
-            {
-                Thread.Sleep(100);
-            }
-            //3. Group the two jsons
+            Task.WaitAll(t1, t2, t3);
+            //3. Group the three json string
             var weatherJson = weatherInfo;
             if (!weatherJson.StartsWith("{") || !weatherJson.EndsWith("}")) return null;
             if (weatherIndex.StartsWith("{") && weatherIndex.EndsWith("}")) {
@@ -219,14 +216,16 @@ namespace CommonHelperLibrary.WEB
 
         #region GetCityCode(Private)
         /// <summary>
-        /// Get City weather code from city name
+        /// Get City weather code from by IP automaticly
         /// </summary>
-        /// <param name="cityName">manually set value or get info from public IP automaticly</param>
         /// <returns></returns>
-        private static string GetCityCode(string cityName = "")
+        private static string GetCityCode()
         {
-            if (string.IsNullOrEmpty(cityName.Trim())) cityName = CityIPHelper.GetCurrentCity();
-            return ChinaWeatherCityCode.GetCode(cityName);
+            const string url = "http://61.4.185.48:81/g/";
+            var input = HttpWebDealer.GetHtml(url);
+            //The input should be like: var ip="116.207.25.21";var id=101020100;
+            //var ip = new Regex("ip=\"([^\"]+)\"").Groups[1].Value;
+            return new Regex("id=(\\d{9})").Match(input).Groups[1].Value;
         }
 
         #endregion

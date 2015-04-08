@@ -86,7 +86,6 @@
     <Compile Include="ShutDownHelper.cs" />
     <Compile Include="VolumeHelper.cs" />
     <Compile Include="WEB\AnalysisFlvAddress.cs" />
-    <Compile Include="WEB\ChinaWeatherCityCode.cs" />
     <Compile Include="WEB\CityIPHelper.cs" />
     <Compile Include="WEB\CityWeatherHelper.cs" />
     <Compile Include="WEB\GZip.cs" />
