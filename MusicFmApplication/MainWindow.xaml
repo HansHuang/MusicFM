@@ -450,6 +450,39 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
+            <Grid Grid.RowSpan="6">
+                <Canvas>
+                    <Image Source="{Binding MediaManager.SongPicture}" Opacity=".25">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <BlurEffect Radius="50"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDisylayLyric}"  Value="true">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="5" Duration="0:0:0.4"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="50" Duration="0:0:0.4"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </Canvas>
+            </Grid>
             <!--1 Progress Indicator-->
             <DockPanel Grid.Row="0" Height="14">
                 <metro:ProgressIndicator Height="2" DockPanel.Dock="Top" VerticalAlignment="Top"
@@ -493,24 +526,27 @@
                     <cc:ImageButton Command="{Binding ToggleLyricDisplayCmd}" HorizontalAlignment="Center">
                         <cc:ImageButton.Style>
                             <Style TargetType="cc:ImageButton" BasedOn="{StaticResource {x:Type cc:ImageButton}}">
-                                <Setter Property="Effect">
+                                <!--<Setter Property="Effect">
                                     <Setter.Value>
                                         <BlurEffect Radius="0"/>
                                     </Setter.Value>
-                                </Setter>
+                                </Setter>-->
+                                <Setter Property="Opacity" Value=".9"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsDisylayLyric}"  Value="true">
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="15" Duration="0:0:0.04"/>
+                                                    <!--<DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="15" Duration="0:0:0.4"/>-->
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To ="0" Duration="0:0:0.4"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.EnterActions>
                                         <DataTrigger.ExitActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="0" Duration="0:0:0.04"/>
+                                                    <!--<DoubleAnimation Storyboard.TargetProperty="Effect.Radius" To ="0" Duration="0:0:0.4"/>-->
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To =".9" Duration="0:0:0.4"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.ExitActions>
@@ -566,7 +602,7 @@
                                         </Style>
                                     </Image.Style>
                                 </Image>
-                                <cc:ControlReflection Host="{Binding ElementName=AlbumPicture}" ReflectionPercent=".3" Opacity=".7"/>
+                                <!--<cc:ControlReflection Host="{Binding ElementName=AlbumPicture}" ReflectionPercent=".3" Opacity=".7"/>-->
                             </StackPanel>
                         </cc:ImageButton.Image>
                     </cc:ImageButton>
@@ -600,7 +636,7 @@
                                 </Style.Triggers>
                             </Style>
                         </cc:ImageButton.Style>
-                        <Grid Background="#90000000" 
+                        <Grid Background="#30222222" 
                               Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                               Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}, Path=ActualHeight}">
                             <ScrollViewer x:Name="LrcContaner" IsHitTestVisible="False" Margin="0,8"
@@ -617,7 +653,7 @@
                                             <TextBlock TextAlignment="Center"  TextWrapping="Wrap" Margin="10,3" Text="{Binding Value}" >
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="Silver"/>
+                                                        <Setter Property="Foreground" Value="#FFE0E0E0"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Value="True">
                                                                 <DataTrigger.Binding>
@@ -626,7 +662,7 @@
                                                                         <Binding ElementName="Root" Path="ViewModel.MediaManager.CurrnetLrcLine.Value"/>
                                                                     </MultiBinding>
                                                                 </DataTrigger.Binding>
-                                                                <Setter Property="Foreground" Value="YellowGreen"/>
+                                                                <Setter Property="Foreground" Value="GreenYellow"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
