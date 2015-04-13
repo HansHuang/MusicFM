@@ -177,11 +177,10 @@ namespace MusicFm
             };
             Action quitApp = () =>
             {
-                _isQuitApp = true;
+                //_isQuitApp = true;
                 NotifyIcon.Visible = false;
                 NotifyIcon.Dispose();
-                if (_miniWindow != null) _miniWindow.Close();
-                Close();
+                Application.Current.Shutdown(0);
             };
 
             if (NotifyIcon == null)
@@ -213,7 +212,7 @@ namespace MusicFm
 
             Closing += (s, e) =>
             {
-                if (_isQuitApp) return;
+                //if (_isQuitApp) return;
                 e.Cancel = true;
                 hideWindow();
             };
@@ -351,7 +350,7 @@ namespace MusicFm
                 _miniWindow = new MiniWindow(ViewModel) {Owner = this};
                 _miniWindow.Closing += (s, a) => 
                 {
-                    if (_isQuitApp) return;
+                    //if (_isQuitApp) return;
                     if (_miniWindow.IsMinimizeToIcon)
                     {
                         Close();
